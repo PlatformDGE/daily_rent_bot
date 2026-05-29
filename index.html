@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
-<title>Daily Rent Tbilisi</title>
+<title>ApartFlow</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -11,30 +11,30 @@ html,body{width:100%;overflow-x:hidden;background:#0b1829;color:#fff;font-family
 input,select,textarea,button{font-family:inherit;font-size:16px}
 input[type=number]{-moz-appearance:textfield}
 input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
-::-webkit-scrollbar{width:2px}
-::-webkit-scrollbar-thumb{background:#1e3a6e;border-radius:2px}
+::-webkit-scrollbar{width:2px}::-webkit-scrollbar-thumb{background:#1e3a6e;border-radius:2px}
 select option{background:#0e1f3a;color:#fff}
 input[type=date]::-webkit-calendar-picker-indicator,
+input[type=time]::-webkit-calendar-picker-indicator,
 input[type=month]::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.5}
 #root{display:flex;flex-direction:column;height:100dvh;overflow:hidden}
 .page{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:14px 16px 90px}
 .modal{position:fixed;inset:0;background:#0b1829;display:flex;flex-direction:column;z-index:50;overflow:hidden}
-.modal .page{padding-bottom:20px}
+.modal>.page{padding-bottom:20px}
 .hdr{background:#0e1f3a;border-bottom:1px solid rgba(30,58,110,.5);padding:12px 16px;flex-shrink:0}
 .hdr-row{display:flex;align-items:center;gap:10px}
 .tabs{display:flex;background:#0b1829;border-bottom:1px solid rgba(30,58,110,.5);flex-shrink:0}
-.tab{flex:1;padding:12px 6px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:rgba(147,197,253,.3);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer}
+.tab{flex:1;padding:12px 4px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:rgba(147,197,253,.3);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer}
 .tab.on{color:#60a5fa;border-bottom-color:#60a5fa}
 .nav{position:fixed;bottom:0;left:0;right:0;background:rgba(11,24,41,.97);backdrop-filter:blur(10px);border-top:1px solid rgba(30,58,110,.5);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:40}
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 6px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:rgba(74,111,160,.6);background:none;border:none;cursor:pointer}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px;font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:rgba(74,111,160,.6);background:none;border:none;cursor:pointer}
 .nav-btn.on{color:#60a5fa}
 .card{background:#0e1f3a;border:1px solid rgba(30,58,110,.5);border-radius:14px}
 .pad{padding:14px}
-.apt-card{background:#0e1f3a;border:1px solid rgba(30,58,110,.5);border-radius:14px;padding:13px 14px;margin-bottom:10px;cursor:pointer}
-.apt-card:active{opacity:.8}
 .bk-card{background:#0e1f3a;border:1px solid rgba(30,58,110,.5);border-radius:14px;overflow:hidden;margin-bottom:10px}
 .bk-main{padding:13px 14px;cursor:pointer}
 .bk-body{border-top:1px solid rgba(30,58,110,.3);padding:13px 14px;background:#071020}
+.apt-item{background:#0e1f3a;border:1px solid rgba(30,58,110,.5);border-radius:14px;padding:13px 14px;margin-bottom:10px;cursor:pointer}
+.apt-item:active{opacity:.8}
 .field{margin-bottom:12px}
 .lbl{display:block;font-size:11px;font-weight:700;color:rgba(147,197,253,.5);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
 .inp{width:100%;background:#071020;border:1px solid rgba(30,58,110,.6);border-radius:11px;padding:12px 13px;font-size:16px;color:#fff;outline:none;-webkit-appearance:none;transition:border-color .15s}
@@ -52,6 +52,7 @@ input[type=month]::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.5
 .btn-s{background:#0e1f3a;border:1px solid rgba(30,58,110,.6);color:#fff;padding:11px 15px;font-size:14px}
 .btn-d{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5;padding:7px 12px;font-size:13px;border-radius:9px}
 .btn-sm{padding:8px 12px;font-size:13px;border-radius:9px}
+.btn-g{background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.3);color:#6ee7b7;padding:8px 14px;font-size:13px;border-radius:10px}
 .fab-bar{background:#0e1f3a;border-top:1px solid rgba(30,58,110,.5);padding:13px 16px;padding-bottom:max(13px,env(safe-area-inset-bottom));flex-shrink:0}
 .fab{width:100%;background:#1e3a6e;border:1px solid rgba(79,142,247,.2);color:#fff;border-radius:14px;padding:14px;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;-webkit-appearance:none}
 .fab:active{opacity:.8}
@@ -63,6 +64,7 @@ input[type=month]::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.5
 .ok{background:rgba(52,211,153,.15);color:#6ee7b7;border-color:rgba(52,211,153,.3)}
 .wt{background:rgba(239,68,68,.15);color:#fca5a5;border-color:rgba(239,68,68,.3)}
 .pt{background:rgba(245,158,11,.15);color:#fcd34d;border-color:rgba(245,158,11,.3)}
+.yw{background:rgba(253,224,71,.12);color:#fde047;border-color:rgba(253,224,71,.3)}
 .plat-row{display:flex;gap:8px;flex-wrap:wrap}
 .plat-btn{flex:1;min-width:80px;padding:11px 8px;border-radius:11px;font-size:14px;font-weight:600;border:2px solid rgba(30,58,110,.6);background:#071020;color:rgba(147,197,253,.35);cursor:pointer;text-align:center;-webkit-appearance:none}
 .plat-btn:active{opacity:.7}
@@ -70,41 +72,44 @@ input[type=month]::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.5
 .pb{background:rgba(59,130,246,.12);border-color:#3b82f6;color:#93c5fd}
 .po{background:rgba(100,116,139,.18);border-color:#64748b;color:#cbd5e1}
 .cur-row{display:flex;gap:6px}
-.cur-btn{padding:9px 14px;border-radius:9px;font-size:14px;font-weight:700;border:2px solid rgba(30,58,110,.6);background:#071020;color:rgba(147,197,253,.35);cursor:pointer;-webkit-appearance:none;transition:all .12s}
+.cur-btn{padding:9px 14px;border-radius:9px;font-size:14px;font-weight:700;border:2px solid rgba(30,58,110,.6);background:#071020;color:rgba(147,197,253,.35);cursor:pointer;-webkit-appearance:none}
 .cur-btn:active{opacity:.7}
 .cusd{background:rgba(253,224,71,.1);border-color:rgba(253,224,71,.7);color:#fde047}
 .cgel{background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.7);color:#6ee7b7}
 .payer-row{display:flex;gap:8px}
-.payer-btn{flex:1;padding:10px 6px;border-radius:10px;font-size:13px;font-weight:600;border:2px solid rgba(30,58,110,.6);background:#071020;color:rgba(147,197,253,.35);cursor:pointer;text-align:center;-webkit-appearance:none;transition:all .12s}
+.payer-btn{flex:1;padding:10px 6px;border-radius:10px;font-size:13px;font-weight:600;border:2px solid rgba(30,58,110,.6);background:#071020;color:rgba(147,197,253,.35);cursor:pointer;text-align:center;-webkit-appearance:none}
 .payer-btn:active{opacity:.7}
 .pon{background:rgba(59,130,246,.15);border-color:#3b82f6;color:#93c5fd}
+.lang-btn{padding:8px 14px;border-radius:10px;font-size:13px;font-weight:700;border:2px solid rgba(30,58,110,.6);background:#071020;color:rgba(147,197,253,.4);cursor:pointer;-webkit-appearance:none}
+.lang-btn.on{background:rgba(59,130,246,.15);border-color:#3b82f6;color:#93c5fd}
 .cbox{background:#071020;border:1px solid rgba(30,58,110,.6);border-radius:13px;overflow:hidden}
 .crow{display:flex;justify-content:space-between;align-items:center;padding:8px 13px}
 .crow.sub{padding-left:24px}
 .crow.net-row{background:#0e1f3a}
 .cl{font-size:13px;color:rgba(147,197,253,.45)}
 .cv{font-size:13px;font-family:monospace;font-weight:700;color:#fff}
-.cv.neg{color:#f87171}
-.cv.em{color:#34d399}
-.cv.tbl{color:#60a5fa}
-.cv.big{font-size:15px}
+.cv.neg{color:#f87171}.cv.em{color:#34d399}.cv.tbl{color:#60a5fa}.cv.big{font-size:15px}
 .cdiv{height:1px;background:rgba(30,58,110,.5)}
 .exp-block{background:#0e1f3a;border:1px solid rgba(30,58,110,.5);border-radius:12px;padding:12px 13px;margin-bottom:8px}
 .rpt{font-family:monospace;font-size:12px;line-height:1.8;color:#93c5fd;background:#071020;border:1px solid rgba(30,58,110,.5);border-radius:11px;padding:13px;white-space:pre-wrap;word-break:break-word}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .row{display:flex;align-items:center;gap:8px}
-.f1{flex:1;min-width:0}
-.fs0{flex-shrink:0}
+.f1{flex:1;min-width:0}.fs0{flex-shrink:0}
 .tr{text-align:right}
 .trunc{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .muted{color:rgba(147,197,253,.45);font-size:12px}
 .wrap{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
 .empty{text-align:center;padding:40px 16px;color:rgba(147,197,253,.3);font-size:14px}
-.sync-ok{background:rgba(52,211,153,.07);border-bottom:1px solid rgba(52,211,153,.15);color:#6ee7b7;padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:6px;flex-shrink:0}
-.sync-err{background:rgba(239,68,68,.07);border-bottom:1px solid rgba(239,68,68,.15);color:#fca5a5;padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.loading{text-align:center;padding:60px 16px;color:rgba(147,197,253,.4)}
+.spin-icon{display:inline-block;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sync-bar{display:flex;align-items:center;gap:8px;padding:7px 16px;font-size:12px;flex-shrink:0}
+.sync-ok{background:rgba(52,211,153,.07);border-bottom:1px solid rgba(52,211,153,.15);color:#6ee7b7}
+.sync-err{background:rgba(239,68,68,.07);border-bottom:1px solid rgba(239,68,68,.15);color:#fca5a5}
+.sync-ing{background:rgba(59,130,246,.07);border-bottom:1px solid rgba(59,130,246,.15);color:#93c5fd}
 .owner-strip{display:flex;align-items:center;gap:10px;background:rgba(30,58,110,.2);border:1px solid rgba(30,58,110,.4);border-radius:11px;padding:10px 12px;margin-top:10px}
 .ow-av{width:28px;height:28px;border-radius:50%;background:#1e3a6e;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#93c5fd;flex-shrink:0}
-.rate-box{display:flex;align-items:center;gap:5px;background:rgba(30,58,110,.25);border:1px solid rgba(30,58,110,.6);border-radius:9px;padding:7px 10px}
+.rate-pill{display:flex;align-items:center;gap:5px;background:rgba(30,58,110,.25);border:1px solid rgba(30,58,110,.6);border-radius:9px;padding:6px 10px}
 .sec{font-size:11px;font-weight:700;color:rgba(147,197,253,.45);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
 .divider{height:1px;background:rgba(30,58,110,.45);margin:12px 0}
 .receipt-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
@@ -116,10 +121,12 @@ input[type=month]::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.5
 .cur-hdr{padding:9px 13px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
 .cur-row-s{display:flex;justify-content:space-between;padding:7px 13px;font-size:13px;border-top:1px solid rgba(30,58,110,.3)}
 .total-bar{background:rgba(30,58,110,.35);border:1px solid rgba(30,58,110,.7);border-radius:12px;padding:12px 14px;margin-bottom:12px}
-.util-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(30,58,110,.3)}
-.util-row:last-child{border-bottom:none}
-.lang-btn{padding:8px 14px;border-radius:10px;font-size:13px;font-weight:700;border:2px solid rgba(30,58,110,.6);background:#071020;color:rgba(147,197,253,.35);cursor:pointer;-webkit-appearance:none;transition:all .12s}
-.lang-btn.on{background:rgba(59,130,246,.15);border-color:#3b82f6;color:#93c5fd}
+.status-btn{flex:1;padding:10px 6px;border-radius:10px;font-size:12px;font-weight:600;border:2px solid rgba(30,58,110,.5);background:#071020;color:rgba(147,197,253,.35);cursor:pointer;text-align:center;-webkit-appearance:none}
+.status-btn.s-free{background:rgba(52,211,153,.12);border-color:#34d399;color:#6ee7b7}
+.status-btn.s-busy{background:rgba(239,68,68,.12);border-color:#ef4444;color:#fca5a5}
+.status-btn.s-clean{background:rgba(253,224,71,.12);border-color:#fde047;color:#fde047}
+.status-btn.s-tech{background:rgba(156,163,175,.12);border-color:#9ca3af;color:#d1d5db}
+.clean-card{background:#0e1f3a;border:1px solid rgba(30,58,110,.5);border-radius:12px;padding:12px 13px;margin-bottom:8px}
 </style>
 </head>
 <body>
@@ -127,399 +134,359 @@ input[type=month]::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.5
 <script>
 "use strict";
 
-/* ══ CONFIG ══════════════════════════════════════════ */
-var SHEET_ID="1FyCJedWb0sRAXprDGqRYtkX7s2FYOh4dXkbQAG5BxV0";
-var GAS_URL="https://script.google.com/macros/s/AKfycbzr5oRTYvKVGCU5Ata2vJKS71Cd8cPYFWsdKICerlinp7k2OpNG_GD9TX02W4rBsg4/exec";
-var DEF_RATE=2.7;
-var HOUR_RATE=16.70;
-var EXP_CAT=["cleaning","utilities","supplies","repair","other"];
-var EXP_LBL={cleaning:"Уборка",utilities:"Коммуналка",supplies:"Расходники",repair:"Ремонт",other:"Прочее",booking_fee:"Комиссия Booking"};
-var WITH_HOURS=["cleaning","repair"];
-
-// Utility providers
-var UTIL_PROVIDERS=[
-  {id:"telmico",name:"Telmico",icon:"💧"},
-  {id:"gwp",name:"GWP",icon:"🔥"},
-  {id:"energy",name:"Tbilisi Energy",icon:"⚡"},
-  {id:"internet",name:"Internet",icon:"🌐",options:["Magti","Silknet"]},
-  {id:"clean",name:"Tbilisi Clean",icon:"🗑"},
+/* ══ CONFIG ════════════════════════════════════════════════ */
+var GAS_URL = "https://script.google.com/macros/s/AKfycbxaO1H3R1aHbCcQ4oj1saLOM72JUNwPEvCCgcSNhk4FM2_wLiezqiDbKht-pO6ouZX2/exec";
+var SYNC_INTERVAL = 45000; // 45 sec auto-refresh
+var HOUR_RATE = 16.70;
+var EXP_CATS = ["cleaning","utilities","supplies","repair","other"];
+var EXP_LBL = {cleaning:"Уборка",utilities:"Коммуналка",supplies:"Расходники",repair:"Ремонт",other:"Прочее",booking_fee:"Комиссия Booking"};
+var APT_STATUSES = [
+  {key:"free",  label:"Свободно", cls:"s-free"},
+  {key:"busy",  label:"Занято",   cls:"s-busy"},
+  {key:"clean", label:"Уборка",   cls:"s-clean"},
+  {key:"tech",  label:"Техническое", cls:"s-tech"},
 ];
 
-/* ══ I18N ════════════════════════════════════════════ */
-var LANG={
-  ru:{
+/* ══ I18N ═══════════════════════════════════════════════════ */
+var L = {
+  ru:{apts:"Квартиры",analytics:"Аналитика",cleaning:"Уборки",
     arrived:"Пришло",platform:"Платформа",owner:"Владелец",net:"Чистая прибыль",
-    expenses:"Расходы",total:"Итого в USD",byRate:"по курсу",
-    stays:"прожив.",noStays:"Нет проживаний",addStay:"Добавить проживание",
-    newStay:"Новое проживание",edit:"Редактировать",save:"Сохранить",
-    checkin:"Заезд",checkout:"Выезд",guest:"Имя гостя",
+    expenses:"Расходы",total:"Итого USD",byRate:"курс",
+    noApts:"Нет объектов. Добавьте квартиры в Google Sheets.",
+    noBookings:"Нет проживаний",addBooking:"Добавить проживание",
+    newBooking:"Новое проживание",edit:"Редактировать",save:"Сохранить",
+    checkin:"Заезд",checkout:"Выезд",guest:"Гость",
     received:"✓ Получено",pending:"⏳ Ожидается",partial:"◑ Частично",
-    comment:"Комментарий",main:"Основное",exp:"Расходы",rpt:"Отчёт",
-    copyRpt:"Копировать отчёт",copied:"Скопировано!",
-    addCat:"Добавить категорию",whoПaid:"Кто оплатил",
-    hours:"По часам",applyH:"Применить сумму",
-    utilities:"Коммуналка",utilSection:"Коммунальные услуги",
-    internet:"Интернет",provider:"Провайдер",
-    platShare:"Доля платформы (%)",status:"Статус",
+    comment:"Комментарий",rpt:"Отчёт",copyRpt:"Копировать",copied:"Скопировано!",
+    platShare:"Доля платформы %",status:"Статус",
+    whoOaid:"Кто оплатил",nbyPlat:"Платформа",nbySelf:"Собственник",
+    addCat:"Добавить расход",hours:"По часам",applyH:"Применить",
+    newCleaning:"Новая уборка",cleaner:"Уборщик",startTime:"Начало",endTime:"Конец",
+    totalH:"Итого часов",rate:"Ставка ₾/ч",total_amount:"Сумма",
+    clean:"Чист.",stays:"прожив.",loading:"Загрузка...",syncing:"Синхронизация...",
+    syncOk:"Синхронизировано",syncErr:"Ошибка",retry:"Повторить",
+    rptPeriod:"Период",rptGuest:"Гость",rptPlat:"Платформа",
+    rptArrived:"Пришло",rptTax:"Налог",rptFee:"Комиссия Booking",
+    rptExp:"Расходы",rptNet:"Чистая прибыль",rptAcc:"Счёт",
     reportLang:"Язык отчёта",
-    rptPeriod:"Период",rptGuest:"Гость",rptPlatformLbl:"Платформа",
-    rptArrived:"Пришло",rptTax:"Налог",rptBookFee:"Комиссия Booking",
-    rptExpenses:"Расходы",rptNet:"Чистая прибыль",
-    rptPlatShare:"Платформа",rptOwner:"Владелец",rptAccount:"Счёт",
-    nbySelf:"Собственник",nbyPlat:"Платформа",
-    noData:"Нет данных",allApts:"Все квартиры",analytics:"Аналитика",
-    apts:"Квартиры",objects:"объектов · Тбилиси",
-    noApts:"Нет квартир",newApt:"Новая квартира",editApt:"Редактировать квартиру",
-    aptName:"Название",address:"Адрес",mapLink:"Ссылка на карту",
-    platforms:"Платформы",active:"Активна",inactive:"Неактивна",
-    ownerName:"Имя",ownerContact:"Контакт",ownerAccount:"Счёт / реквизиты",
-    notes:"Заметки",notesph:"Особенности, правила...",
-    syncOk:"Google Sheets · ",syncErr:"Ошибка синхронизации",retry:"Повторить",
-    clean:"Чистый"
   },
-  ka:{
+  ka:{apts:"ბინები",analytics:"ანალიტიკა",cleaning:"დასუფთავება",
     arrived:"მიღებული",platform:"პლატფორმა",owner:"მფლობელი",net:"სუფთა მოგება",
-    expenses:"ხარჯები",total:"სულ USD-ში",byRate:"კურსით",
-    stays:"ცხოვრება",noStays:"ჩასახლება არ არის",addStay:"ჩასახლების დამატება",
-    newStay:"ახალი ჩასახლება",edit:"რედაქტირება",save:"შენახვა",
-    checkin:"შემოსვლა",checkout:"გასვლა",guest:"სტუმრის სახელი",
+    expenses:"ხარჯები",total:"სულ USD",byRate:"კურსი",
+    noApts:"ობიექტები არ არის. დაამატეთ Google Sheets-ში.",
+    noBookings:"ჩასახლება არ არის",addBooking:"ჩასახლების დამატება",
+    newBooking:"ახალი ჩასახლება",edit:"რედაქტირება",save:"შენახვა",
+    checkin:"შემოსვლა",checkout:"გასვლა",guest:"სტუმარი",
     received:"✓ მიღებულია",pending:"⏳ მოლოდინში",partial:"◑ ნაწილობრივ",
-    comment:"კომენტარი",main:"მთავარი",exp:"ხარჯები",rpt:"ანგარიში",
-    copyRpt:"ანგარიშის კოპირება",copied:"დაკოპირდა!",
-    addCat:"კატეგორიის დამატება",whoПaid:"ვინ გადაიხადა",
-    hours:"საათებით",applyH:"თანხის გამოყენება",
-    utilities:"კომუნალური",utilSection:"კომუნალური მომსახურება",
-    internet:"ინტერნეტი",provider:"პროვაიდერი",
-    platShare:"პლატფორმის წილი (%)",status:"სტატუსი",
+    comment:"კომენტარი",rpt:"ანგარიში",copyRpt:"კოპირება",copied:"დაკოპირდა!",
+    platShare:"პლატფორმის წილი %",status:"სტატუსი",
+    whoOaid:"ვინ გადაიხადა",nbyPlat:"პლატფორმა",nbySelf:"მფლობელი",
+    addCat:"ხარჯის დამატება",hours:"საათებით",applyH:"გამოყენება",
+    newCleaning:"ახალი დასუფთავება",cleaner:"დამლაგებელი",startTime:"დასაწყისი",endTime:"დასასრული",
+    totalH:"სულ საათი",rate:"ტარიფი ₾/სთ",total_amount:"თანხა",
+    clean:"სუფ.",stays:"ცხოვ.",loading:"ჩატვირთვა...",syncing:"სინქრონიზაცია...",
+    syncOk:"სინქრონიზებულია",syncErr:"შეცდომა",retry:"გამეორება",
+    rptPeriod:"პერიოდი",rptGuest:"სტუმარი",rptPlat:"პლატფორმა",
+    rptArrived:"მიღებული",rptTax:"გადასახადი",rptFee:"Booking-ის საკომისიო",
+    rptExp:"ხარჯები",rptNet:"სუფთა მოგება",rptAcc:"ანგარიში",
     reportLang:"ანგარიშის ენა",
-    rptPeriod:"პერიოდი",rptGuest:"სტუმარი",rptPlatformLbl:"პლატფორმა",
-    rptArrived:"მიღებული",rptTax:"გადასახადი",rptBookFee:"Booking-ის საკომისიო",
-    rptExpenses:"ხარჯები",rptNet:"სუფთა მოგება",
-    rptPlatShare:"პლატფორმა",rptOwner:"მფლობელი",rptAccount:"ანგარიში",
-    nbySelf:"მფლობელი",nbyPlat:"პლატფორმა",
-    noData:"მონაცემები არ არის",allApts:"ყველა ბინა",analytics:"ანალიტიკა",
-    apts:"ბინები",objects:"ობიექტი · თბილისი",
-    noApts:"ბინები არ არის",newApt:"ახალი ბინა",editApt:"ბინის რედაქტირება",
-    aptName:"სახელი",address:"მისამართი",mapLink:"რუკის ბმული",
-    platforms:"პლატფორმები",active:"აქტიური",inactive:"არააქტიური",
-    ownerName:"სახელი",ownerContact:"კონტაქტი",ownerAccount:"ანგარიში / რეკვიზიტები",
-    notes:"შენიშვნები",notesph:"თავისებურებები, წესები...",
-    syncOk:"Google Sheets · ",syncErr:"სინქრონიზაციის შეცდომა",retry:"გამეორება",
-    clean:"სუფთა"
   }
 };
 
-/* ══ STORAGE ════════════════════════════════════════ */
-function load(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
-function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function t(k){return(L[DB.lang]||L.ru)[k]||k;}
+
+/* ══ DB (single source of truth) ══════════════════════════ */
+var DB = {
+  lang: lsGet("lang","ru"),
+  rate: lsGet("rate", 2.70),
+  apartments: lsGet("apartments", []),
+  bookings:   lsGet("bookings",   []),
+  expenses:   lsGet("expenses",   []),
+  cleaning:   lsGet("cleaning",   []),
+  staff:      lsGet("staff",      []),
+  syncState:  "idle",  // idle | loading | ok | err
+  syncTime:   null,
+  lastFull:   lsGet("lastFull", null),
+};
+
+/* ══ STORAGE ════════════════════════════════════════════════ */
+function lsGet(k,d){try{var v=localStorage.getItem("af_"+k);return v?JSON.parse(v):d;}catch(e){return d;}}
+function lsSet(k,v){try{localStorage.setItem("af_"+k,JSON.stringify(v));}catch(e){}}
+function dbSave(){
+  lsSet("lang",DB.lang);lsSet("rate",DB.rate);
+  lsSet("apartments",DB.apartments);lsSet("bookings",DB.bookings);
+  lsSet("expenses",DB.expenses);lsSet("cleaning",DB.cleaning);
+  lsSet("staff",DB.staff);lsSet("lastFull",DB.lastFull);
+}
+
 var _c=0;
 function uid(){return Date.now().toString(36)+(++_c);}
 
-/* ══ UTILS ══════════════════════════════════════════ */
+/* ══ UTILS ══════════════════════════════════════════════════ */
 function fN(n){var v=parseFloat(n)||0;return v%1===0?v.toLocaleString("ru-RU"):v.toLocaleString("ru-RU",{minimumFractionDigits:2,maximumFractionDigits:2});}
-function fD(d){if(!d)return"—";return new Date(d+"T12:00:00").toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit",year:"2-digit"});}
-function fDf(d,lang){if(!d)return"—";return new Date(d+"T12:00:00").toLocaleDateString(lang==="ka"?"ka-GE":"ru-RU",{day:"2-digit",month:"long"});}
+function fD(d){if(!d)return"—";var s=String(d);if(s.includes("T"))s=s.slice(0,10);return new Date(s+"T12:00:00").toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit",year:"2-digit"});}
+function fDf(d,lng){if(!d)return"—";var s=String(d);if(s.includes("T"))s=s.slice(0,10);return new Date(s+"T12:00:00").toLocaleDateString(lng==="ka"?"ka-GE":"ru-RU",{day:"2-digit",month:"long"});}
 function nts(a,b){if(!a||!b)return 0;return Math.max(0,Math.round((new Date(b)-new Date(a))/86400000));}
 function nL(n){if(n===1)return"1 ночь";if(n>=2&&n<=4)return n+" ночи";return n+" ночей";}
-function g(id){return document.getElementById(id);}
 function cs(c){return c==="GEL"?"₾":"$";}
 function toUSD(v,cur,rate){return cur==="USD"?v:parseFloat((v/rate).toFixed(2));}
-function t(key){return(LANG[S.uiLang]||LANG.ru)[key]||key;}
+function g(id){return document.getElementById(id);}
 
-/* ══ NBG RATE FETCH ═════════════════════════════════ */
-async function fetchNBGRate(){
-  try{
-    var today=new Date().toISOString().slice(0,10);
-    var url="https://nbg.gov.ge/gw/api/ct/monetarypolicy/currencies/en/json?date="+today;
-    var res=await fetch(url);
-    var data=await res.json();
-    var usd=data[0]&&data[0].currencies&&data[0].currencies.find(function(c){return c.code==="USD";});
-    if(usd&&usd.rate){
-      S.rate=parseFloat(usd.rate.toFixed(4));
-      save("dr11_rate",S.rate);
-      return true;
-    }
-  }catch(e){console.log("NBG rate fetch failed:",e);}
-  return false;
+/* ══ API ════════════════════════════════════════════════════ */
+async function apiGet(){
+  var res = await fetch(GAS_URL+"?v="+Date.now());
+  var json = await res.json();
+  if(!json.ok) throw new Error(json.error);
+  return json.data;
+}
+async function apiPost(action, data){
+  var res = await fetch(GAS_URL, {
+    method:"POST",
+    body: JSON.stringify({action:action, data:data})
+  });
+  var json = await res.json();
+  if(!json.ok) throw new Error(json.error);
+  return json.data;
+}
+async function apiDelete(action, id){
+  var res = await fetch(GAS_URL, {
+    method:"POST",
+    body: JSON.stringify({action:action, id:id})
+  });
+  var json = await res.json();
+  return json.data;
 }
 
-/* ══ CALC ═══════════════════════════════════════════ */
-function calc(b,rate){
-  rate=parseFloat(rate)||DEF_RATE;
-  var plat=b.platform||"Airbnb";
-  var cur=b.income_currency||"USD";
-  var gross=parseFloat(b.gross_income)||0;
-  var taxPct=plat==="Airbnb"?(parseFloat(b.tax_pct)||0):0;
+/* ══ SYNC ═══════════════════════════════════════════════════ */
+async function syncFull(){
+  DB.syncState="loading"; render();
+  try{
+    var data = await apiGet();
+    DB.apartments = data.apartments || [];
+    DB.bookings   = data.bookings   || [];
+    DB.expenses   = data.expenses   || [];
+    DB.cleaning   = data.cleaning   || [];
+    DB.staff      = data.staff      || [];
+    if(data.rate) DB.rate = data.rate;
+    DB.lastFull = new Date().toISOString();
+    DB.syncState="ok";
+    DB.syncTime=new Date().toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"});
+    dbSave();
+  }catch(e){
+    DB.syncState="err";
+    console.error("Sync error:",e);
+  }
+  render();
+}
+
+// Optimistic upsert: update local immediately, then push to Sheets
+async function pushBooking(bk){
+  var idx=DB.bookings.findIndex(function(b){return b.id===bk.id;});
+  if(idx>-1)DB.bookings[idx]=bk; else DB.bookings.push(bk);
+  dbSave(); render();
+  try{ await apiPost("upsert_booking", bk); }catch(e){ console.error(e); }
+}
+async function pushExpense(ex){
+  var idx=DB.expenses.findIndex(function(e){return e.id===ex.id;});
+  if(idx>-1)DB.expenses[idx]=ex; else DB.expenses.push(ex);
+  dbSave(); render();
+  try{ await apiPost("upsert_expense", ex); }catch(e){ console.error(e); }
+}
+async function pushCleaning(cl){
+  var idx=DB.cleaning.findIndex(function(c){return c.id===cl.id;});
+  if(idx>-1)DB.cleaning[idx]=cl; else DB.cleaning.push(cl);
+  dbSave(); renderCleaningView();
+  try{ await apiPost("upsert_cleaning", cl); }catch(e){ console.error(e); }
+}
+async function deleteBk(id){
+  DB.bookings=DB.bookings.filter(function(b){return b.id!==id;});
+  DB.expenses=DB.expenses.filter(function(e){return e.booking_id!==id;});
+  dbSave(); renderApt();
+  try{ await apiDelete("delete_booking",id); }catch(e){}
+}
+
+/* ══ CALC ═══════════════════════════════════════════════════ */
+function calc(bk){
+  var rate=DB.rate;
+  var plat=bk.platform||"Airbnb";
+  var cur=bk.income_currency||"USD";
+  var gross=parseFloat(bk.gross_income)||0;
+  var taxPct=plat==="Airbnb"?(parseFloat(bk.tax_pct)||0):0;
   var tax=parseFloat((gross*taxPct/100).toFixed(2));
   var afterTax=parseFloat((gross-tax).toFixed(2));
-  var bookFee=plat==="Booking"?(parseFloat(b.booking_fee)||0):0;
-  // Include utilities in expenses
-  var utilTotal=0;
-  (b.utilities||[]).forEach(function(u){utilTotal+=parseFloat(u.amount)||0;});
-  var exps=(b.expenses||[]).map(function(e){
+  var bookFee=plat==="Booking"?(parseFloat(bk.booking_fee)||0):0;
+  var exps=DB.expenses.filter(function(e){return e.booking_id===bk.id;}).map(function(e){
     var amt=parseFloat(e.amount)||0;
-    var inBase=cur==="USD"?
-      (e.currency==="USD"?amt:parseFloat((amt/rate).toFixed(2))):
-      (e.currency==="GEL"?amt:parseFloat((amt*rate).toFixed(2)));
-    return{id:e.id,cat:e.cat,amount:amt,currency:e.currency,payer:e.payer,comment:e.comment,hours:e.hours,inBase:inBase};
+    var inBase=cur==="USD"?(e.currency==="USD"?amt:parseFloat((amt/rate).toFixed(2))):(e.currency==="GEL"?amt:parseFloat((amt*rate).toFixed(2)));
+    return Object.assign({},e,{amt:amt,inBase:inBase});
   });
-  // Utilities counted in income currency (GEL by default)
-  var utilInBase=cur==="USD"?parseFloat((utilTotal/rate).toFixed(2)):utilTotal;
-  var totalExp=parseFloat((exps.reduce(function(s,e){return s+e.inBase;},0)+utilInBase).toFixed(2));
+  var totalExp=parseFloat(exps.reduce(function(s,e){return s+e.inBase;},0).toFixed(2));
   var net=parseFloat((afterTax-totalExp-bookFee).toFixed(2));
-  var dPct=parseFloat(b.platform_pct)||20;
+  var dPct=parseFloat(bk.platform_pct)||20;
   var oPct=100-dPct;
   var dBase=parseFloat((net*dPct/100).toFixed(2));
   var oBase=parseFloat((net*oPct/100).toFixed(2));
   var expPlat=parseFloat(exps.filter(function(e){return e.payer==="platform";}).reduce(function(s,e){return s+e.inBase;},0).toFixed(2));
   var expOwn=parseFloat(exps.filter(function(e){return e.payer==="owner";}).reduce(function(s,e){return s+e.inBase;},0).toFixed(2));
   var dFin=parseFloat((dBase+expPlat+bookFee).toFixed(2));
-  var oFin=parseFloat((oBase+expOwn+utilInBase).toFixed(2));
-  return{gross:gross,tax:tax,taxPct:taxPct,afterTax:afterTax,bookFee:bookFee,
-    exps:exps,utilTotal:utilTotal,utilInBase:utilInBase,totalExp:totalExp,
-    net:net,dPct:dPct,oPct:oPct,dBase:dBase,oBase:oBase,
-    expPlat:expPlat,expOwn:expOwn,dFin:dFin,oFin:oFin,cur:cur,plat:plat,
-    grossUSD:toUSD(gross,cur,rate),netUSD:toUSD(net,cur,rate),
-    dFinUSD:toUSD(dFin,cur,rate),oFinUSD:toUSD(oFin,cur,rate)};
+  var oFin=parseFloat((oBase+expOwn).toFixed(2));
+  return{gross:gross,tax:tax,taxPct:taxPct,bookFee:bookFee,exps:exps,totalExp:totalExp,net:net,dPct:dPct,oPct:oPct,dBase:dBase,oBase:oBase,expPlat:expPlat,expOwn:expOwn,dFin:dFin,oFin:oFin,cur:cur,plat:plat,
+    grossUSD:toUSD(gross,cur,DB.rate),netUSD:toUSD(net,cur,DB.rate),dFinUSD:toUSD(dFin,cur,DB.rate),oFinUSD:toUSD(oFin,cur,DB.rate)};
 }
 
-/* ══ REPORT ═════════════════════════════════════════ */
-function makeReport(apt,b,c,lang){
-  lang=lang||"ru";
-  var L=LANG[lang]||LANG.ru;
-  var S2=function(v){return cs(c.cur)+fN(v);};
-  var n=nts(b.check_in,b.check_out);
-  var nLabel=lang==="ka"?(n+" ღამე"):(nL(n));
-  var EXP_LBL_KA={cleaning:"დასუფთავება",utilities:"კომუნალური",supplies:"მასალები",repair:"რემონტი",other:"სხვა",booking_fee:"Booking-ის საკომისიო"};
-  var expLblLoc=lang==="ka"?EXP_LBL_KA:EXP_LBL;
+/* ══ REPORT ══════════════════════════════════════════════════ */
+function makeReport(apt,bk,c,lng){
+  lng=lng||"ru";
+  var tL=L[lng]||L.ru;
+  var S=function(v){return cs(c.cur)+fN(v);};
+  var n=nts(bk.check_in,bk.check_out);
+  var nLabel=lng==="ka"?(n+" ღამე"):nL(n);
+  var ELK={cleaning:"დასუფთავება",utilities:"კომუნალური",supplies:"მასალები",repair:"რემონტი",other:"სხვა",booking_fee:"Booking-ის საკომისიო"};
   var expLines=c.exps.filter(function(e){return e.inBase>0;}).map(function(e){
-    return"   • "+(expLblLoc[e.cat]||e.cat)+": "+cs(e.currency)+fN(e.amount)+(e.comment?" ("+e.comment+")":"")+(e.payer==="owner"?" ["+L.nbySelf+"]":"");
+    return"   • "+((lng==="ka"?ELK:EXP_LBL)[e.category||e.cat]||e.category||e.cat)+": "+cs(e.currency)+fN(e.amt)+(e.comment?" ("+e.comment+")":"")+(e.payer==="owner"?" ["+tL.nbySelf+"]":"");
   });
-  if(c.utilTotal>0)expLines.push("   • "+L.utilities+": ₾"+fN(c.utilTotal));
-  var lines=[
+  return [
     "🏠 "+(apt?apt.apartment_name:"—"),
     apt&&apt.address?"📍 "+apt.address+", Tbilisi":null,
     "",
-    "📅 "+L.rptPeriod+": "+fDf(b.check_in,lang)+" — "+fDf(b.check_out,lang)+" ("+nLabel+")",
-    b.guest_name?"👤 "+L.rptGuest+": "+b.guest_name:null,
-    "📱 "+L.rptPlatformLbl+": "+c.plat,
+    "📅 "+tL.rptPeriod+": "+fDf(bk.check_in,lng)+" — "+fDf(bk.check_out,lng)+" ("+nLabel+")",
+    bk.guest_name?"👤 "+tL.rptGuest+": "+bk.guest_name:null,
+    "📱 "+tL.rptPlat+": "+c.plat,
     "",
-    "💰 "+L.rptArrived+": "+S2(c.gross),
-    c.tax>0?"📉 "+L.rptTax+" ("+c.taxPct+"%): -"+S2(c.tax):null,
-    c.bookFee>0?"📉 "+L.rptBookFee+": -"+S2(c.bookFee):null,
-    c.totalExp>0?"🔧 "+L.rptExpenses+": -"+S2(c.totalExp):null,
+    "💰 "+tL.rptArrived+": "+S(c.gross),
+    c.tax>0?"📉 "+tL.rptTax+" ("+c.taxPct+"%): -"+S(c.tax):null,
+    c.bookFee>0?"📉 "+tL.rptFee+": -"+S(c.bookFee):null,
+    c.totalExp>0?"🔧 "+tL.rptExp+": -"+S(c.totalExp):null,
   ].concat(expLines).concat([
     "",
-    "✅ "+L.rptNet+": "+S2(c.net),
+    "✅ "+tL.rptNet+": "+S(c.net),
     "",
-    "👤 "+L.rptPlatShare+" ("+c.dPct+"%): "+S2(c.dFin),
-    "🏦 "+(apt?apt.owner_name||L.rptOwner:L.rptOwner)+" ("+c.oPct+"%): "+S2(c.oFin),
-    apt&&apt.owner_account?"🏦 "+L.rptAccount+": "+apt.owner_account:null,
-    b.comment?"\n💬 "+b.comment:null,
-  ]);
-  return lines.filter(function(l){return l!==null;}).join("\n");
+    "👤 "+tL.platform+" ("+c.dPct+"%): "+S(c.dFin),
+    "🏦 "+(apt?apt.owner_name||tL.owner:tL.owner)+" ("+c.oPct+"%): "+S(c.oFin),
+    apt&&apt.owner_account?"🏦 "+tL.rptAcc+": "+apt.owner_account:null,
+    bk.comment?"\n💬 "+bk.comment:null,
+  ]).filter(function(l){return l!==null;}).join("\n");
 }
 
-/* ══ GOOGLE SHEETS WRITE ════════════════════════════ */
-function writeToSheets(b,c,apt){
-  if(!GAS_URL)return;
-  var n=nts(b.check_in,b.check_out);
-  var payload={
-    action:"addBooking",booking_id:b.id,
-    apartment_id:apt?apt.id:"",apartment_name:apt?apt.apartment_name:"",
-    platform:b.platform||"",guest_name:b.guest_name||"",
-    check_in:b.check_in||"",check_out:b.check_out||"",nights:n,
-    gross_income:c.gross,income_currency:c.cur,
-    cleaning:c.exps.filter(function(e){return e.cat==="cleaning";}).reduce(function(s,e){return s+e.amount;},0),
-    utilities:c.utilTotal,
-    supplies:c.exps.filter(function(e){return e.cat==="supplies";}).reduce(function(s,e){return s+e.amount;},0),
-    repair:c.exps.filter(function(e){return e.cat==="repair";}).reduce(function(s,e){return s+e.amount;},0),
-    other:c.exps.filter(function(e){return e.cat==="other";}).reduce(function(s,e){return s+e.amount;},0),
-    booking_fee:c.bookFee,total_expenses:c.totalExp,
-    net_profit:c.net,platform_amount:c.dFin,owner_amount:c.oFin,
-    exchange_rate:S.rate,payment_status:b.payment_status||"",comment:b.comment||"",
-  };
-  fetch(GAS_URL,{method:"POST",body:JSON.stringify(payload)}).catch(function(){});
-}
-
-/* ══ SEED ═══════════════════════════════════════════ */
-var SEED=[
-  {id:"1",apartment_name:"Rustaveli Warm Corner",address:"7 Solomon Zaldastanishvili St",owner_name:"Sophiko",owner_contact:"+995 599 50 13 34",owner_account:"",platforms:["Airbnb","Booking"],status:"active",platform_pct:20,mapLink:"",notes:"",utilities:[]},
-  {id:"2",apartment_name:"House of Whispers",address:"22 Pavle Ingorokva St",owner_name:"Mari",owner_contact:"+995 555 58 23 50",owner_account:"",platforms:["Airbnb","Booking"],status:"active",platform_pct:20,mapLink:"",notes:"",utilities:[]},
-  {id:"3",apartment_name:"Designer View Vake",address:"15 Chavchavadze, 1st Ln",owner_name:"Arseniy",owner_contact:"",owner_account:"",platforms:["Airbnb","Booking"],status:"active",platform_pct:20,mapLink:"",notes:"",utilities:[]},
-  {id:"4",apartment_name:"Sky Loft Tbilisi",address:"17 Alexander Griboedov St",owner_name:"Lasha",owner_contact:"+995 599 71 25 33",owner_account:"",platforms:["Airbnb","Booking"],status:"active",platform_pct:20,mapLink:"",notes:"",utilities:[]},
-  {id:"5",apartment_name:"Vake Nest",address:"8 Dimitri Arakishvili St",owner_name:"Natia",owner_contact:"+995 577 11 06 11",owner_account:"",platforms:["Airbnb","Booking"],status:"active",platform_pct:20,mapLink:"",notes:"",utilities:[]},
-  {id:"6",apartment_name:"Postcard Tbilisi",address:"18 Atoneli St",owner_name:"Stas",owner_contact:"@lil_toady",owner_account:"",platforms:["Airbnb","Booking"],status:"active",platform_pct:20,mapLink:"",notes:"",utilities:[]},
-  {id:"7",apartment_name:"Old Tbilisi Courtyard",address:"30 Anton Katalikosi St",owner_name:"Giorgi",owner_contact:"+995 599 27 17 97",owner_account:"",platforms:["Airbnb","Booking"],status:"active",platform_pct:20,mapLink:"",notes:"",utilities:[]},
-];
-
-/* ══ STATE ══════════════════════════════════════════ */
-var S={
-  apts:load("dr11_apts",SEED),
-  bks:load("dr11_bks",[]),
-  rate:load("dr11_rate",DEF_RATE),
-  uiLang:load("dr11_lang","ru"),
-  tab:"apts",view:"list",
-  selApt:null,editBk:null,editApt:null,
-  expOpen:{},sync:"idle",syncTime:null,rateDate:null,
-};
-var bkTab="main";
-var bkRptLang="ru";
-var bkF=null;
-var aptF=null;
-var root=document.getElementById("root");
-
-function render(){
-  try{
-    if(S.view==="bkform"){renderBkForm();return;}
-    if(S.view==="aptform"){renderAptForm();return;}
-    if(S.view==="apt"){renderApt();return;}
-    renderList();
-  }catch(e){
-    root.innerHTML='<div style="padding:20px;color:#f87171">Ошибка: '+e.message+'</div>';
-    console.error(e);
-  }
-}
-
-/* ══ ICONS ══════════════════════════════════════════ */
+/* ══ ICONS ═══════════════════════════════════════════════════ */
 var I={
   back:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>',
   plus:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
   edit:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
   trash:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>',
   copy:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 17H5a2 2 0 01-2-2V5a2 2 0 012-2h10a2 2 0 012 2v2M11 21h8a2 2 0 002-2V9a2 2 0 00-2-2h-8a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>',
-  bar:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>',
-  home:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20M4 20V8l8-6 8 6v12"/></svg>',
-  check:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
   sync:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>',
+  home:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20M4 20V8l8-6 8 6v12"/></svg>',
+  bar:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>',
+  broom:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l8-8m4-4l6-6M9 3l3 3-7 7-3-3 7-7zM14 8l2 2"/></svg>',
   img:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h4l2 3h8a2 2 0 012 2z"/></svg>',
+  check:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
   x:'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>',
 };
 
 function bdg(cls,txt){return'<span class="bdg '+cls+'">'+txt+'</span>';}
 function platBdg(p){var m={airbnb:"or",booking:"bl","другое":"gy"};return bdg(m[(p||"").toLowerCase()]||"gy",p);}
+function statusBdg(s){var m={free:["g","Свободно"],busy:["wt","Занято"],clean:["yw","Уборка"],tech:["gy","Тех."]};var d=m[s]||m.free;return bdg(d[0],d[1]);}
 
-/* ══ CALC BOX ═══════════════════════════════════════ */
-function calcBoxHtml(c,ownerName){
-  var C=cs(c.cur);
-  var expRows=c.exps.filter(function(e){return e.inBase>0;}).map(function(e){
-    return'<div class="crow sub"><span class="cl" style="color:rgba(147,197,253,.3)">• '+(EXP_LBL[e.cat]||e.cat)+' ('+cs(e.currency)+')</span><span class="cv neg">-'+cs(e.currency)+fN(e.amount)+'</span></div>';
-  }).join("");
-  var utilRow=c.utilTotal>0?'<div class="crow sub"><span class="cl" style="color:rgba(147,197,253,.3)">• '+t("utilities")+' (₾)</span><span class="cv neg">-₾'+fN(c.utilTotal)+'</span></div>':"";
-  return'<div class="cbox">'+
-    '<div class="crow"><span class="cl">'+t("arrived")+'</span><span class="cv">'+C+fN(c.gross)+'</span></div>'+
-    (c.tax>0?'<div class="crow"><span class="cl">Налог ('+c.taxPct+'%)</span><span class="cv neg">-'+C+fN(c.tax)+'</span></div>':"")+
-    (c.bookFee>0?'<div class="crow"><span class="cl">Комиссия Booking</span><span class="cv neg">-'+C+fN(c.bookFee)+'</span></div>':"")+
-    expRows+utilRow+
-    '<div class="cdiv"></div>'+
-    '<div class="crow net-row"><span class="cl" style="font-weight:700;color:#fff">'+t("net")+'</span><span class="cv big '+(c.net>=0?"em":"neg")+'">'+C+fN(c.net)+'</span></div>'+
-    '<div class="cdiv"></div>'+
-    '<div class="crow sub"><span class="cl" style="font-weight:600">'+t("platform")+' ('+c.dPct+'%)</span><span class="cv tbl">'+C+fN(c.dFin)+'</span></div>'+
-    '<div class="crow sub"><span class="cl" style="font-weight:600">'+(ownerName||t("owner"))+' ('+c.oPct+'%)</span><span class="cv em">'+C+fN(c.oFin)+'</span></div>'+
-    '</div>';
+/* ══ VIEW STATE ══════════════════════════════════════════════ */
+var V = {
+  tab:"apts",      // apts | dash | cleaning
+  view:"list",     // list | apt | bkform | cleanform
+  selApt:null,
+  editBk:null,
+  editCl:null,
+  expOpen:{},
+  bkRptLang:"ru",
+  dashFilter:{apt:"all",month:""},
+};
+
+var bkF=null;   // booking form draft
+var clF=null;   // cleaning form draft
+
+var root=document.getElementById("root");
+
+var aptF=null; // apt form draft
+
+function render(){
+  try{
+    if(V.view==="bkform"){renderBkForm();return;}
+    if(V.view==="cleanform"){renderCleanForm();return;}
+    if(V.view==="aptform"){renderAptForm();return;}
+    if(V.view==="apt"){renderApt();return;}
+    renderMain();
+  }catch(e){
+    root.innerHTML='<div style="padding:20px;color:#f87171;font-size:13px">Ошибка: '+e.message+'<br><small>'+e.stack+'</small></div>';
+    console.error(e);
+  }
 }
 
-/* ══ CURRENCY SUMMARY ═══════════════════════════════ */
-function curSummaryHtml(bks,rate,ownerName){
-  var usdBks=bks.filter(function(b){return(b.income_currency||"USD")==="USD";});
-  var gelBks=bks.filter(function(b){return(b.income_currency||"USD")==="GEL";});
-  function tot(arr){return arr.reduce(function(acc,b){var c=calc(b,rate);return{gross:acc.gross+c.gross,net:acc.net+c.net,exp:acc.exp+c.totalExp,plat:acc.plat+c.dFin,own:acc.own+c.oFin,netUSD:acc.netUSD+c.netUSD,platUSD:acc.platUSD+c.dFinUSD,ownUSD:acc.ownUSD+c.oFinUSD};},{gross:0,net:0,exp:0,plat:0,own:0,netUSD:0,platUSD:0,ownUSD:0});}
-  var tU=tot(usdBks),tG=tot(gelBks);
-  var html="";
-  if(usdBks.length){
-    html+='<div class="cur-block" style="background:#0e1f3a;border:1px solid rgba(253,224,71,.2)">'+
-      '<div class="cur-hdr" style="background:rgba(253,224,71,.08);color:#fde047">USD — '+usdBks.length+' '+t("stays")+'</div>'+
-      mkCurRow(t("arrived"),"$"+fN(tU.gross),"#fff")+
-      mkCurRow(t("expenses"),"-$"+fN(tU.exp),"#f87171")+
-      mkCurRow(t("net"),"$"+fN(tU.net),"#34d399")+
-      mkCurRow(t("platform"),"$"+fN(tU.plat),"#60a5fa")+
-      mkCurRow(ownerName||t("owner"),"$"+fN(tU.own),"#34d399")+
-    '</div>';
-  }
-  if(gelBks.length){
-    html+='<div class="cur-block" style="background:#0e1f3a;border:1px solid rgba(52,211,153,.2)">'+
-      '<div class="cur-hdr" style="background:rgba(52,211,153,.08);color:#6ee7b7">GEL — '+gelBks.length+' '+t("stays")+'</div>'+
-      mkCurRow(t("arrived"),"₾"+fN(tG.gross),"#fff")+
-      mkCurRow(t("expenses"),"-₾"+fN(tG.exp),"#f87171")+
-      mkCurRow(t("net"),"₾"+fN(tG.net),"#34d399")+
-      mkCurRow(t("platform"),"₾"+fN(tG.plat),"#60a5fa")+
-      mkCurRow(ownerName||t("owner"),"₾"+fN(tG.own),"#34d399")+
-    '</div>';
-  }
-  if(usdBks.length&&gelBks.length){
-    var totalNet=parseFloat((tU.netUSD+tG.netUSD).toFixed(2));
-    var totalPlat=parseFloat((tU.platUSD+tG.platUSD).toFixed(2));
-    var totalOwn=parseFloat((tU.ownUSD+tG.ownUSD).toFixed(2));
-    html+='<div class="total-bar">'+
-      '<div class="sec" style="margin-bottom:8px">'+t("total")+' ('+t("byRate")+' '+fN(rate)+')</div>'+
-      mkCurRow(t("net"),"$"+fN(totalNet),"#34d399")+
-      mkCurRow(t("platform"),"$"+fN(totalPlat),"#60a5fa")+
-      mkCurRow(ownerName||t("owner"),"$"+fN(totalOwn),"#34d399")+
-    '</div>';
-  }
-  return html||'<div class="empty">'+t("noStays")+'</div>';
+/* ══ HEADER ══════════════════════════════════════════════════ */
+function syncBarHtml(){
+  if(DB.syncState==="loading")return'<div class="sync-bar sync-ing"><span class="spin-icon">⟳</span> '+t("syncing")+'</div>';
+  if(DB.syncState==="ok")return'<div class="sync-bar sync-ok">✓ '+t("syncOk")+' · '+DB.syncTime+' · 1$=₾'+fN(DB.rate)+'</div>';
+  if(DB.syncState==="err")return'<div class="sync-bar sync-err">'+t("syncErr")+' <button onclick="syncFull()" style="background:none;border:none;color:#fca5a5;cursor:pointer;font-size:12px;text-decoration:underline;margin-left:6px">'+t("retry")+'</button></div>';
+  return"";
 }
-function mkCurRow(l,v,c){return'<div class="cur-row-s"><span class="muted">'+l+'</span><span style="font-family:monospace;font-weight:700;color:'+c+'">'+v+'</span></div>';}
 
-/* ══ LIST ═══════════════════════════════════════════ */
-function renderList(){
-  var isApts=S.tab==="apts";
-  var syncBar="";
-  if(S.sync==="ok"&&S.syncTime)syncBar='<div class="sync-ok">'+I.check+' '+t("syncOk")+S.syncTime+(S.rateDate?' · NBG '+S.rateDate:"")+' · 1$=₾'+fN(S.rate)+'</div>';
-  if(S.sync==="err")syncBar='<div class="sync-err">'+t("syncErr")+' <button onclick="doSync()" style="background:none;border:none;color:#fca5a5;cursor:pointer;font-size:12px;text-decoration:underline;margin-left:6px">'+t("retry")+'</button></div>';
-  var content=isApts?renderAptList():renderDash();
+function mainHdr(){
+  var titles={apts:t("apts"),dash:t("analytics"),cleaning:t("cleaning")};
+  return'<div class="hdr"><div class="hdr-row">'+
+    '<div class="f1"><div style="font-size:18px;font-weight:700">'+titles[V.tab]+'</div>'+
+      (V.tab==="apts"?'<div class="muted" style="margin-top:2px">'+DB.apartments.length+' объектов · Тбилиси</div>':"")+
+    '</div>'+
+    '<div class="row" style="gap:8px">'+
+      '<button onclick="DB.lang=DB.lang===\'ru\'?\'ka\':\'ru\';lsSet(\'lang\',DB.lang);render()" style="background:rgba(30,58,110,.3);border:1px solid rgba(30,58,110,.6);border-radius:9px;padding:7px 10px;color:rgba(147,197,253,.7);font-size:13px;font-weight:700;cursor:pointer">'+(DB.lang==="ru"?"🇬🇪":"🇷🇺")+'</button>'+
+      '<div class="rate-pill"><span class="muted" style="font-size:11px">₾</span><span style="font-family:monospace;font-size:13px;font-weight:700;color:#fde047">'+fN(DB.rate)+'</span></div>'+
+      '<button class="btn btn-s" style="padding:7px 9px" onclick="syncFull()">'+I.sync+'</button>'+
+      (V.tab==="apts"?'<button class="btn btn-p" style="padding:7px 9px;width:34px;height:34px" onclick="newAptBtn()">'+I.plus+'</button>':"")+
+      (V.tab==="cleaning"?'<button class="btn btn-p" style="padding:7px 9px;width:34px;height:34px" onclick="newClean()">'+I.plus+'</button>':"")+
+    '</div>'+
+  '</div></div>';
+}
+
+/* ══ MAIN SCREEN ═════════════════════════════════════════════ */
+function renderMain(){
+  var content="";
+  if(V.tab==="apts")content=renderAptList();
+  else if(V.tab==="dash")content=renderDash();
+  else if(V.tab==="cleaning")content=renderCleaningList();
   root.innerHTML=
     '<div style="display:flex;flex-direction:column;height:100dvh;overflow:hidden">'+
-    '<div class="hdr"><div class="hdr-row">'+
-      '<div class="f1">'+
-        '<div style="font-size:18px;font-weight:700">'+(isApts?t("apts"):t("analytics"))+'</div>'+
-        (isApts?'<div class="muted" style="margin-top:2px">'+S.apts.length+' '+t("objects")+'</div>':"")+
-      '</div>'+
-      '<div class="row" style="gap:8px">'+
-        // Lang switcher
-        '<button onclick="toggleLang()" style="background:rgba(30,58,110,.3);border:1px solid rgba(30,58,110,.6);border-radius:9px;padding:7px 10px;color:rgba(147,197,253,.7);font-size:13px;font-weight:700;cursor:pointer">'+(S.uiLang==="ru"?"🇬🇪":"🇷🇺")+'</button>'+
-        // Rate display (readonly, from NBG)
-        '<div class="rate-box"><span class="muted" style="font-size:11px">₾</span><span style="font-family:monospace;font-size:13px;font-weight:700;color:#fde047">'+fN(S.rate)+'</span></div>'+
-        (isApts?
-          '<button class="btn btn-s" style="padding:7px 9px" onclick="doSync()">'+I.sync+'</button>'+
-          '<button class="btn btn-p" style="padding:7px 9px;width:34px;height:34px" onclick="newApt()">'+I.plus+'</button>'
-        :"")+
-      '</div>'+
-    '</div></div>'+
-    syncBar+
+    mainHdr()+syncBarHtml()+
     '<div style="flex:1;overflow:hidden;display:flex;flex-direction:column"><div class="page">'+content+'</div></div>'+
     '<div class="nav">'+
-      '<button class="nav-btn'+(isApts?" on":"")+'\" onclick="setTab(\'apts\')">'+I.home+'<span>'+t("apts")+'</span></button>'+
-      '<button class="nav-btn'+(!isApts?" on":"")+'\" onclick="setTab(\'dash\')">'+I.bar+'<span>'+t("analytics")+'</span></button>'+
+      '<button class="nav-btn'+(V.tab==="apts"?" on":"")+'\" onclick="V.tab=\'apts\';render()">'+I.home+'<span>'+t("apts")+'</span></button>'+
+      '<button class="nav-btn'+(V.tab==="dash"?" on":"")+'\" onclick="V.tab=\'dash\';render()">'+I.bar+'<span>'+t("analytics")+'</span></button>'+
+      '<button class="nav-btn'+(V.tab==="cleaning"?" on":"")+'\" onclick="V.tab=\'cleaning\';render()">'+I.broom+'<span>'+t("cleaning")+'</span></button>'+
     '</div>'+
     '</div>';
 }
 
-window.toggleLang=function(){S.uiLang=S.uiLang==="ru"?"ka":"ru";save("dr11_lang",S.uiLang);render();};
-window.setTab=function(t){S.tab=t;render();};
-window.selApt=function(id){S.selApt=S.apts.find(function(a){return a.id===id;});S.view="apt";render();};
-window.newApt=function(){aptF=null;S.editApt=null;S.view="aptform";render();};
-
+/* ══ APT LIST ════════════════════════════════════════════════ */
 function renderAptList(){
-  if(!S.apts.length)return'<div class="empty">'+t("noApts")+'</div>';
-  return S.apts.map(function(apt){
-    var abs=S.bks.filter(function(b){return b.aptId===apt.id;});
-    var netUSD=abs.reduce(function(s,b){return s+calc(b,S.rate).netUSD;},0);
+  if(DB.syncState==="loading"&&!DB.apartments.length)
+    return'<div class="loading">'+I.sync+' '+t("loading")+'</div>';
+  if(!DB.apartments.length)
+    return'<div class="empty">'+t("noApts")+'</div>';
+  return DB.apartments.filter(function(a){return a.id&&a.apartment_name;}).map(function(apt){
+    var abs=DB.bookings.filter(function(b){return String(b.apartment_id)===String(apt.id);});
+    var netUSD=abs.reduce(function(s,b){return s+calc(b).netUSD;},0);
     var last=abs.slice().sort(function(a,b){return new Date(b.check_in)-new Date(a.check_in);})[0];
-    var pls=apt.platforms||[];
-    var utilCount=(apt.utilities||[]).filter(function(u){return parseFloat(u.amount)>0;}).length;
-    return'<div class="apt-card" onclick="selApt(\''+apt.id+'\')">'+
+    var pls=(apt.platforms||"Airbnb,Booking").split(",").map(function(p){return p.trim();});
+    var status=apt.status||"free";
+    var stObj=APT_STATUSES.find(function(s){return s.key===status;})||APT_STATUSES[0];
+    return'<div class="apt-item" onclick="V.selApt=\''+apt.id+'\';V.view=\'apt\';render()">'+
       '<div class="row" style="justify-content:space-between;align-items:flex-start;gap:10px">'+
         '<div class="f1" style="min-width:0">'+
           '<div class="row" style="flex-wrap:wrap;gap:5px;margin-bottom:4px">'+
             '<span style="font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+apt.apartment_name+'</span>'+
-            bdg(apt.status==="active"?"g":"gy",apt.status==="active"?t("active"):t("inactive"))+
+            statusBdg(status)+
           '</div>'+
-          (apt.address?'<div class="muted trunc">'+apt.address.split(",")[0]+'</div>':"")+
-          '<div class="wrap" style="margin-top:5px">'+pls.map(function(p){return platBdg(p);}).join("")+
+          (apt.address?'<div class="muted trunc">'+String(apt.address).split(",")[0]+'</div>':"")+
+          '<div class="wrap" style="margin-top:5px">'+
+            pls.map(function(p){return platBdg(p);}).join("")+
             '<span class="muted">'+abs.length+' '+t("stays")+'</span>'+
             (last?'<span class="muted">· '+fD(last.check_in)+'</span>':"")+
-            (utilCount?'<span class="bdg gy">💡 '+utilCount+' ком.</span>':"")+
           '</div>'+
           (apt.owner_name?'<div class="muted" style="margin-top:4px">'+apt.owner_name+'</div>':"")+
         '</div>'+
@@ -529,86 +496,33 @@ function renderAptList(){
   }).join("");
 }
 
-/* ══ SYNC ═══════════════════════════════════════════ */
-window.doSync=async function(){
-  S.sync="loading";render();
-  // Fetch NBG rate
-  await fetchNBGRate();
-  if(S.rate!==DEF_RATE){
-    var today=new Date().toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit"});
-    S.rateDate=today;
-  }
-  try{
-    var res=await fetch("https://docs.google.com/spreadsheets/d/"+SHEET_ID+"/gviz/tq?tqx=out:json&gid=0");
-    var txt=await res.text();
-    var json=JSON.parse(txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
-    var cols=json.table.cols.map(function(c){return c.label;});
-    var rows=(json.table.rows||[]).map(function(row){
-      var o={};cols.forEach(function(c,i){var cell=row.c&&row.c[i];o[c]=cell?(cell.v!==null&&cell.v!==undefined?cell.v:cell.f||""):"";});return o;
-    }).filter(function(r){return Object.values(r).some(function(v){return v!=="";});});
-    if(rows.length){
-      var inc=rows.filter(function(r){return r.apartment_id||r.apartment_name;}).map(function(r){
-        return{id:String(r.apartment_id||uid()),apartment_id:r.apartment_id,apartment_name:r.apartment_name||"",address:r.address||"",owner_name:r.owner_name||"",owner_contact:r.owner_contact||"",owner_account:"",platforms:["Airbnb","Booking"],status:"active",platform_pct:20,mapLink:"",notes:"",utilities:[]};
-      });
-      var merged=inc.map(function(s){
-        var ex=S.apts.find(function(p){return String(p.id)===String(s.id)||String(p.apartment_id)===String(s.apartment_id);});
-        return ex?Object.assign({},ex,{apartment_name:s.apartment_name,address:s.address,owner_name:s.owner_name,owner_contact:s.owner_contact}):s;
-      });
-      S.apts.forEach(function(p){if(!merged.find(function(m){return String(m.id)===String(p.id);}))merged.push(p);});
-      S.apts=merged;save("dr11_apts",S.apts);
-    }
-    S.sync="ok";S.syncTime=new Date().toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"});
-    setTimeout(function(){S.sync="idle";render();},8000);
-  }catch(e){S.sync="err";}
-  render();
-};
+/* ══ APT DETAIL ══════════════════════════════════════════════ */
+function getApt(id){return DB.apartments.find(function(a){return String(a.id)===String(id);});}
 
-/* ══ DASHBOARD ══════════════════════════════════════ */
-var dashF={apt:"all",month:""};
-function renderDash(){
-  var fil=S.bks.filter(function(b){
-    if(dashF.apt!=="all"&&b.aptId!==dashF.apt)return false;
-    if(dashF.month&&(b.check_in||"").slice(0,7)!==dashF.month)return false;
-    return true;
-  });
-  var opts='<option value="all">'+t("allApts")+'</option>'+S.apts.map(function(a){return'<option value="'+a.id+'"'+(dashF.apt===a.id?" selected":"")+'>'+a.apartment_name+'</option>';}).join("");
-  var aptRows=S.apts.map(function(apt){
-    var ab=fil.filter(function(b){return b.aptId===apt.id;});
-    if(!ab.length)return"";
-    return'<div class="card pad" style="margin-bottom:12px"><div style="font-size:14px;font-weight:600;margin-bottom:10px">'+apt.apartment_name+'</div>'+curSummaryHtml(ab,S.rate,apt.owner_name)+'</div>';
-  }).join("");
-  return'<div class="field"><select class="sel" onchange="dashFlt(\'apt\',this.value)">'+opts+'</select></div>'+
-    '<div class="field"><input type="month" class="inp" value="'+dashF.month+'" onchange="dashFlt(\'month\',this.value)"/></div>'+
-    '<div class="sec">'+t("allApts")+'</div>'+
-    curSummaryHtml(fil,S.rate,t("owner"))+
-    (aptRows?'<div class="sec" style="margin-top:4px">По квартирам</div>'+aptRows:"")+
-    (!fil.length?'<div class="empty">'+t("noData")+'</div>':"");
-}
-window.dashFlt=function(k,v){dashF[k]=v;render();};
-
-/* ══ APT DETAIL ═════════════════════════════════════ */
 function renderApt(){
-  var apt=S.selApt;
-  var abs=S.bks.filter(function(b){return b.aptId===apt.id;}).sort(function(a,b){return new Date(b.check_in)-new Date(a.check_in);});
+  var apt=getApt(V.selApt);
+  if(!apt){V.view="list";render();return;}
+  var abs=DB.bookings.filter(function(b){return String(b.apartment_id)===String(apt.id);}).sort(function(a,b){return new Date(b.check_in)-new Date(a.check_in);});
+  var status=apt.status||"free";
+
   var bkHtml=abs.map(function(bk){
-    var c=calc(bk,S.rate);
-    var open=!!S.expOpen[bk.id];
+    var c=calc(bk);
+    var open=!!V.expOpen[bk.id];
     var stMap={received:["ok",t("received")],pending:["wt",t("pending")],partial:["pt",t("partial")]};
     var st=stMap[bk.payment_status]||stMap.received;
     var C=cs(c.cur);
     var detail="";
     if(open){
       var expRows=c.exps.filter(function(e){return e.inBase>0;}).map(function(e){
-        return'<div class="crow sub"><span class="cl" style="color:rgba(147,197,253,.3)">• '+(EXP_LBL[e.cat]||e.cat)+'</span><span class="cv neg">-'+cs(e.currency)+fN(e.amount)+'</span></div>';
+        return'<div class="crow sub"><span class="cl" style="color:rgba(147,197,253,.3)">• '+(EXP_LBL[e.category||e.cat]||e.category||e.cat)+'</span><span class="cv neg">-'+cs(e.currency)+fN(e.amt)+'</span></div>';
       }).join("");
-      var utilRow=c.utilTotal>0?'<div class="crow sub"><span class="cl" style="color:rgba(147,197,253,.3)">• '+t("utilities")+'</span><span class="cv neg">-₾'+fN(c.utilTotal)+'</span></div>':"";
-      var rpt=makeReport(apt,bk,c,bkRptLang);
+      var rpt=makeReport(apt,bk,c,V.bkRptLang);
       detail='<div class="bk-body">'+
         '<div class="cbox">'+
           '<div class="crow"><span class="cl">'+t("arrived")+'</span><span class="cv">'+C+fN(c.gross)+'</span></div>'+
           (c.tax>0?'<div class="crow"><span class="cl">Налог ('+c.taxPct+'%)</span><span class="cv neg">-'+C+fN(c.tax)+'</span></div>':"")+
           (c.bookFee>0?'<div class="crow"><span class="cl">Комиссия Booking</span><span class="cv neg">-'+C+fN(c.bookFee)+'</span></div>':"")+
-          expRows+utilRow+
+          expRows+
           '<div class="cdiv"></div>'+
           '<div class="crow net-row"><span class="cl" style="font-weight:700;color:#fff">'+t("net")+'</span><span class="cv big '+(c.net>=0?"em":"neg")+'">'+C+fN(c.net)+'</span></div>'+
           '<div class="cdiv"></div>'+
@@ -616,32 +530,32 @@ function renderApt(){
           '<div class="crow sub"><span class="cl" style="font-weight:600">'+(apt.owner_name||t("owner"))+' ('+c.oPct+'%)</span><span class="cv em">'+C+fN(c.oFin)+'</span></div>'+
         '</div>'+
         (bk.comment?'<div class="card pad" style="margin-top:10px"><div class="muted" style="margin-bottom:4px">'+t("comment")+'</div><div style="font-size:14px;color:#93c5fd">'+bk.comment+'</div></div>':"")+
-        ((bk.receipts||[]).length?'<div style="margin-top:10px"><div class="muted" style="margin-bottom:6px">Чеки</div><div class="receipt-grid">'+bk.receipts.map(function(r){return'<img src="'+r.data+'" class="thumb" onclick="window.open(this.src)">';}).join("")+'</div></div>':"")+
         '<div class="card pad" style="margin-top:10px">'+
-          '<div class="sec" style="margin-bottom:8px">'+t("rpt")+'</div>'+
-          '<div class="row" style="gap:6px;margin-bottom:8px">'+
-            '<button class="lang-btn'+(bkRptLang==="ru"?" on":"")+'\" onclick="setRptLang(\''+bk.id+'\',\'ru\')">🇷🇺 RU</button>'+
-            '<button class="lang-btn'+(bkRptLang==="ka"?" on":"")+'\" onclick="setRptLang(\''+bk.id+'\',\'ka\')">🇬🇪 KA</button>'+
+          '<div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px">'+
+            '<div class="sec" style="margin-bottom:0">'+t("rpt")+'</div>'+
+            '<div class="row" style="gap:6px">'+
+              '<button class="lang-btn'+(V.bkRptLang==="ru"?" on":"")+'\" onclick="V.bkRptLang=\'ru\';renderApt()">🇷🇺</button>'+
+              '<button class="lang-btn'+(V.bkRptLang==="ka"?" on":"")+'\" onclick="V.bkRptLang=\'ka\';renderApt()">🇬🇪</button>'+
+            '</div>'+
           '</div>'+
           '<div class="rpt" id="rpt-'+bk.id+'">'+rpt+'</div>'+
-          '<button id="copy-rpt-'+bk.id+'" class="btn btn-s" style="width:100%;margin-top:10px" onclick="copyRpt(\''+bk.id+'\')">'+I.copy+' '+t("copyRpt")+'</button>'+
+          '<button class="btn btn-s" style="width:100%;margin-top:10px" onclick="copyRpt(\''+bk.id+'\')">'+I.copy+' '+t("copyRpt")+'</button>'+
         '</div>'+
         '<div class="row" style="margin-top:12px;gap:8px">'+
-          '<button class="btn btn-s btn-sm" onclick="editBk(\''+bk.id+'\')">'+I.edit+' '+t("edit")+'</button>'+
-          '<button class="btn btn-d btn-sm" onclick="delBk(\''+bk.id+'\')">'+I.trash+' Удалить</button>'+
+          '<button class="btn btn-s btn-sm" onclick="editBkBtn(\''+bk.id+'\')">'+I.edit+' '+t("edit")+'</button>'+
+          '<button class="btn btn-d btn-sm" onclick="delBkBtn(\''+bk.id+'\')">'+I.trash+' Удалить</button>'+
         '</div>'+
       '</div>';
     }
-    return'<div class="bk-card" id="bkc-'+bk.id+'">'+
-      '<div class="bk-main" onclick="toggleBk(\''+bk.id+'\')">'+
+    return'<div class="bk-card">'+
+      '<div class="bk-main" onclick="V.expOpen[\''+bk.id+'\']=!V.expOpen[\''+bk.id+'\'];renderApt()">'+
         '<div class="row" style="align-items:flex-start;gap:10px">'+
           '<div class="f1">'+
             '<div class="row" style="flex-wrap:wrap;gap:5px">'+
               '<span style="font-size:14px;font-weight:600">'+fD(bk.check_in)+' — '+fD(bk.check_out)+'</span>'+bdg(st[0],st[1])+
             '</div>'+
             '<div class="wrap" style="margin-top:5px">'+
-              platBdg(bk.platform||"")+
-              bdg(c.cur==="GEL"?"ok":"gy",c.cur)+
+              platBdg(bk.platform||"")+bdg(c.cur==="GEL"?"ok":"gy",c.cur)+
               '<span class="muted">'+nL(nts(bk.check_in,bk.check_out))+'</span>'+
               (bk.guest_name?'<span class="muted">· '+bk.guest_name+'</span>':"")+
             '</div>'+
@@ -655,336 +569,481 @@ function renderApt(){
     '</div>';
   }).join("");
 
+  // Currency summary
+  var usdBks=abs.filter(function(b){return(b.income_currency||"USD")==="USD";});
+  var gelBks=abs.filter(function(b){return(b.income_currency||"USD")==="GEL";});
+  function tot(arr){return arr.reduce(function(acc,b){var c=calc(b);return{gross:acc.gross+c.gross,net:acc.net+c.net,plat:acc.plat+c.dFin,own:acc.own+c.oFin,netUSD:acc.netUSD+c.netUSD};},{gross:0,net:0,plat:0,own:0,netUSD:0});}
+  var tU=tot(usdBks),tG=tot(gelBks);
+  var sumHtml="";
+  if(usdBks.length)sumHtml+='<div class="cur-block" style="background:#0e1f3a;border:1px solid rgba(253,224,71,.2)"><div class="cur-hdr" style="background:rgba(253,224,71,.08);color:#fde047">USD — '+usdBks.length+' '+t("stays")+'</div>'+mkCR(t("arrived"),"$"+fN(tU.gross),"#fff")+mkCR(t("net"),"$"+fN(tU.net),"#34d399")+mkCR(t("platform"),"$"+fN(tU.plat),"#60a5fa")+mkCR(apt.owner_name||t("owner"),"$"+fN(tU.own),"#34d399")+'</div>';
+  if(gelBks.length)sumHtml+='<div class="cur-block" style="background:#0e1f3a;border:1px solid rgba(52,211,153,.2)"><div class="cur-hdr" style="background:rgba(52,211,153,.08);color:#6ee7b7">GEL — '+gelBks.length+' '+t("stays")+'</div>'+mkCR(t("arrived"),"₾"+fN(tG.gross),"#fff")+mkCR(t("net"),"₾"+fN(tG.net),"#34d399")+mkCR(t("platform"),"₾"+fN(tG.plat),"#60a5fa")+mkCR(apt.owner_name||t("owner"),"₾"+fN(tG.own),"#34d399")+'</div>';
+  if(usdBks.length&&gelBks.length){var tNet=tU.netUSD+tG.netUSD;sumHtml+='<div class="total-bar">'+mkCR(t("total")+" ("+t("byRate")+" "+fN(DB.rate)+")","$"+fN(tNet),"#34d399")+'</div>';}
+
+  // Status buttons
+  var stBtns=APT_STATUSES.map(function(s){return'<button class="status-btn'+(status===s.key?" "+s.cls:"")+'\" onclick="setStatus(\''+s.key+'\')">'+s.label+'</button>';}).join("");
+
   root.innerHTML=
     '<div class="modal">'+
     '<div class="hdr"><div class="hdr-row">'+
-      '<button class="btn" style="background:none;border:none;color:rgba(147,197,253,.5);padding:4px 6px 4px 0" onclick="backToList()">'+I.back+'</button>'+
+      '<button class="btn" style="background:none;border:none;color:rgba(147,197,253,.5);padding:4px 6px 4px 0" onclick="V.view=\'list\';V.selApt=null;V.expOpen={};render()">'+I.back+'</button>'+
       '<div class="f1"><div style="font-size:16px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+apt.apartment_name+'</div>'+
         '<div class="muted trunc" style="margin-top:2px">'+apt.address+'</div></div>'+
-      '<button class="btn" style="background:none;border:none;color:rgba(147,197,253,.35);padding:6px" onclick="goEditApt()">'+I.edit+'</button>'+
+      '<button class="btn" style="background:none;border:none;color:rgba(147,197,253,.4);padding:6px" onclick="editAptBtn(\''+apt.id+'\')">'+I.edit+'</button>'+
     '</div>'+
-    (apt.owner_name||apt.owner_contact?'<div class="owner-strip"><div class="ow-av">'+(apt.owner_name||"?")[0]+'</div><div class="f1"><div style="font-size:13px;font-weight:600">'+(apt.owner_name||"")+'</div>'+(apt.owner_contact?'<div class="muted">'+apt.owner_contact+'</div>':"")+
+    // Status row
+    '<div style="display:flex;gap:6px;margin-top:10px">'+stBtns+'</div>'+
+    (apt.owner_name?'<div class="owner-strip"><div class="ow-av">'+(apt.owner_name||"?")[0]+'</div><div class="f1"><div style="font-size:13px;font-weight:600">'+apt.owner_name+'</div>'+(apt.owner_contact?'<div class="muted">'+apt.owner_contact+'</div>':"")+
     '</div>'+(apt.owner_account?'<div style="font-size:11px;font-family:monospace;color:#93c5fd;max-width:110px;overflow:hidden;text-overflow:ellipsis">'+apt.owner_account+'</div>':"")+
     '</div>':"")+
     '</div>'+
     '<div class="page">'+
-      curSummaryHtml(abs,S.rate,apt.owner_name)+
+      sumHtml+
       '<div class="row" style="margin-bottom:10px;margin-top:4px"><span style="font-size:14px;font-weight:600">'+t("stays")+'</span><span class="muted" style="margin-left:auto">'+abs.length+'</span></div>'+
-      (!abs.length?'<div class="empty">'+t("noStays")+'</div>':"")+
+      (!abs.length?'<div class="empty">'+t("noBookings")+'</div>':"")+
       bkHtml+
     '</div>'+
-    '<div class="fab-bar"><button class="fab" onclick="newBk()">'+I.plus+' '+t("addStay")+'</button></div>'+
+    '<div class="fab-bar"><button class="fab" onclick="newBkBtn()">'+I.plus+' '+t("addBooking")+'</button></div>'+
     '</div>';
 
-  window._rptData={};
-  abs.forEach(function(bk){var c=calc(bk,S.rate);window._rptData[bk.id]={apt:apt,bk:bk,c:c};});
+  // Store reports for copy
+  window._rpts={};
+  abs.forEach(function(bk){var c=calc(bk);window._rpts[bk.id]={apt:apt,bk:bk,c:c};});
 }
 
-window.setRptLang=function(bkId,lang){
-  bkRptLang=lang;
-  var d=window._rptData&&window._rptData[bkId];
-  if(!d)return;
-  var rpt=makeReport(d.apt,d.bk,d.c,lang);
-  var el=g("rpt-"+bkId);
-  if(el)el.textContent=rpt;
-  // Toggle active styles
-  var btns=document.querySelectorAll(".lang-btn");
-  btns.forEach(function(b){b.classList.remove("on");});
-  renderApt();
+window.setStatus=async function(st){
+  var apt=getApt(V.selApt);if(!apt)return;
+  apt.status=st;
+  var idx=DB.apartments.findIndex(function(a){return String(a.id)===String(apt.id);});
+  if(idx>-1)DB.apartments[idx]=apt;
+  dbSave();renderApt();
+  try{await apiPost("upsert_apt",apt);}catch(e){}
 };
 window.copyRpt=function(id){
-  var d=window._rptData&&window._rptData[id];
-  if(!d)return;
-  var rpt=makeReport(d.apt,d.bk,d.c,bkRptLang);
+  var d=window._rpts&&window._rpts[id];if(!d)return;
+  var rpt=makeReport(d.apt,d.bk,d.c,V.bkRptLang);
   navigator.clipboard.writeText(rpt).catch(function(){});
-  var btn=g("copy-rpt-"+id);
-  if(btn){btn.innerHTML=I.check+" "+t("copied");setTimeout(function(){if(g("copy-rpt-"+id))g("copy-rpt-"+id).innerHTML=I.copy+" "+t("copyRpt");},2000);}
+  var btn=event.target.closest("button");
+  if(btn){btn.innerHTML=I.check+" "+t("copied");setTimeout(function(){if(btn)btn.innerHTML=I.copy+" "+t("copyRpt");},2000);}
 };
-window.backToList=function(){S.view="list";S.selApt=null;S.expOpen={};render();};
-window.goEditApt=function(){aptF=null;S.editApt=S.selApt;S.view="aptform";render();};
-window.toggleBk=function(id){S.expOpen[id]=!S.expOpen[id];renderApt();};
-window.editBk=function(id){S.editBk=S.bks.find(function(b){return b.id===id;});bkF=null;bkTab="main";S.view="bkform";render();};
-window.delBk=function(id){
-  if(!confirm("Удалить?"))return;
-  S.bks=S.bks.filter(function(b){return b.id!==id;});
-  save("dr11_bks",S.bks);delete S.expOpen[id];renderApt();
-};
-window.newBk=function(){S.editBk=null;bkF=null;bkTab="main";S.view="bkform";render();};
+window.editBkBtn=function(id){V.editBk=DB.bookings.find(function(b){return b.id===id;});bkF=null;V.view="bkform";render();};
+window.delBkBtn=function(id){if(!confirm("Удалить?"))return;deleteBk(id);};
+window.newBkBtn=function(){V.editBk=null;bkF=null;V.view="bkform";render();};
+function mkCR(l,v,c){return'<div class="cur-row-s"><span class="muted">'+l+'</span><span style="font-family:monospace;font-weight:700;color:'+c+'">'+v+'</span></div>';}
 
-/* ══ BOOKING FORM ═══════════════════════════════════ */
+/* ══ BOOKING FORM ════════════════════════════════════════════ */
 function initBkF(){
-  var apt=S.selApt;
-  if(S.editBk){bkF=JSON.parse(JSON.stringify(S.editBk));if(!bkF.expenses)bkF.expenses=[];}
-  else{
-    var defP=(apt&&apt.platforms&&apt.platforms[0])||"Airbnb";
+  var apt=getApt(V.selApt);
+  if(V.editBk){
+    bkF=JSON.parse(JSON.stringify(V.editBk));
+  } else {
+    var defP=apt&&apt.platforms?(apt.platforms.split(",")[0].trim()):"Airbnb";
     var defC=defP==="Airbnb"?"USD":"GEL";
-    bkF={id:uid(),check_in:"",check_out:"",gross_income:"",income_currency:defC,platform:defP,guest_name:"",comment:"",receipts:[],payment_status:"received",platform_pct:(apt&&apt.platform_pct)||20,tax_pct:0,booking_fee:"",expenses:[]};
+    bkF={id:uid(),apartment_id:V.selApt,platform:defP,guest_name:"",check_in:"",check_out:"",gross_income:"",income_currency:defC,platform_pct:(apt&&apt.platform_pct)||20,tax_pct:defP==="Airbnb"?1:0,booking_fee:"",payment_status:"received",comment:""};
   }
+}
+
+var bkFormTab="main";
+
+function calcBkLive(){
+  // calc from bkF + any expense drafts in DB (existing expenses for this booking)
+  return calc(bkF);
 }
 
 function renderBkForm(){
   if(!bkF)initBkF();
-  var apt=S.selApt;
+  var apt=getApt(V.selApt);
   var b=bkF;
-  var c=calc(b,S.rate);
+  var c=calcBkLive();
   var n=nts(b.check_in,b.check_out);
   var C=cs(b.income_currency);
-  var cats=b.platform==="Booking"?EXP_CAT.concat(["booking_fee"]):EXP_CAT;
-  var usedCats=(b.expenses||[]).map(function(e){return e.cat;});
+  var plat=b.platform||"Airbnb";
+  var cats=plat==="Booking"?EXP_CATS.concat(["booking_fee"]):EXP_CATS;
+  // Expenses linked to this booking
+  var linkedExps=DB.expenses.filter(function(e){return e.booking_id===b.id;});
+  var usedCats=linkedExps.map(function(e){return e.category||e.cat;});
 
-  var platHtml=[["Airbnb","pa"],["Booking","pb"],["Другое","po"]].map(function(x){
-    return'<button class="plat-btn'+(b.platform===x[0]?" "+x[1]:"")+'\" onclick="setBkPlat(\''+x[0]+'\')">'+x[0]+'</button>';
+  var platBtns=[["Airbnb","pa"],["Booking","pb"],["Другое","po"]].map(function(x){
+    return'<button class="plat-btn'+(plat===x[0]?" "+x[1]:"")+'\" onclick="bkF.platform=\''+x[0]+'\';bkF.income_currency=\''+(x[0]==="Airbnb"?"USD":"GEL")+'\';bkF.tax_pct='+(x[0]==="Airbnb"?(parseFloat(bkF.tax_pct)||1):0)+';renderBkForm()">'+x[0]+'</button>';
   }).join("");
 
-  function payerBtns(payer,idx){
+  function payerBtns(payer,expId){
     return'<div class="payer-row">'+
-      '<button class="payer-btn'+(payer==="platform"?" pon":"")+'\" onclick="setExpPayer('+idx+',\'platform\')">'+t("nbyPlat")+'</button>'+
-      '<button class="payer-btn'+(payer==="owner"?" pon":"")+'\" onclick="setExpPayer('+idx+',\'owner\')">'+t("nbySelf")+'</button>'+
+      '<button class="payer-btn'+(payer==="platform"?" pon":"")+'\" onclick="setExpPayer(\''+expId+'\',\'platform\')">'+t("nbyPlat")+'</button>'+
+      '<button class="payer-btn'+(payer==="owner"?" pon":"")+'\" onclick="setExpPayer(\''+expId+'\',\'owner\')">'+t("nbySelf")+'</button>'+
     '</div>';
   }
 
-  var addCatBtns=cats.filter(function(c){return!usedCats.includes(c);}).map(function(cat){
-    return'<button class="btn btn-s btn-sm" style="margin:0 4px 6px 0" onclick="addExp(\''+cat+'\')">'+I.plus+' '+(EXP_LBL[cat]||cat)+'</button>';
+  var addCatBtns=cats.filter(function(cat){return!usedCats.includes(cat);}).map(function(cat){
+    return'<button class="btn btn-s btn-sm" style="margin:0 4px 6px 0" onclick="addExpInline(\''+cat+'\')">'+I.plus+' '+(EXP_LBL[cat]||cat)+'</button>';
   }).join("");
 
-  var expRowsSafe=(b.expenses||[]).map(function(e,i){
-    var ecs=cs(e.currency);
-    var curRow='<div class="cur-row">'+
-      '<button class="cur-btn'+(e.currency==="USD"?" cusd":"")+'\" onclick="setExpCur('+i+',\'USD\')">USD</button>'+
-      '<button class="cur-btn'+(e.currency==="GEL"?" cgel":"")+'\" onclick="setExpCur('+i+',\'GEL\')">GEL</button>'+
-    '</div>';
+  var expRowsHtml=linkedExps.map(function(e){
+    var ecs=cs(e.currency||"GEL");
     var hoursBlock="";
-    if(WITH_HOURS.indexOf(e.cat)!==-1){
+    if(e.category==="cleaning"||e.category==="repair"){
       var hrs=e.hours||"";
       var hAmt=hrs?parseFloat((parseFloat(hrs)*HOUR_RATE).toFixed(2)):"";
       hoursBlock='<div class="hours-block">'+
         '<div class="lbl" style="margin-bottom:6px">⏱ '+t("hours")+' (1ч = ₾'+fN(HOUR_RATE)+')</div>'+
         '<div style="display:flex;gap:8px;align-items:center">'+
-          '<div class="f1 rel"><span class="il" style="font-size:12px">ч</span><input type="number" class="inp pl" value="'+hrs+'" placeholder="0" step="0.5" oninput="setExpHours('+i+',this.value)"/></div>'+
-          (hAmt?'<span style="font-family:monospace;font-weight:700;color:#6ee7b7;white-space:nowrap">= ₾'+fN(hAmt)+'</span>':'<span class="muted">часы</span>')+
+          '<div class="f1 rel"><span class="il" style="font-size:12px">ч</span><input type="number" class="inp pl" value="'+hrs+'" placeholder="0" step="0.5" oninput="setExpHoursInline(\''+e.id+'\',this.value)"/></div>'+
+          (hAmt?'<span style="font-family:monospace;font-weight:700;color:#6ee7b7;white-space:nowrap">= ₾'+fN(hAmt)+'</span>':'<span class="muted">ч</span>')+
         '</div>'+
-        (hAmt?'<button class="btn btn-s btn-sm" style="width:100%;margin-top:8px" onclick="applyHours('+i+')">'+t("applyH")+'</button>':"")+
+        (hAmt?'<button class="btn btn-s btn-sm" style="width:100%;margin-top:8px" onclick="applyHoursInline(\''+e.id+'\')">'+t("applyH")+'</button>':"")+
       '</div>';
     }
     return'<div class="exp-block">'+
-      '<div class="row" style="margin-bottom:10px"><span style="font-size:13px;font-weight:600;flex:1">'+(EXP_LBL[e.cat]||e.cat)+'</span>'+
-        '<button class="btn btn-d btn-sm" style="padding:4px 8px" onclick="delExp('+i+')">'+I.trash+'</button></div>'+
+      '<div class="row" style="margin-bottom:10px">'+
+        '<span style="font-size:13px;font-weight:600;flex:1">'+(EXP_LBL[e.category||e.cat]||e.category||e.cat)+'</span>'+
+        '<button class="btn btn-d btn-sm" style="padding:4px 8px" onclick="delExpInline(\''+e.id+'\')">'+I.trash+'</button>'+
+      '</div>'+
       hoursBlock+
       '<div class="field" style="display:flex;gap:8px;align-items:flex-end">'+
-        '<div class="f1 rel"><span class="il">'+ecs+'</span><input type="number" class="inp pl" value="'+(e.amount||"")+'" placeholder="0" oninput="setExpAmt('+i+',this.value)"/></div>'+
-        curRow+
+        '<div class="f1 rel"><span class="il">'+ecs+'</span><input type="number" class="inp pl" value="'+(e.amount||"")+'" placeholder="0" oninput="setExpAmt(\''+e.id+'\',this.value)"/></div>'+
+        '<div class="cur-row">'+
+          '<button class="cur-btn'+(e.currency==="USD"?" cusd":"")+'\" onclick="setExpCur(\''+e.id+'\',\'USD\')">USD</button>'+
+          '<button class="cur-btn'+(e.currency==="GEL"?" cgel":"")+'\" onclick="setExpCur(\''+e.id+'\',\'GEL\')">GEL</button>'+
+        '</div>'+
       '</div>'+
-      '<div class="field"><div class="lbl">'+t("whoПaid")+'</div>'+payerBtns(e.payer,i)+'</div>'+
-      '<input type="text" class="inp" value="'+(e.comment||"")+'" placeholder="'+t("comment")+'..." oninput="setExpComment('+i+',this.value)" style="margin-top:8px"/>'+
+      '<div class="field"><div class="lbl">'+t("whoOaid")+'</div>'+payerBtns(e.payer,e.id)+'</div>'+
+      '<input type="text" class="inp" value="'+(e.comment||"")+'" placeholder="'+t("comment")+'..." oninput="setExpComment(\''+e.id+'\',this.value)" style="margin-top:8px"/>'+
     '</div>';
   }).join("");
 
-  var rpt=makeReport(apt,b,c,bkRptLang);
+  var rpt=makeReport(apt,b,c,V.bkRptLang);
+  var tabs=[["main",t("main")],["exp",t("expenses")],["rpt",t("rpt")]];
 
-  var mainHtml=
+  var mainContent=
     '<div class="g2 field">'+
-      '<div><div class="lbl">'+t("checkin")+'</div><input type="date" class="inp" id="f-ci" value="'+b.check_in+'" onchange="bkF.check_in=this.value;rerenderCalc()"/></div>'+
-      '<div><div class="lbl">'+t("checkout")+'</div><input type="date" class="inp" id="f-co" value="'+b.check_out+'" onchange="bkF.check_out=this.value;rerenderCalc()"/></div>'+
+      '<div><div class="lbl">'+t("checkin")+'</div><input type="date" class="inp" id="f-ci" value="'+b.check_in+'" onchange="bkF.check_in=this.value;rerenderBkCalc()"/></div>'+
+      '<div><div class="lbl">'+t("checkout")+'</div><input type="date" class="inp" id="f-co" value="'+b.check_out+'" onchange="bkF.check_out=this.value;rerenderBkCalc()"/></div>'+
     '</div>'+
     (n>0?'<div class="night-pill">'+nL(n)+'</div>':"")+
     '<div class="field"><div class="lbl">'+t("guest")+'</div><input type="text" class="inp" value="'+b.guest_name+'" placeholder="Giorgi M." oninput="bkF.guest_name=this.value"/></div>'+
-    '<div class="field"><div class="lbl">'+t("platform")+'</div><div class="plat-row">'+platHtml+'</div></div>'+
+    '<div class="field"><div class="lbl">'+t("platform")+'</div><div class="plat-row">'+platBtns+'</div></div>'+
+    // Tax field — always visible, default 1% for Airbnb
     '<div class="field">'+
-      '<div class="lbl">'+t("arrived")+' / Сумма</div>'+
+      '<div class="lbl">Налог % <span style="color:rgba(147,197,253,.4);font-size:10px;font-weight:400;text-transform:none">(вычитается из суммы)</span></div>'+
+      '<div style="display:flex;align-items:center;gap:10px">'+
+        '<div class="f1 rel"><input type="number" class="inp pr" value="'+(b.tax_pct||0)+'" step="0.1" min="0" placeholder="0" oninput="bkF.tax_pct=this.value;rerenderBkCalc()"/><span class="ir">%</span></div>'+
+        (parseFloat(b.tax_pct||0)>0&&parseFloat(b.gross_income||0)>0?
+          '<div style="font-size:13px;font-family:monospace;color:#f87171;white-space:nowrap">-'+cs(b.income_currency)+fN(parseFloat(b.gross_income||0)*parseFloat(b.tax_pct||0)/100)+'</div>'
+        :'<div class="muted" style="font-size:12px">Airbnb: 1%</div>')+
+      '</div>'+
+    '</div>'+
+    '<div class="field">'+
+      '<div class="lbl">'+t("arrived")+'</div>'+
       '<div style="display:flex;gap:8px;align-items:flex-end">'+
-        '<div class="f1 rel"><span class="il">'+C+'</span><input type="number" class="inp pl" value="'+b.gross_income+'" placeholder="0" oninput="bkF.gross_income=this.value;rerenderCalc()"/></div>'+
+        '<div class="f1 rel"><span class="il">'+C+'</span><input type="number" class="inp pl" value="'+b.gross_income+'" placeholder="0" oninput="bkF.gross_income=this.value;rerenderBkCalc()"/></div>'+
         '<div class="cur-row">'+
-          '<button class="cur-btn'+(b.income_currency==="USD"?" cusd":"")+'\" onclick="setIncomeCur(\'USD\')">USD</button>'+
-          '<button class="cur-btn'+(b.income_currency==="GEL"?" cgel":"")+'\" onclick="setIncomeCur(\'GEL\')">GEL</button>'+
+          '<button class="cur-btn'+(b.income_currency==="USD"?" cusd":"")+'\" onclick="bkF.income_currency=\'USD\';renderBkForm()">USD</button>'+
+          '<button class="cur-btn'+(b.income_currency==="GEL"?" cgel":"")+'\" onclick="bkF.income_currency=\'GEL\';renderBkForm()">GEL</button>'+
         '</div>'+
       '</div>'+
     '</div>'+
-    (b.platform==="Booking"?'<div class="field"><div class="lbl">Комиссия Booking</div><div class="rel"><span class="il">'+C+'</span><input type="number" class="inp pl" value="'+(b.booking_fee||"")+'" placeholder="0" oninput="bkF.booking_fee=this.value;rerenderCalc()"/></div></div>':"")+
+    (plat==="Booking"?'<div class="field"><div class="lbl">Комиссия Booking</div><div class="rel"><span class="il">'+C+'</span><input type="number" class="inp pl" value="'+(b.booking_fee||"")+'" placeholder="0" oninput="bkF.booking_fee=this.value;rerenderBkCalc()"/></div></div>':"")+
     '<div class="g2 field">'+
-      '<div><div class="lbl">'+t("platShare")+'</div><div class="rel"><input type="number" class="inp pr" value="'+b.platform_pct+'" oninput="bkF.platform_pct=this.value;rerenderCalc()"/><span class="ir">%</span></div></div>'+
+      '<div><div class="lbl">'+t("platShare")+'</div><div class="rel"><input type="number" class="inp pr" value="'+b.platform_pct+'" oninput="bkF.platform_pct=this.value;rerenderBkCalc()"/><span class="ir">%</span></div></div>'+
       '<div><div class="lbl">'+t("status")+'</div><select class="sel" onchange="bkF.payment_status=this.value">'+
-        [['received',t("received")],['pending',t("pending")],['partial',t("partial")]].map(function(x){return'<option value="'+x[0]+'"'+(b.payment_status===x[0]?" selected":"")+'>'+x[1]+'</option>';}).join("")+
+        [["received",t("received")],["pending",t("pending")],["partial",t("partial")]].map(function(x){return'<option value="'+x[0]+'"'+(b.payment_status===x[0]?" selected":"")+'>'+x[1]+'</option>';}).join("")+
       '</select></div>'+
     '</div>'+
-    (c.gross>0?'<div class="field" id="calc-live">'+calcBoxHtml(c,apt&&apt.owner_name)+'</div>':"")+
+    (c.gross>0?'<div class="field" id="calc-live">'+calcBoxInline(c,apt&&apt.owner_name)+'</div>':"")+
     '<div class="field"><div class="lbl">'+t("comment")+'</div><textarea class="inp" rows="3" style="resize:none" placeholder="..." oninput="bkF.comment=this.value">'+b.comment+'</textarea></div>';
 
-  var expHtml=
+  var expContent=
     '<div class="sec">'+t("addCat")+'</div>'+
     '<div style="margin-bottom:12px">'+addCatBtns+'</div>'+
-    expRowsSafe+
-    (!expRowsSafe?'<div class="empty" style="padding:20px">'+t("noData")+'</div>':"")+
-    '<div class="divider"></div>'+
-    '<div class="lbl" style="margin-bottom:8px">Чеки и фото</div>'+
-    '<div class="receipt-grid">'+
-      (b.receipts||[]).map(function(r,i){return'<div style="position:relative"><img src="'+r.data+'" class="thumb" onclick="window.open(this.src)"/><button onclick="delReceipt('+i+')" style="position:absolute;top:-5px;right:-5px;width:18px;height:18px;border-radius:50%;background:#ef4444;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer">'+I.x+'</button></div>';}).join("")+
-      '<button class="add-thumb" onclick="g(\'file-inp\').click()">'+I.img+'<span>Фото</span></button>'+
-    '</div>'+
-    '<input type="file" id="file-inp" accept="image/*" multiple style="display:none" onchange="addReceipts(this)"/>'+
-    (c.gross>0?'<div style="margin-top:12px">'+calcBoxHtml(c,apt&&apt.owner_name)+'</div>':"");
+    expRowsHtml+
+    (!expRowsHtml?'<div class="empty" style="padding:20px">'+t("noBookings").replace("прожив","расходов")+'</div>':"");
 
-  var rptHtml=
+  var rptContent=
     '<div class="card pad field">'+
       '<div class="row" style="justify-content:space-between;align-items:center;margin-bottom:10px">'+
         '<div class="sec" style="margin-bottom:0">'+t("rpt")+'</div>'+
         '<div class="row" style="gap:6px">'+
-          '<button class="lang-btn'+(bkRptLang==="ru"?" on":"")+'\" onclick="setBkRptLang(\'ru\')">🇷🇺 RU</button>'+
-          '<button class="lang-btn'+(bkRptLang==="ka"?" on":"")+'\" onclick="setBkRptLang(\'ka\')">🇬🇪 KA</button>'+
+          '<button class="lang-btn'+(V.bkRptLang==="ru"?" on":"")+'\" onclick="V.bkRptLang=\'ru\';renderBkForm()">🇷🇺</button>'+
+          '<button class="lang-btn'+(V.bkRptLang==="ka"?" on":"")+'\" onclick="V.bkRptLang=\'ka\';renderBkForm()">🇬🇪</button>'+
         '</div>'+
       '</div>'+
-      '<div class="rpt">'+makeReport(apt,b,c,bkRptLang)+'</div>'+
+      '<div class="rpt">'+rpt+'</div>'+
     '</div>'+
-    (apt&&apt.owner_account?'<div class="card pad field" style="display:flex;align-items:center;gap:8px"><span class="muted">Счёт:</span><span style="font-family:monospace;font-size:12px;color:#93c5fd">'+apt.owner_account+'</span></div>':"")+
-    '<div class="field"><button id="copy-btn" class="btn btn-s" style="width:100%">'+I.copy+' '+t("copyRpt")+'</button></div>';
+    '<button id="copy-btn" class="btn btn-s" style="width:100%">'+I.copy+' '+t("copyRpt")+'</button>';
 
   root.innerHTML=
     '<div class="modal">'+
     '<div class="hdr"><div class="hdr-row">'+
-      '<button class="btn" style="background:none;border:none;color:rgba(147,197,253,.5);padding:4px 6px 4px 0" onclick="backFromBkForm()">'+I.back+'</button>'+
+      '<button class="btn" style="background:none;border:none;color:rgba(147,197,253,.5);padding:4px 6px 4px 0" onclick="V.view=\'apt\';V.editBk=null;bkF=null;renderApt()">'+I.back+'</button>'+
       '<div class="f1"><div class="muted" style="font-size:12px">'+(apt?apt.apartment_name:"")+'</div>'+
-        '<div style="font-size:15px;font-weight:600">'+(S.editBk?t("edit"):t("newStay"))+'</div></div>'+
-      '<button class="btn btn-p" onclick="saveBk()">'+I.check+' '+t("save")+'</button>'+
+        '<div style="font-size:15px;font-weight:600">'+(V.editBk?t("edit"):t("newBooking"))+'</div></div>'+
+      '<button class="btn btn-p" onclick="saveBkForm()">'+I.check+' '+t("save")+'</button>'+
     '</div></div>'+
-    '<div class="tabs">'+[[t("main"),"main"],[t("exp"),"exp"],[t("rpt"),"rpt"]].map(function(x){return'<button class="tab'+(bkTab===x[1]?" on":"")+'\" onclick="switchBkTab(\''+x[1]+'\')">'+x[0]+'</button>';}).join("")+'</div>'+
-    '<div class="page">'+(bkTab==="main"?mainHtml:bkTab==="exp"?expHtml:rptHtml)+'</div>'+
+    '<div class="tabs">'+tabs.map(function(x){return'<button class="tab'+(bkFormTab===x[0]?" on":"")+'\" onclick="bkFormTab=\''+x[0]+'\';renderBkForm()">'+x[1]+'</button>';}).join("")+'</div>'+
+    '<div class="page">'+(bkFormTab==="main"?mainContent:bkFormTab==="exp"?expContent:rptContent)+'</div>'+
     '</div>';
 
-  if(g("copy-btn")){
-    g("copy-btn").addEventListener("click",function(){
-      var rptText=makeReport(apt,b,calc(b,S.rate),bkRptLang);
-      navigator.clipboard.writeText(rptText).catch(function(){});
-      g("copy-btn").innerHTML=I.check+" "+t("copied");
-      setTimeout(function(){if(g("copy-btn"))g("copy-btn").innerHTML=I.copy+" "+t("copyRpt");},2000);
-    });
-  }
+  if(g("copy-btn")){g("copy-btn").addEventListener("click",function(){navigator.clipboard.writeText(rpt).catch(function(){});this.innerHTML=I.check+" "+t("copied");var self=this;setTimeout(function(){self.innerHTML=I.copy+" "+t("copyRpt");},2000);});}
 }
 
-window.setBkRptLang=function(lang){bkRptLang=lang;renderBkForm();};
-window.rerenderCalc=function(){
-  if(!bkF||bkTab!=="main")return;
-  var c=calc(bkF,S.rate);
+function calcBoxInline(c,ownerName){
+  var C=cs(c.cur);
+  var expRows=c.exps.filter(function(e){return e.inBase>0;}).map(function(e){
+    return'<div class="crow sub"><span class="cl" style="color:rgba(147,197,253,.3)">• '+(EXP_LBL[e.category||e.cat]||e.category||e.cat)+'</span><span class="cv neg">-'+cs(e.currency)+fN(e.amt)+'</span></div>';
+  }).join("");
+  return'<div class="cbox">'+
+    '<div class="crow"><span class="cl">'+t("arrived")+'</span><span class="cv">'+C+fN(c.gross)+'</span></div>'+
+    (c.tax>0?'<div class="crow"><span class="cl">Налог</span><span class="cv neg">-'+C+fN(c.tax)+'</span></div>':"")+
+    (c.bookFee>0?'<div class="crow"><span class="cl">Комиссия Booking</span><span class="cv neg">-'+C+fN(c.bookFee)+'</span></div>':"")+
+    expRows+
+    '<div class="cdiv"></div>'+
+    '<div class="crow net-row"><span class="cl" style="font-weight:700;color:#fff">'+t("net")+'</span><span class="cv big '+(c.net>=0?"em":"neg")+'">'+C+fN(c.net)+'</span></div>'+
+    '<div class="cdiv"></div>'+
+    '<div class="crow sub"><span class="cl" style="font-weight:600">'+t("platform")+' ('+c.dPct+'%)</span><span class="cv tbl">'+C+fN(c.dFin)+'</span></div>'+
+    '<div class="crow sub"><span class="cl" style="font-weight:600">'+(ownerName||t("owner"))+' ('+c.oPct+'%)</span><span class="cv em">'+C+fN(c.oFin)+'</span></div>'+
+    '</div>';
+}
+
+window.rerenderBkCalc=function(){
+  if(!bkF||bkFormTab!=="main")return;
+  var c=calcBkLive();
   var el=g("calc-live");
+  var apt=getApt(V.selApt);
   if(c.gross>0){
-    if(el){el.innerHTML=calcBoxHtml(c,S.selApt&&S.selApt.owner_name);}
-    else{var pg=document.querySelector(".modal .page");if(pg){var d=document.createElement("div");d.id="calc-live";d.className="field";d.innerHTML=calcBoxHtml(c,S.selApt&&S.selApt.owner_name);var ta=pg.querySelector("textarea");if(ta&&ta.parentNode)pg.insertBefore(d,ta.parentNode);else pg.appendChild(d);}}
+    if(el){el.innerHTML=calcBoxInline(c,apt&&apt.owner_name);}
+    else{var pg=document.querySelector(".modal .page");if(pg){var d=document.createElement("div");d.id="calc-live";d.className="field";d.innerHTML=calcBoxInline(c,apt&&apt.owner_name);var ta=pg.querySelector("textarea");if(ta&&ta.parentNode)pg.insertBefore(d,ta.parentNode);else pg.appendChild(d);}}
   }
 };
-window.backFromBkForm=function(){bkF=null;bkTab="main";S.editBk=null;S.view="apt";renderApt();};
-window.switchBkTab=function(tab){bkTab=tab;renderBkForm();};
-window.setBkPlat=function(p){bkF.platform=p;bkF.income_currency=p==="Airbnb"?"USD":"GEL";renderBkForm();};
-window.setIncomeCur=function(c){bkF.income_currency=c;renderBkForm();};
-window.addExp=function(cat){bkF.expenses=bkF.expenses||[];bkF.expenses.push({id:uid(),cat:cat,amount:"",currency:bkF.income_currency||"USD",payer:"platform",comment:"",hours:""});renderBkForm();};
-window.delExp=function(i){bkF.expenses.splice(i,1);renderBkForm();};
-window.setExpAmt=function(i,v){if(bkF.expenses[i])bkF.expenses[i].amount=v;};
-window.setExpHours=function(i,v){if(bkF.expenses[i]){bkF.expenses[i].hours=v;renderBkForm();}};
-window.applyHours=function(i){if(!bkF.expenses[i])return;var hrs=parseFloat(bkF.expenses[i].hours)||0;bkF.expenses[i].amount=parseFloat((hrs*HOUR_RATE).toFixed(2));bkF.expenses[i].currency="GEL";renderBkForm();};
-window.setExpCur=function(i,v){if(bkF.expenses[i]){bkF.expenses[i].currency=v;renderBkForm();}};
-window.setExpPayer=function(i,v){if(bkF.expenses[i]){bkF.expenses[i].payer=v;renderBkForm();}};
-window.setExpComment=function(i,v){if(bkF.expenses[i])bkF.expenses[i].comment=v;};
-window.addReceipts=function(inp){var files=Array.from(inp.files);var done=0;files.forEach(function(f){var r=new FileReader();r.onload=function(ev){bkF.receipts=bkF.receipts||[];bkF.receipts.push({id:uid(),name:f.name,data:ev.target.result});done++;if(done===files.length)renderBkForm();};r.readAsDataURL(f);});inp.value="";};
-window.delReceipt=function(i){bkF.receipts.splice(i,1);renderBkForm();};
-window.saveBk=function(){
+
+window.addExpInline=function(cat){
+  var ex={id:uid(),booking_id:bkF.id,apartment_id:V.selApt,category:cat,amount:"",currency:bkF.income_currency||"USD",payer:"platform",comment:"",date:new Date().toISOString().slice(0,10)};
+  DB.expenses.push(ex);dbSave();renderBkForm();
+};
+window.delExpInline=function(id){DB.expenses=DB.expenses.filter(function(e){return e.id!==id;});dbSave();renderBkForm();apiDelete("delete_expense",id);};
+window.setExpAmt=function(id,v){var e=DB.expenses.find(function(e){return e.id===id;});if(e){e.amount=v;dbSave();}};
+window.setExpHoursInline=function(id,v){var e=DB.expenses.find(function(e){return e.id===id;});if(e){e.hours=v;dbSave();renderBkForm();}};
+window.applyHoursInline=function(id){var e=DB.expenses.find(function(e){return e.id===id;});if(!e)return;e.amount=parseFloat((parseFloat(e.hours)*HOUR_RATE).toFixed(2));e.currency="GEL";dbSave();renderBkForm();};
+window.setExpCur=function(id,v){var e=DB.expenses.find(function(e){return e.id===id;});if(e){e.currency=v;dbSave();renderBkForm();}};
+window.setExpPayer=function(id,v){var e=DB.expenses.find(function(e){return e.id===id;});if(e){e.payer=v;dbSave();renderBkForm();}};
+window.setExpComment=function(id,v){var e=DB.expenses.find(function(e){return e.id===id;});if(e){e.comment=v;dbSave();}};
+
+window.saveBkForm=async function(){
   if(!bkF)return;
-  var apt=S.selApt;
-  var saved=Object.assign({},bkF,{aptId:apt.id});
-  if(S.editBk){S.bks=S.bks.map(function(b){return b.id===saved.id?saved:b;});}
-  else{S.bks.push(saved);}
-  save("dr11_bks",S.bks);
-  var c=calc(saved,S.rate);
-  writeToSheets(saved,c,apt);
-  bkF=null;bkTab="main";S.editBk=null;S.view="apt";renderApt();
+  var apt=getApt(V.selApt);
+  var saved=Object.assign({},bkF,{apartment_id:V.selApt,apartment_name:apt?apt.apartment_name:""});
+  // Push booking
+  await pushBooking(saved);
+  // Push all linked expenses
+  var exps=DB.expenses.filter(function(e){return e.booking_id===saved.id;});
+  for(var i=0;i<exps.length;i++){try{await apiPost("upsert_expense",exps[i]);}catch(e){}}
+  bkF=null;bkFormTab="main";V.editBk=null;V.view="apt";renderApt();
 };
 
-/* ══ APT FORM ═══════════════════════════════════════ */
+/* ══ APT FORM ════════════════════════════════════════════════ */
+window.newAptBtn=function(){aptF=null;V.view="aptform";render();};
+window.editAptBtn=function(id){
+  var apt=getApt(id);if(!apt)return;
+  aptF=JSON.parse(JSON.stringify(apt));
+  V.view="aptform";render();
+};
+
 function renderAptForm(){
   if(!aptF){
-    aptF=S.editApt?JSON.parse(JSON.stringify(S.editApt)):{id:uid(),apartment_name:"",address:"",mapLink:"",platforms:["Airbnb","Booking"],status:"active",owner_name:"",owner_contact:"",owner_account:"",platform_pct:20,notes:"",utilities:[]};
-    if(!aptF.utilities)aptF.utilities=[];
-    // Init all providers
-    UTIL_PROVIDERS.forEach(function(p){
-      if(!aptF.utilities.find(function(u){return u.id===p.id;})){
-        aptF.utilities.push({id:p.id,amount:"",provider_option:p.options?p.options[0]:""});
-      }
-    });
+    aptF={id:uid(),apartment_name:"",address:"",owner_name:"",owner_contact:"",owner_account:"",platform_pct:20,platforms:"Airbnb,Booking",status:"active",rooms:"",notes:""};
   }
   var a=aptF;
-  var pls=a.platforms||[];
-  var platHtml=[["Airbnb","pa"],["Booking","pb"],["Другое","po"]].map(function(x){
+  var pls=(a.platforms||"").split(",").map(function(p){return p.trim();});
+  var platBtns=[["Airbnb","pa"],["Booking","pb"],["Другое","po"]].map(function(x){
     return'<button class="plat-btn'+(pls.includes(x[0])?" "+x[1]:"")+'\" onclick="togAptPlat(\''+x[0]+'\')">'+x[0]+'</button>';
   }).join("");
-  var utilHtml=(a.utilities||[]).map(function(u,i){
-    var prov=UTIL_PROVIDERS.find(function(p){return p.id===u.id;})||{name:u.id,icon:"💡"};
-    var optSelect=prov.options?'<select class="sel" style="margin-top:6px" onchange="setUtilOpt('+i+',this.value)">'+prov.options.map(function(o){return'<option value="'+o+'"'+(u.provider_option===o?" selected":"")+'>'+o+'</option>';}).join("")+'</select>':"";
-    return'<div class="util-row">'+
-      '<div class="f1"><div style="font-size:14px">'+prov.icon+' '+prov.name+'</div>'+(optSelect||"")+'</div>'+
-      '<div class="rel" style="width:130px">'+
-        '<span class="il" style="font-size:13px">₾</span>'+
-        '<input type="number" class="inp pl" value="'+(u.amount||"")+'" placeholder="0" oninput="setUtilAmt('+i+',this.value)" style="font-size:15px"/>'+
-      '</div>'+
-    '</div>';
-  }).join("");
-
   root.innerHTML=
     '<div class="modal">'+
     '<div class="hdr"><div class="hdr-row">'+
-      '<button class="btn" style="background:none;border:none;color:rgba(147,197,253,.5);padding:4px 6px 4px 0" onclick="backFromAptForm()">'+I.back+'</button>'+
-      '<div class="f1" style="font-size:15px;font-weight:600">'+(S.editApt?t("editApt"):t("newApt"))+'</div>'+
-      '<button class="btn btn-p" onclick="saveApt()">'+I.check+' '+t("save")+'</button>'+
+      '<button class="btn" style="background:none;border:none;color:rgba(147,197,253,.5);padding:4px 6px 4px 0" onclick="aptF=null;V.view=V.selApt?\'apt\':\'list\';V.selApt?renderApt():render()">'+I.back+'</button>'+
+      '<div class="f1" style="font-size:15px;font-weight:600">'+(aptF&&DB.apartments.find(function(a){return a.id===aptF.id;})?"Редактировать":"Новая квартира")+'</div>'+
+      '<button class="btn btn-p" onclick="saveAptForm()">'+I.check+' Сохранить</button>'+
     '</div></div>'+
     '<div class="page">'+
-      '<div class="field"><div class="lbl">'+t("aptName")+'</div><input type="text" class="inp" id="a-name" value="'+(a.apartment_name||"")+'" placeholder="Rustaveli Warm Corner"/></div>'+
-      '<div class="field"><div class="lbl">'+t("address")+'</div><input type="text" class="inp" id="a-addr" value="'+(a.address||"")+'" placeholder="7 Solomon Zaldastanishvili St"/></div>'+
-      '<div class="field"><div class="lbl">'+t("mapLink")+'</div><input type="url" class="inp" id="a-map" value="'+(a.mapLink||"")+'" placeholder="https://maps.google.com/..."/></div>'+
-      '<div class="field"><div class="lbl">'+t("platforms")+'</div><div class="plat-row">'+platHtml+'</div></div>'+
-      '<div class="field"><div class="lbl">'+t("status")+'</div><select class="sel" id="a-status">'+
-        '<option value="active"'+(a.status==="active"?" selected":"")+'>'+t("active")+'</option>'+
-        '<option value="inactive"'+(a.status==="inactive"?" selected":"")+'>'+t("inactive")+'</option>'+
+      '<div class="field"><div class="lbl">Название *</div><input type="text" class="inp" id="af-name" value="'+(a.apartment_name||"")+'" placeholder="Rustaveli Warm Corner"/></div>'+
+      '<div class="field"><div class="lbl">Адрес</div><input type="text" class="inp" id="af-addr" value="'+(a.address||"")+'" placeholder="7 Solomon Zaldastanishvili St"/></div>'+
+      '<div class="field"><div class="lbl">Платформы</div><div class="plat-row">'+platBtns+'</div></div>'+
+      '<div class="field"><div class="lbl">Статус</div><select class="sel" id="af-status">'+
+        APT_STATUSES.map(function(s){return'<option value="'+s.key+'"'+(a.status===s.key?" selected":"")+'>'+s.label+'</option>';}).join("")+
       '</select></div>'+
       '<div class="divider"></div>'+
-      '<div class="sec">'+t("ownerName").replace("Имя","Владелец").replace("სახელი","მფლობელი")+'</div>'+
-      '<div class="field"><div class="lbl">'+t("ownerName")+'</div><input type="text" class="inp" id="a-ownname" value="'+(a.owner_name||"")+'" placeholder="Sophiko"/></div>'+
-      '<div class="field"><div class="lbl">'+t("ownerContact")+'</div><input type="text" class="inp" id="a-owncontact" value="'+(a.owner_contact||"")+'" placeholder="+995 599 00 00 00"/></div>'+
-      '<div class="field"><div class="lbl">'+t("ownerAccount")+'</div><input type="text" class="inp" id="a-ownacc" value="'+(a.owner_account||"")+'" placeholder="GE29NB0000000101904917" style="font-family:monospace"/></div>'+
-      '<div class="field"><div class="lbl">'+t("platShare")+'</div><div class="rel"><input type="number" class="inp pr" id="a-pct" value="'+(a.platform_pct||20)+'"/><span class="ir">%</span></div></div>'+
-      '<div class="divider"></div>'+
-      '<div class="sec">💡 '+t("utilSection")+'</div>'+
-      '<div style="background:#071020;border:1px solid rgba(30,58,110,.5);border-radius:12px;padding:4px 12px;margin-bottom:12px">'+utilHtml+'</div>'+
-      '<div class="field"><div class="lbl">'+t("notes")+'</div><textarea class="inp" id="a-notes" rows="3" style="resize:none" placeholder="'+t("notesph")+'">'+(a.notes||"")+'</textarea></div>'+
+      '<div class="sec">Владелец</div>'+
+      '<div class="field"><div class="lbl">Имя</div><input type="text" class="inp" id="af-own" value="'+(a.owner_name||"")+'" placeholder="Sophiko"/></div>'+
+      '<div class="field"><div class="lbl">Контакт</div><input type="text" class="inp" id="af-contact" value="'+(a.owner_contact||"")+'" placeholder="+995 599 00 00 00"/></div>'+
+      '<div class="field"><div class="lbl">Счёт</div><input type="text" class="inp" id="af-acc" value="'+(a.owner_account||"")+'" placeholder="GE29NB0000000101904917" style="font-family:monospace"/></div>'+
+      '<div class="g2 field">'+
+        '<div><div class="lbl">Доля платформы %</div><div class="rel"><input type="number" class="inp pr" id="af-pct" value="'+(a.platform_pct||20)+'"/><span class="ir">%</span></div></div>'+
+        '<div><div class="lbl">Комнат</div><input type="number" class="inp" id="af-rooms" value="'+(a.rooms||"")+'" placeholder="2"/></div>'+
+      '</div>'+
+      '<div class="field"><div class="lbl">Заметки</div><textarea class="inp" id="af-notes" rows="3" style="resize:none" placeholder="Особенности, правила...">'+(a.notes||"")+'</textarea></div>'+
     '</div>'+
     '</div>';
 }
 
-window.togAptPlat=function(p){var pls=aptF.platforms||[];aptF.platforms=pls.includes(p)?pls.filter(function(x){return x!==p;}):[...pls,p];renderAptForm();};
-window.setUtilAmt=function(i,v){if(aptF.utilities[i])aptF.utilities[i].amount=v;};
-window.setUtilOpt=function(i,v){if(aptF.utilities[i])aptF.utilities[i].provider_option=v;};
-window.backFromAptForm=function(){aptF=null;S.editApt=null;S.view=S.selApt?"apt":"list";S.selApt?renderApt():render();};
-window.saveApt=function(){
-  var name=(g("a-name")||{}).value;if(!name||!name.trim()){alert("Укажите название");return;}
-  aptF.apartment_name=name.trim();
-  aptF.address=(g("a-addr")||{}).value||"";
-  aptF.mapLink=(g("a-map")||{}).value||"";
-  aptF.status=(g("a-status")||{}).value||"active";
-  aptF.owner_name=(g("a-ownname")||{}).value||"";
-  aptF.owner_contact=(g("a-owncontact")||{}).value||"";
-  aptF.owner_account=(g("a-ownacc")||{}).value||"";
-  aptF.platform_pct=parseFloat((g("a-pct")||{}).value)||20;
-  aptF.notes=(g("a-notes")||{}).value||"";
-  if(S.editApt){S.apts=S.apts.map(function(a){return a.id===aptF.id?aptF:a;});S.selApt=aptF;}
-  else{S.apts.push(aptF);}
-  save("dr11_apts",S.apts);
-  aptF=null;S.editApt=null;
-  S.view=S.selApt?"apt":"list";
-  S.selApt?renderApt():render();
+window.togAptPlat=function(p){
+  var pls=(aptF.platforms||"").split(",").map(function(x){return x.trim();}).filter(Boolean);
+  if(pls.includes(p)){pls=pls.filter(function(x){return x!==p;});}else{pls.push(p);}
+  aptF.platforms=pls.join(",");
+  renderAptForm();
 };
 
-/* ══ HAPTIC ═════════════════════════════════════════ */
-function vibe(){try{if(window.Telegram&&window.Telegram.WebApp&&window.Telegram.WebApp.HapticFeedback){window.Telegram.WebApp.HapticFeedback.impactOccurred("light");}else if(navigator.vibrate){navigator.vibrate(10);}}catch(e){}}
-document.addEventListener("touchstart",function(e){var el=e.target.closest("button,a,.apt-card,.bk-main,.tab,.nav-btn,.plat-btn,.cur-btn,.payer-btn,.lang-btn,.fab");if(el)vibe();},{passive:true});
+window.saveAptForm=async function(){
+  var name=(g("af-name")||{}).value;
+  if(!name||!name.trim()){alert("Укажите название");return;}
+  aptF.apartment_name=name.trim();
+  aptF.address=(g("af-addr")||{}).value||"";
+  aptF.status=(g("af-status")||{}).value||"active";
+  aptF.owner_name=(g("af-own")||{}).value||"";
+  aptF.owner_contact=(g("af-contact")||{}).value||"";
+  aptF.owner_account=(g("af-acc")||{}).value||"";
+  aptF.platform_pct=parseFloat((g("af-pct")||{}).value)||20;
+  aptF.rooms=(g("af-rooms")||{}).value||"";
+  aptF.notes=(g("af-notes")||{}).value||"";
+  // Optimistic: add or update local DB
+  var idx=DB.apartments.findIndex(function(a){return a.id===saved.id;});
+  if(idx>-1){DB.apartments[idx]=saved;}else{DB.apartments.push(saved);}
+  dbSave();
+  V.view=V.selApt===saved.id?"apt":"list";V.tab="apts";
+  var saved=aptF;aptF=null;
+  render();
+  // Push to Sheets
+  try{await apiPost("upsert_apt",saved);}catch(e){console.error(e);}
+};
 
-/* ══ START ══════════════════════════════════════════ */
+/* ══ CLEANING ════════════════════════════════════════════════ */
+function renderCleaningList(){
+  var cls=DB.cleaning.slice().sort(function(a,b){return new Date(b.date||b.created_at)-new Date(a.date||a.created_at);});
+  if(!cls.length)return'<div class="empty">Нет записей об уборке</div>';
+  return cls.map(function(cl){
+    var apt=DB.apartments.find(function(a){return String(a.id)===String(cl.apartment_id);});
+    return'<div class="clean-card">'+
+      '<div class="row" style="justify-content:space-between;margin-bottom:6px">'+
+        '<span style="font-size:14px;font-weight:600">'+(apt?apt.apartment_name:"—")+'</span>'+
+        '<span style="font-family:monospace;font-weight:700;color:#6ee7b7;font-size:14px">₾'+fN(cl.total_amount)+'</span>'+
+      '</div>'+
+      '<div class="row" style="flex-wrap:wrap;gap:5px">'+
+        (cl.cleaner?'<span class="muted">👤 '+cl.cleaner+'</span>':"")+
+        (cl.date?'<span class="muted">📅 '+fD(cl.date)+'</span>':"")+
+        (cl.total_hours?'<span class="bdg g">'+fN(cl.total_hours)+'ч</span>':"")+
+        (cl.started_at&&cl.finished_at?'<span class="muted">'+cl.started_at+' — '+cl.finished_at+'</span>':"")+
+      '</div>'+
+      (cl.notes?'<div class="muted" style="margin-top:4px">'+cl.notes+'</div>':"")+
+    '</div>';
+  }).join("");
+}
+
+function renderCleaningView(){
+  if(V.view==="list"&&V.tab==="cleaning"){render();}
+}
+
+function newClean(){clF=null;V.editCl=null;V.view="cleanform";render();}
+
+function renderCleanForm(){
+  if(!clF){
+    clF={id:uid(),apartment_id:"",cleaner:"",date:new Date().toISOString().slice(0,10),started_at:"",finished_at:"",total_hours:"",hourly_rate:HOUR_RATE,total_amount:"",notes:""};
+  }
+  var cl=clF;
+  var aptOpts='<option value="">— Выберите квартиру —</option>'+DB.apartments.map(function(a){return'<option value="'+a.id+'"'+(cl.apartment_id===String(a.id)?" selected":"")+'>'+a.apartment_name+'</option>';}).join("");
+  var staffOpts='<option value="">— Уборщик —</option>'+DB.staff.filter(function(s){return s.active!=="false"&&s.active!==false;}).map(function(s){return'<option value="'+s.name+'"'+(cl.cleaner===s.name?" selected":"")+'>'+s.name+'</option>';}).join("");
+  // Auto-calc hours
+  var hours="";
+  if(cl.started_at&&cl.finished_at){
+    var s=cl.started_at.split(":");
+    var f=cl.finished_at.split(":");
+    if(s.length===2&&f.length===2){
+      var mins=(parseInt(f[0])*60+parseInt(f[1]))-(parseInt(s[0])*60+parseInt(s[1]));
+      if(mins>0)hours=parseFloat((mins/60).toFixed(2));
+    }
+  }
+  if(hours!==""){cl.total_hours=hours;cl.total_amount=parseFloat((hours*(parseFloat(cl.hourly_rate)||HOUR_RATE)).toFixed(2));}
+
+  root.innerHTML=
+    '<div class="modal">'+
+    '<div class="hdr"><div class="hdr-row">'+
+      '<button class="btn" style="background:none;border:none;color:rgba(147,197,253,.5);padding:4px 6px 4px 0" onclick="V.view=\'list\';clF=null;render()">'+I.back+'</button>'+
+      '<div class="f1" style="font-size:15px;font-weight:600">'+t("newCleaning")+'</div>'+
+      '<button class="btn btn-p" onclick="saveCleanForm()">'+I.check+' '+t("save")+'</button>'+
+    '</div></div>'+
+    '<div class="page">'+
+      '<div class="field"><div class="lbl">Квартира</div><select class="sel" onchange="clF.apartment_id=this.value">'+aptOpts+'</select></div>'+
+      '<div class="field"><div class="lbl">'+t("cleaner")+'</div>'+
+        (DB.staff.length?'<select class="sel" onchange="clF.cleaner=this.value">'+staffOpts+'</select>':'<input type="text" class="inp" value="'+cl.cleaner+'" placeholder="Имя уборщика" oninput="clF.cleaner=this.value"/>')+
+      '</div>'+
+      '<div class="field"><div class="lbl">Дата</div><input type="date" class="inp" value="'+cl.date+'" onchange="clF.date=this.value"/></div>'+
+      '<div class="g2 field">'+
+        '<div><div class="lbl">'+t("startTime")+'</div><input type="time" class="inp" value="'+cl.started_at+'" onchange="clF.started_at=this.value;renderCleanForm()"/></div>'+
+        '<div><div class="lbl">'+t("endTime")+'</div><input type="time" class="inp" value="'+cl.finished_at+'" onchange="clF.finished_at=this.value;renderCleanForm()"/></div>'+
+      '</div>'+
+      (hours!=""?
+        '<div style="background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3);border-radius:12px;padding:12px 14px;margin-bottom:12px">'+
+          '<div class="row" style="justify-content:space-between">'+
+            '<span class="muted">⏱ '+t("totalH")+': <strong style="color:#6ee7b7">'+fN(hours)+' ч</strong></span>'+
+            '<span class="muted">'+t("rate")+': <strong style="color:#fde047">₾'+fN(cl.hourly_rate)+'</strong></span>'+
+          '</div>'+
+          '<div style="font-size:20px;font-weight:700;color:#34d399;font-family:monospace;margin-top:6px;text-align:center">₾'+fN(cl.total_amount)+'</div>'+
+        '</div>'
+      :"")+
+      '<div class="g2 field">'+
+        '<div><div class="lbl">'+t("rate")+' (₾/ч)</div><div class="rel"><span class="il">₾</span><input type="number" class="inp pl" value="'+cl.hourly_rate+'" oninput="clF.hourly_rate=this.value;renderCleanForm()"/></div></div>'+
+        '<div><div class="lbl">Итог ₾</div><div class="rel"><span class="il">₾</span><input type="number" class="inp pl" value="'+(cl.total_amount||"")+'" oninput="clF.total_amount=this.value"/></div></div>'+
+      '</div>'+
+      '<div class="field"><div class="lbl">Заметки</div><textarea class="inp" rows="3" style="resize:none" placeholder="..." oninput="clF.notes=this.value">'+cl.notes+'</textarea></div>'+
+    '</div>'+
+    '</div>';
+}
+window.saveCleanForm=function(){if(!clF||!clF.apartment_id)return alert("Выберите квартиру");pushCleaning(clF);clF=null;V.view="list";render();};
+
+/* ══ DASHBOARD ════════════════════════════════════════════════ */
+function renderDash(){
+  var fil=DB.bookings.filter(function(b){
+    if(V.dashFilter.apt!=="all"&&String(b.apartment_id)!==V.dashFilter.apt)return false;
+    if(V.dashFilter.month&&(b.check_in||"").slice(0,7)!==V.dashFilter.month)return false;
+    return true;
+  });
+  var usdBks=fil.filter(function(b){return(b.income_currency||"USD")==="USD";});
+  var gelBks=fil.filter(function(b){return(b.income_currency||"USD")==="GEL";});
+  function tot(arr){return arr.reduce(function(acc,b){var c=calc(b);return{gross:acc.gross+c.gross,net:acc.net+c.net,plat:acc.plat+c.dFin,own:acc.own+c.oFin,netUSD:acc.netUSD+c.netUSD,platUSD:acc.platUSD+c.dFinUSD,ownUSD:acc.ownUSD+c.oFinUSD};},{gross:0,net:0,plat:0,own:0,netUSD:0,platUSD:0,ownUSD:0});}
+  var tU=tot(usdBks),tG=tot(gelBks);
+  var opts='<option value="all">'+t("analytics")+'</option>'+DB.apartments.map(function(a){return'<option value="'+a.id+'"'+(V.dashFilter.apt===a.id?" selected":"")+'>'+a.apartment_name+'</option>';}).join("");
+  var aptRows=DB.apartments.map(function(apt){
+    var ab=fil.filter(function(b){return String(b.apartment_id)===String(apt.id);});
+    if(!ab.length)return"";
+    var uB=ab.filter(function(b){return(b.income_currency||"USD")==="USD";});
+    var gB=ab.filter(function(b){return(b.income_currency||"USD")==="GEL";});
+    var tUa=tot(uB),tGa=tot(gB);
+    return'<div class="card pad" style="margin-bottom:12px">'+
+      '<div style="font-size:14px;font-weight:600;margin-bottom:10px">'+apt.apartment_name+'</div>'+
+      (uB.length?'<div class="cur-block" style="background:#071020;border:1px solid rgba(253,224,71,.15)"><div class="cur-hdr" style="background:rgba(253,224,71,.06);color:#fde047">USD — '+uB.length+' '+t("stays")+'</div>'+mkCR(t("net"),"$"+fN(tUa.net),"#34d399")+mkCR(t("platform"),"$"+fN(tUa.plat),"#60a5fa")+mkCR(apt.owner_name||t("owner"),"$"+fN(tUa.own),"#34d399")+'</div>':"")+
+      (gB.length?'<div class="cur-block" style="background:#071020;border:1px solid rgba(52,211,153,.15)"><div class="cur-hdr" style="background:rgba(52,211,153,.06);color:#6ee7b7">GEL — '+gB.length+' '+t("stays")+'</div>'+mkCR(t("net"),"₾"+fN(tGa.net),"#34d399")+mkCR(t("platform"),"₾"+fN(tGa.plat),"#60a5fa")+mkCR(apt.owner_name||t("owner"),"₾"+fN(tGa.own),"#34d399")+'</div>':"")+
+    '</div>';
+  }).join("");
+  var totalHTML="";
+  if(usdBks.length&&gelBks.length){var tNet=tU.netUSD+tG.netUSD;var tPlat=tU.platUSD+tG.platUSD;var tOwn=tU.ownUSD+tG.ownUSD;totalHTML='<div class="total-bar" style="margin-bottom:14px">'+mkCR(t("total")+" (₾"+fN(DB.rate)+")"," ","#fff")+mkCR(t("net"),"$"+fN(tNet),"#34d399")+mkCR(t("platform"),"$"+fN(tPlat),"#60a5fa")+mkCR(t("owner"),"$"+fN(tOwn),"#34d399")+'</div>';}
+  return'<div class="field"><select class="sel" onchange="V.dashFilter.apt=this.value;render()">'+opts+'</select></div>'+
+    '<div class="field"><input type="month" class="inp" value="'+V.dashFilter.month+'" onchange="V.dashFilter.month=this.value;render()"/></div>'+
+    (usdBks.length?'<div class="cur-block" style="background:#0e1f3a;border:1px solid rgba(253,224,71,.2)"><div class="cur-hdr" style="background:rgba(253,224,71,.08);color:#fde047">USD — '+usdBks.length+' '+t("stays")+'</div>'+mkCR(t("arrived"),"$"+fN(tU.gross),"#fff")+mkCR(t("net"),"$"+fN(tU.net),"#34d399")+mkCR(t("platform"),"$"+fN(tU.plat),"#60a5fa")+mkCR(t("owner"),"$"+fN(tU.own),"#34d399")+'</div>':"")+
+    (gelBks.length?'<div class="cur-block" style="background:#0e1f3a;border:1px solid rgba(52,211,153,.2)"><div class="cur-hdr" style="background:rgba(52,211,153,.08);color:#6ee7b7">GEL — '+gelBks.length+' '+t("stays")+'</div>'+mkCR(t("arrived"),"₾"+fN(tG.gross),"#fff")+mkCR(t("net"),"₾"+fN(tG.net),"#34d399")+mkCR(t("platform"),"₾"+fN(tG.plat),"#60a5fa")+mkCR(t("owner"),"₾"+fN(tG.own),"#34d399")+'</div>':"")+
+    totalHTML+
+    (aptRows?'<div class="sec">По квартирам</div>'+aptRows:"")+
+    (!fil.length?'<div class="empty">'+t("noBookings")+'</div>':"");
+}
+
+/* ══ HAPTIC ════════════════════════════════════════════════════ */
+function vibe(){try{if(window.Telegram&&window.Telegram.WebApp&&window.Telegram.WebApp.HapticFeedback){window.Telegram.WebApp.HapticFeedback.impactOccurred("light");}else if(navigator.vibrate){navigator.vibrate(10);}}catch(e){}}
+document.addEventListener("touchstart",function(e){var el=e.target.closest("button,a,.apt-item,.bk-main,.tab,.nav-btn,.plat-btn,.cur-btn,.payer-btn,.lang-btn,.status-btn,.fab");if(el)vibe();},{passive:true});
+
+/* ══ AUTO SYNC ═════════════════════════════════════════════════ */
+setInterval(function(){
+  if(V.view==="list"||V.view==="apt"){syncFull();}
+}, SYNC_INTERVAL);
+
+/* ══ START ═════════════════════════════════════════════════════ */
 try{if(window.Telegram&&window.Telegram.WebApp){window.Telegram.WebApp.ready();window.Telegram.WebApp.expand();}}catch(e){}
 render();
-setTimeout(doSync,500);
+syncFull();
 </script>
 </body>
 </html>
