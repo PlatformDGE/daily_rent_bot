@@ -2,318 +2,244 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
 <title>Daily Rent Tbilisi</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{width:100%;max-width:100vw;overflow-x:hidden;height:100%;background:#0b1829;font-family:'Inter',sans-serif;color:#fff;-webkit-font-smoothing:antialiased}
+html,body{width:100%;overflow-x:hidden;background:#0b1829;color:#fff;font-family:system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
 input,select,textarea,button{font-family:inherit;font-size:16px}
 input[type=number]{-moz-appearance:textfield}
 input[type=number]::-webkit-outer-spin-button,
 input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 ::-webkit-scrollbar{width:2px}
 ::-webkit-scrollbar-thumb{background:#1e3a6e;border-radius:2px}
-select option{background:#0f1e38;color:#fff}
-input[type="date"]::-webkit-calendar-picker-indicator,
-input[type="month"]::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.5}
-@keyframes spin{to{transform:rotate(360deg)}}
-.spin{animation:spin .9s linear infinite}
-.mono{font-family:'JetBrains Mono',monospace}
+select option{background:#0e1f3a;color:#fff}
+input[type=date]::-webkit-calendar-picker-indicator,
+input[type=month]::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.5}
 
-/* ── Layout ── */
-#app{display:flex;flex-direction:column;height:100dvh;max-width:100vw;overflow:hidden}
-.page{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:14px 16px;padding-bottom:80px}
-.screen{position:fixed;inset:0;background:#0b1829;display:flex;flex-direction:column;z-index:50;overflow:hidden}
-.screen>.page{padding-bottom:20px}
+/* Layout */
+#root{display:flex;flex-direction:column;height:100dvh;overflow:hidden}
+.page{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:14px 16px 90px}
+.modal{position:fixed;inset:0;background:#0b1829;display:flex;flex-direction:column;z-index:50;overflow:hidden}
+.modal .page{padding-bottom:20px}
 
-/* ── Header ── */
-.hdr{background:#0e1f3a;border-bottom:1px solid #1e3a6e55;padding:13px 16px;flex-shrink:0}
+/* Header */
+.hdr{background:#0e1f3a;border-bottom:1px solid rgba(30,58,110,.5);padding:12px 16px;flex-shrink:0}
 .hdr-row{display:flex;align-items:center;gap:10px}
 
-/* ── Nav ── */
-.nav{position:fixed;bottom:0;left:0;right:0;background:#0e1f3aee;backdrop-filter:blur(10px);border-top:1px solid #1e3a6e55;display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:40}
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 6px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#4a6fa0;background:none;border:none;cursor:pointer;transition:color .15s}
-.nav-btn.on{color:#4f8ef7}
+/* Tabs */
+.tabs{display:flex;background:#0b1829;border-bottom:1px solid rgba(30,58,110,.5);flex-shrink:0}
+.tab{flex:1;padding:12px 6px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:rgba(147,197,253,.3);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer}
+.tab.on{color:#60a5fa;border-bottom-color:#60a5fa}
 
-/* ── Tab bar ── */
-.tabs{display:flex;border-bottom:1px solid #1e3a6e55;flex-shrink:0;background:#0b1829}
-.tab{flex:1;padding:12px 6px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#4a6fa060;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer}
-.tab.on{color:#4f8ef7;border-bottom-color:#4f8ef7}
+/* Nav */
+.nav{position:fixed;bottom:0;left:0;right:0;background:rgba(11,24,41,.97);backdrop-filter:blur(10px);border-top:1px solid rgba(30,58,110,.5);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:40}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 6px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:rgba(74,111,160,.6);background:none;border:none;cursor:pointer}
+.nav-btn.on{color:#60a5fa}
 
-/* ── Cards ── */
-.card{background:#0e1f3a;border:1px solid #1e3a6e66;border-radius:14px}
-.card-p{padding:14px}
-.apt-card{background:#0e1f3a;border:1px solid #1e3a6e66;border-radius:14px;padding:13px 14px;display:flex;align-items:center;gap:11px;margin-bottom:10px;cursor:pointer;transition:transform .1s}
-.apt-card:active{transform:scale(.98)}
-.bk-card{background:#0e1f3a;border:1px solid #1e3a6e66;border-radius:14px;overflow:hidden;margin-bottom:10px}
+/* Cards */
+.card{background:#0e1f3a;border:1px solid rgba(30,58,110,.5);border-radius:14px}
+.pad{padding:14px}
+.apt-card{background:#0e1f3a;border:1px solid rgba(30,58,110,.5);border-radius:14px;padding:13px 14px;display:flex;align-items:center;gap:11px;margin-bottom:10px;cursor:pointer}
+.apt-card:active{opacity:.8}
+.bk-card{background:#0e1f3a;border:1px solid rgba(30,58,110,.5);border-radius:14px;overflow:hidden;margin-bottom:10px}
 .bk-main{padding:13px 14px;cursor:pointer}
-.bk-detail{border-top:1px solid #1e3a6e44;padding:13px 14px;background:#0b1829}
-.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.stat{background:#0e1f3a;border:1px solid #1e3a6e66;border-radius:12px;padding:11px 13px}
-.stat-l{font-size:11px;color:#4a6fa0;margin-bottom:3px}
-.stat-v{font-size:19px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.bk-body{border-top:1px solid rgba(30,58,110,.3);padding:13px 14px;background:#071020}
 
-/* ── Form ── */
-.lbl{display:block;font-size:11px;font-weight:700;color:#4a6fa0;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
-.inp{width:100%;background:#071020;border:1px solid #1e3a6e66;border-radius:11px;padding:12px 13px;font-size:16px;color:#fff;outline:none;transition:border-color .15s;-webkit-appearance:none}
+/* Stats */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat{background:#0e1f3a;border:1px solid rgba(30,58,110,.5);border-radius:12px;padding:11px 13px}
+.stat-l{font-size:11px;color:rgba(147,197,253,.45);margin-bottom:3px}
+.stat-v{font-size:19px;font-weight:700;font-family:monospace}
+
+/* Form */
+.field{margin-bottom:12px}
+.lbl{display:block;font-size:11px;font-weight:700;color:rgba(147,197,253,.5);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.inp{width:100%;background:#071020;border:1px solid rgba(30,58,110,.6);border-radius:11px;padding:12px 13px;font-size:16px;color:#fff;outline:none;-webkit-appearance:none;transition:border-color .15s}
 .inp:focus{border-color:#4f8ef7}
-.inp::placeholder{color:#1e3a6e}
+.inp::placeholder{color:rgba(30,58,110,.8)}
 .inp.pl{padding-left:37px}
 .inp.pr{padding-right:37px}
-.sel{width:100%;background:#071020;border:1px solid #1e3a6e66;border-radius:11px;padding:12px 13px;font-size:16px;color:#fff;outline:none;-webkit-appearance:none}
-.irel{position:relative}
-.il{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#4a6fa0;pointer-events:none;display:flex;align-items:center}
-.ir{position:absolute;right:11px;top:50%;transform:translateY(-50%);color:#4a6fa0;pointer-events:none;font-size:13px;font-weight:600}
-.field{margin-bottom:12px}
+.sel{width:100%;background:#071020;border:1px solid rgba(30,58,110,.6);border-radius:11px;padding:12px 13px;font-size:16px;color:#fff;outline:none;-webkit-appearance:none}
+.rel{position:relative}
+.il{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:rgba(147,197,253,.4);pointer-events:none;font-size:13px}
+.ir{position:absolute;right:11px;top:50%;transform:translateY(-50%);color:rgba(147,197,253,.4);pointer-events:none;font-size:13px;font-weight:700}
 
-/* ── Buttons ── */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-weight:600;cursor:pointer;transition:all .1s;-webkit-appearance:none;border-radius:11px}
-.btn:active{transform:scale(.96)}
-.btn-p{background:#1e3a6e;border:1px solid #4f8ef730;color:#fff;padding:11px 15px;font-size:14px}
-.btn-p:active{background:#264b96}
-.btn-s{background:#0e1f3a;border:1px solid #1e3a6e66;color:#fff;padding:11px 15px;font-size:14px}
-.btn-s:active{background:#1e3a6e}
-.btn-d{background:#ef444415;border:1px solid #ef444430;color:#fca5a5;padding:7px 12px;font-size:13px;border-radius:9px}
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-weight:600;cursor:pointer;-webkit-appearance:none;border-radius:11px;transition:opacity .1s}
+.btn:active{opacity:.7}
+.btn-p{background:#1e3a6e;border:1px solid rgba(79,142,247,.2);color:#fff;padding:11px 15px;font-size:14px}
+.btn-s{background:#0e1f3a;border:1px solid rgba(30,58,110,.6);color:#fff;padding:11px 15px;font-size:14px}
+.btn-d{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5;padding:7px 12px;font-size:13px;border-radius:9px}
 .btn-sm{padding:8px 12px;font-size:13px;border-radius:9px}
-.fab-bar{background:#0e1f3a;border-top:1px solid #1e3a6e55;padding:13px 16px;padding-bottom:max(13px,env(safe-area-inset-bottom));flex-shrink:0}
-.fab{width:100%;background:#1e3a6e;border:1px solid #4f8ef730;color:#fff;border-radius:14px;padding:14px;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;-webkit-appearance:none;box-shadow:0 0 20px #1e3a6e50}
-.fab:active{background:#264b96;transform:scale(.98)}
+.fab-bar{background:#0e1f3a;border-top:1px solid rgba(30,58,110,.5);padding:13px 16px;padding-bottom:max(13px,env(safe-area-inset-bottom));flex-shrink:0}
+.fab{width:100%;background:#1e3a6e;border:1px solid rgba(79,142,247,.2);color:#fff;border-radius:14px;padding:14px;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;-webkit-appearance:none}
+.fab:active{opacity:.8}
 
-/* ── Badges ── */
+/* Badges */
 .bdg{display:inline-flex;align-items:center;padding:3px 8px;border-radius:99px;font-size:11px;font-weight:600;border:1px solid}
-.bdg-airbnb{background:#f9731620;color:#fdba74;border-color:#f9731640}
-.bdg-booking{background:#3b82f620;color:#93c5fd;border-color:#3b82f640}
-.bdg-other{background:#64748b20;color:#cbd5e1;border-color:#64748b40}
-.bdg-green{background:#34d39920;color:#6ee7b7;border-color:#34d39940}
-.bdg-gray{background:#64748b20;color:#94a3b8;border-color:#64748b30}
-.bdg-ok{background:#34d39920;color:#6ee7b7;border-color:#34d39940}
-.bdg-wait{background:#ef444420;color:#fca5a5;border-color:#ef444440}
-.bdg-part{background:#f5931520;color:#fcd34d;border-color:#f5931540}
-.bdg-usd{background:#fde04720;color:#fde047;border-color:#fde04740}
-.bdg-gel{background:#34d39920;color:#6ee7b7;border-color:#34d39940}
+.g{background:rgba(52,211,153,.15);color:#6ee7b7;border-color:rgba(52,211,153,.3)}
+.gy{background:rgba(100,116,139,.15);color:#94a3b8;border-color:rgba(100,116,139,.25)}
+.or{background:rgba(249,115,22,.15);color:#fdba74;border-color:rgba(249,115,22,.3)}
+.bl{background:rgba(59,130,246,.15);color:#93c5fd;border-color:rgba(59,130,246,.3)}
+.ok{background:rgba(52,211,153,.15);color:#6ee7b7;border-color:rgba(52,211,153,.3)}
+.wt{background:rgba(239,68,68,.15);color:#fca5a5;border-color:rgba(239,68,68,.3)}
+.pt{background:rgba(245,158,11,.15);color:#fcd34d;border-color:rgba(245,158,11,.3)}
 
-/* ── Platform picker ── */
-.plat-pick{display:flex;gap:8px}
-.plat-btn{flex:1;padding:11px 6px;border-radius:11px;font-size:14px;font-weight:600;border:2px solid #1e3a6e66;background:#071020;color:#4a6fa060;cursor:pointer;text-align:center;transition:all .12s;-webkit-appearance:none}
-.plat-a{background:#f9731618;border-color:#f97316;color:#fdba74}
-.plat-b{background:#3b82f618;border-color:#3b82f6;color:#93c5fd}
-.plat-o{background:#64748b20;border-color:#64748b;color:#cbd5e1}
+/* Platform picker */
+.plat-row{display:flex;gap:8px;flex-wrap:wrap}
+.plat-btn{flex:1;min-width:80px;padding:11px 8px;border-radius:11px;font-size:14px;font-weight:600;border:2px solid rgba(30,58,110,.6);background:#071020;color:rgba(147,197,253,.35);cursor:pointer;text-align:center;-webkit-appearance:none}
+.plat-btn:active{opacity:.7}
+.pa{background:rgba(249,115,22,.12);border-color:#f97316;color:#fdba74}
+.pb{background:rgba(59,130,246,.12);border-color:#3b82f6;color:#93c5fd}
+.po{background:rgba(100,116,139,.18);border-color:#64748b;color:#cbd5e1}
 
-/* ── Calc box ── */
-.cbox{background:#071020;border:1px solid #1e3a6e66;border-radius:13px;overflow:hidden}
+/* Currency */
+.cur-row{display:flex;gap:6px}
+.cur-btn{padding:9px 14px;border-radius:9px;font-size:14px;font-weight:700;border:2px solid rgba(30,58,110,.6);background:#071020;color:rgba(147,197,253,.35);cursor:pointer;-webkit-appearance:none}
+.cur-btn:active{opacity:.7}
+.cusd{background:rgba(253,224,71,.1);border-color:rgba(253,224,71,.6);color:#fde047}
+.cgel{background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.6);color:#6ee7b7}
+
+/* Payer */
+.payer-row{display:flex;gap:8px}
+.payer-btn{flex:1;padding:9px 6px;border-radius:10px;font-size:13px;font-weight:600;border:1.5px solid rgba(30,58,110,.6);background:#071020;color:rgba(147,197,253,.35);cursor:pointer;text-align:center;-webkit-appearance:none}
+.payer-btn:active{opacity:.7}
+.pon{background:rgba(59,130,246,.15);border-color:#3b82f6;color:#93c5fd}
+
+/* Calc */
+.cbox{background:#071020;border:1px solid rgba(30,58,110,.6);border-radius:13px;overflow:hidden}
 .crow{display:flex;justify-content:space-between;align-items:center;padding:8px 13px}
 .crow.sub{padding-left:24px}
-.cl{font-size:13px;color:#4a6fa0}
-.cv{font-size:13px;font-family:'JetBrains Mono',monospace;font-weight:600;color:#fff}
+.crow.net-row{background:#0e1f3a}
+.cl{font-size:13px;color:rgba(147,197,253,.45)}
+.cv{font-size:13px;font-family:monospace;font-weight:700;color:#fff}
 .cv.neg{color:#f87171}
 .cv.em{color:#34d399}
-.cv.bl{color:#4f8ef7}
-.cv.big{font-size:15px;font-weight:700}
-.cdiv{height:1px;background:#1e3a6e44;margin:2px 0}
-.crow.net{background:#0e1f3a}
+.cv.tbl{color:#60a5fa}
+.cv.big{font-size:15px}
+.cdiv{height:1px;background:rgba(30,58,110,.5)}
 
-/* ── Expense row ── */
-.exp-row{background:#0e1f3a;border:1px solid #1e3a6e66;border-radius:12px;padding:12px 13px;margin-bottom:8px}
-.exp-row .field{margin-bottom:8px}
-.exp-row .field:last-child{margin-bottom:0}
-.cur-btns{display:flex;gap:6px}
-.cur-btn{padding:8px 12px;border-radius:9px;font-size:13px;font-weight:700;border:2px solid #1e3a6e66;background:#071020;color:#4a6fa060;cursor:pointer;-webkit-appearance:none;transition:all .12s}
-.cur-btn.usd{background:#fde04712;border-color:#fde04780;color:#fde047}
-.cur-btn.gel{background:#34d39912;border-color:#34d39980;color:#6ee7b7}
-.payer-row{display:flex;gap:8px}
-.payer-btn{flex:1;padding:9px 6px;border-radius:10px;font-size:13px;font-weight:600;border:1.5px solid #1e3a6e66;background:#071020;color:#4a6fa060;cursor:pointer;-webkit-appearance:none;text-align:center;transition:all .12s}
-.payer-btn.on{background:#3b82f618;border-color:#3b82f6;color:#93c5fd}
+/* Expense */
+.exp-block{background:#0e1f3a;border:1px solid rgba(30,58,110,.5);border-radius:12px;padding:12px 13px;margin-bottom:8px}
 
-/* ── Report ── */
-.rpt{font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.75;color:#93c5fd;background:#071020;border:1px solid #1e3a6e55;border-radius:11px;padding:13px;white-space:pre-wrap;word-break:break-word;overflow-x:hidden}
+/* Report */
+.rpt{font-family:monospace;font-size:12px;line-height:1.8;color:#93c5fd;background:#071020;border:1px solid rgba(30,58,110,.5);border-radius:11px;padding:13px;white-space:pre-wrap;word-break:break-word}
 
-/* ── Misc ── */
-.empty{text-align:center;padding:40px 16px;color:#4a6fa060;font-size:14px}
-.night-pill{text-align:center;background:#1e3a6e30;border:1px solid #1e3a6e66;border-radius:11px;padding:9px;color:#93c5fd;font-size:15px;font-weight:600;margin-bottom:12px}
-.sync-bar{display:flex;align-items:center;gap:8px;padding:7px 16px;font-size:12px;flex-shrink:0}
-.sync-ok{background:#34d39908;border-bottom:1px solid #34d39920;color:#6ee7b7}
-.sync-err{background:#ef444408;border-bottom:1px solid #ef444420;color:#fca5a5}
-.owner-strip{display:flex;align-items:center;gap:10px;background:#1e3a6e20;border:1px solid #1e3a6e44;border-radius:11px;padding:10px 12px;margin-top:10px}
-.ow-av{width:28px;height:28px;border-radius:50%;background:#1e3a6e;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#93c5fd;flex-shrink:0}
-.apt-av{width:42px;height:42px;border-radius:11px;background:#1e3a6e30;border:1px solid #1e3a6e66;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#93c5fd;flex-shrink:0}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.gap-wrap{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
-.sp{margin-bottom:12px}
-.sp8{margin-bottom:8px}
-.tr{text-align:right}
-.trunc{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.flex{display:flex}
-.aic{align-items:center}
-.jb{justify-content:space-between}
+/* Misc */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row{display:flex;align-items:center;gap:8px}
 .f1{flex:1;min-width:0}
 .fs0{flex-shrink:0}
-.gap6{gap:6px}
-.gap8{gap:8px}
-.gap10{gap:10px}
-.gap12{gap:12px}
-.wrap{flex-wrap:wrap}
-.mt4{margin-top:4px}
-.mt6{margin-top:6px}
-.mt8{margin-top:8px}
-.mt10{margin-top:10px}
-.mt12{margin-top:12px}
-.receipt-wrap{display:flex;flex-wrap:wrap;gap:8px}
-.thumb{width:66px;height:66px;border-radius:11px;object-fit:cover;border:1px solid #1e3a6e66;cursor:pointer}
-.add-thumb{width:66px;height:66px;border-radius:11px;border:2px dashed #1e3a6e88;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#1e3a6e;cursor:pointer;background:none;font-size:11px;-webkit-appearance:none}
-.sec-ttl{font-size:11px;font-weight:700;color:#4a6fa0;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
-.rate-box{display:flex;align-items:center;gap:6px;background:#1e3a6e25;border:1px solid #1e3a6e66;border-radius:9px;padding:7px 11px}
+.tr{text-align:right}
+.trunc{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.muted{color:rgba(147,197,253,.45);font-size:12px}
+.wrap{flex-wrap:wrap;display:flex;gap:5px;align-items:center}
+.empty{text-align:center;padding:40px 16px;color:rgba(147,197,253,.3);font-size:14px}
+.sync-ok{background:rgba(52,211,153,.07);border-bottom:1px solid rgba(52,211,153,.15);color:#6ee7b7;padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.sync-err{background:rgba(239,68,68,.07);border-bottom:1px solid rgba(239,68,68,.15);color:#fca5a5;padding:7px 16px;font-size:12px;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.owner-strip{display:flex;align-items:center;gap:10px;background:rgba(30,58,110,.2);border:1px solid rgba(30,58,110,.4);border-radius:11px;padding:10px 12px;margin-top:10px}
+.ow-av{width:28px;height:28px;border-radius:50%;background:#1e3a6e;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#93c5fd;flex-shrink:0}
+.apt-av{width:42px;height:42px;border-radius:11px;background:rgba(30,58,110,.4);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#93c5fd;flex-shrink:0}
+.night-pill{text-align:center;background:rgba(30,58,110,.3);border:1px solid rgba(30,58,110,.6);border-radius:11px;padding:9px;color:#93c5fd;font-size:15px;font-weight:600;margin-bottom:12px}
+.rate-box{display:flex;align-items:center;gap:5px;background:rgba(30,58,110,.25);border:1px solid rgba(30,58,110,.6);border-radius:9px;padding:7px 10px}
+.sec{font-size:11px;font-weight:700;color:rgba(147,197,253,.45);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.divider{height:1px;background:rgba(30,58,110,.45);margin:12px 0}
+.receipt-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.thumb{width:66px;height:66px;border-radius:11px;object-fit:cover;border:1px solid rgba(30,58,110,.6);cursor:pointer}
+.add-thumb{width:66px;height:66px;border-radius:11px;border:2px dashed rgba(30,58,110,.7);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:rgba(30,58,110,.9);cursor:pointer;background:none;font-size:11px;-webkit-appearance:none}
 </style>
 </head>
 <body>
-<div id="app"></div>
-
+<div id="root"></div>
 <script>
-/* ══════════════════════════════════════════════════════
-   CONFIG — измени SHEET_ID на свой
-══════════════════════════════════════════════════════ */
-const SHEET_ID = "1FyCJedWb0sRAXprDGqRYtkX7s2FYOh4dXkbQAG5BxV0";
-const DEFAULT_RATE = 2.7;
+"use strict";
 
-/* ── Google Sheets fetch ── */
-async function fetchApts() {
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=0`;
-  const res = await fetch(url);
-  const txt = await res.text();
-  const json = JSON.parse(txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
-  const cols = json.table.cols.map(c => c.label);
-  return (json.table.rows || []).map(row => {
-    const o = {};
-    cols.forEach((c, i) => {
-      const cell = row.c && row.c[i];
-      o[c] = cell ? (cell.v !== null && cell.v !== undefined ? cell.v : cell.f || "") : "";
-    });
-    return o;
-  }).filter(r => Object.values(r).some(v => v !== ""));
-}
+/* ─── CONFIG ─────────────────────────────────────── */
+var SHEET_ID = "1FyCJedWb0sRAXprDGqRYtkX7s2FYOh4dXkbQAG5BxV0";
+var DEF_RATE = 2.7;
+var EXP_CAT = ["cleaning","utilities","supplies","repair","other"];
+var EXP_LBL = {cleaning:"Уборка",utilities:"Коммуналка",supplies:"Расходники",repair:"Ремонт",other:"Прочее",booking_fee:"Комиссия Booking"};
 
-/* ── Storage ── */
-function load(key, def) {
-  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; } catch(e) { return def; }
-}
-function save(key, val) {
-  try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
-}
+/* ─── STORAGE ────────────────────────────────────── */
+function load(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 
-/* ── ID ── */
-let _id = 0;
-function uid() { return Date.now().toString(36) + (++_id).toString(36); }
+/* ─── UID ────────────────────────────────────────── */
+var _c=0;
+function uid(){return Date.now().toString(36)+(++_c);}
 
-/* ── Utils ── */
-function fN(n) {
-  const v = parseFloat(n) || 0;
-  return v % 1 === 0 ? v.toLocaleString("ru-RU") : v.toLocaleString("ru-RU", {minimumFractionDigits:2, maximumFractionDigits:2});
-}
-function fD(d) {
-  if (!d) return "—";
-  return new Date(d + "T12:00:00").toLocaleDateString("ru-RU", {day:"2-digit", month:"2-digit", year:"2-digit"});
-}
-function fDf(d) {
-  if (!d) return "—";
-  return new Date(d + "T12:00:00").toLocaleDateString("ru-RU", {day:"2-digit", month:"long"});
-}
-function nights(a, b) {
-  if (!a || !b) return 0;
-  return Math.max(0, Math.round((new Date(b) - new Date(a)) / 86400000));
-}
-function nLbl(n) {
-  if (n === 1) return "1 ночь";
-  if (n >= 2 && n <= 4) return n + " ночи";
-  return n + " ночей";
-}
-function toBaseCur(amt, cur, rate) {
-  const v = parseFloat(amt) || 0;
-  if (cur === "USD") return v;
-  return parseFloat((v / rate).toFixed(2));
-}
+/* ─── UTILS ──────────────────────────────────────── */
+function fN(n){var v=parseFloat(n)||0;return v%1===0?v.toLocaleString("ru-RU"):v.toLocaleString("ru-RU",{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fD(d){if(!d)return"—";return new Date(d+"T12:00:00").toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit",year:"2-digit"});}
+function fDf(d){if(!d)return"—";return new Date(d+"T12:00:00").toLocaleDateString("ru-RU",{day:"2-digit",month:"long"});}
+function nts(a,b){if(!a||!b)return 0;return Math.max(0,Math.round((new Date(b)-new Date(a))/86400000));}
+function nL(n){if(n===1)return"1 ночь";if(n>=2&&n<=4)return n+" ночи";return n+" ночей";}
 
-/* ══════════════════════════════════════════════════════
-   CALC ENGINE
-══════════════════════════════════════════════════════ */
-function calc(b, rate) {
-  rate = parseFloat(rate) || DEFAULT_RATE;
-  const platform = b.platform || "Airbnb";
-  const cur = b.income_currency || "USD";
-  const gross = parseFloat(b.gross_income) || 0;
-
-  // Tax (Airbnb only)
-  const taxPct = platform === "Airbnb" ? (parseFloat(b.airbnb_tax_pct) || 1) : 0;
-  const tax = parseFloat(((gross * taxPct) / 100).toFixed(2));
-  const afterTax = parseFloat((gross - tax).toFixed(2));
-
-  // Booking commission
-  const bookFee = platform === "Booking" ? (parseFloat(b.booking_fee) || 0) : 0;
-
-  // Expenses — convert to income currency
-  const exps = (b.expenses || []).map(e => {
-    const amt = parseFloat(e.amount) || 0;
-    const inBase = cur === "USD" ? toBaseCur(amt, e.currency, rate) : (e.currency === "GEL" ? amt : parseFloat((amt * rate).toFixed(2)));
-    return { ...e, amt, inBase };
+/* ─── CALC ───────────────────────────────────────── */
+function calc(b,rate){
+  rate=parseFloat(rate)||DEF_RATE;
+  var plat=b.platform||"Airbnb";
+  var cur=b.income_currency||"USD";
+  var gross=parseFloat(b.gross_income)||0;
+  var taxPct=plat==="Airbnb"?(parseFloat(b.airbnb_tax_pct)||1):0;
+  var tax=parseFloat((gross*taxPct/100).toFixed(2));
+  var afterTax=parseFloat((gross-tax).toFixed(2));
+  var bookFee=plat==="Booking"?(parseFloat(b.booking_fee)||0):0;
+  var exps=(b.expenses||[]).map(function(e){
+    var amt=parseFloat(e.amount)||0;
+    var inB;
+    if(cur==="USD"){inB=e.currency==="USD"?amt:parseFloat((amt/rate).toFixed(2));}
+    else{inB=e.currency==="GEL"?amt:parseFloat((amt*rate).toFixed(2));}
+    return {id:e.id,cat:e.cat,amount:amt,currency:e.currency,payer:e.payer,comment:e.comment,inB:inB};
   });
-
-  const totalExp = parseFloat(exps.reduce((s, e) => s + e.inBase, 0).toFixed(2));
-  const totalDeduct = parseFloat((totalExp + bookFee).toFixed(2));
-  const net = parseFloat((afterTax - totalDeduct).toFixed(2));
-
-  // 20/80 split
-  const dPct = parseFloat(b.david_pct) || 20;
-  const oPct = 100 - dPct;
-  const davidBase = parseFloat((net * dPct / 100).toFixed(2));
-  const ownerBase = parseFloat((net * oPct / 100).toFixed(2));
-
-  // Expense compensation
-  const expPlatform = exps.filter(e => e.payer === "platform").reduce((s, e) => s + e.inBase, 0);
-  const expOwner = exps.filter(e => e.payer === "owner").reduce((s, e) => s + e.inBase, 0);
-
-  const davidFinal = parseFloat((davidBase + expPlatform + bookFee).toFixed(2));
-  const ownerFinal = parseFloat((ownerBase + expOwner).toFixed(2));
-
-  return { gross, tax, taxPct, afterTax, bookFee, exps, totalExp, totalDeduct, net,
-    dPct, oPct, davidBase, ownerBase, expPlatform, expOwner, davidFinal, ownerFinal, cur, platform };
+  var totalExp=parseFloat(exps.reduce(function(s,e){return s+e.inB;},0).toFixed(2));
+  var net=parseFloat((afterTax-totalExp-bookFee).toFixed(2));
+  var dPct=parseFloat(b.david_pct)||20;
+  var oPct=100-dPct;
+  var dBase=parseFloat((net*dPct/100).toFixed(2));
+  var oBase=parseFloat((net*oPct/100).toFixed(2));
+  var expPlat=parseFloat(exps.filter(function(e){return e.payer==="platform";}).reduce(function(s,e){return s+e.inB;},0).toFixed(2));
+  var expOwn=parseFloat(exps.filter(function(e){return e.payer==="owner";}).reduce(function(s,e){return s+e.inB;},0).toFixed(2));
+  var dFin=parseFloat((dBase+expPlat+bookFee).toFixed(2));
+  var oFin=parseFloat((oBase+expOwn).toFixed(2));
+  return{gross:gross,tax:tax,taxPct:taxPct,afterTax:afterTax,bookFee:bookFee,exps:exps,totalExp:totalExp,net:net,dPct:dPct,oPct:oPct,dBase:dBase,oBase:oBase,expPlat:expPlat,expOwn:expOwn,dFin:dFin,oFin:oFin,cur:cur,plat:plat};
 }
 
-/* ── Report generator ── */
-function makeReport(apt, b, c) {
-  const S = v => c.cur + " " + fN(v);
-  const n = nights(b.check_in, b.check_out);
-  const EXP_NAMES = {cleaning:"Уборка",utilities:"Коммуналка",supplies:"Расходники",repair:"Ремонт",other:"Прочее",booking_fee:"Комиссия Booking"};
-  const lines = [
-    `🏠 ${apt?.apartment_name || "—"}`,
-    apt?.address ? `📍 ${apt.address}, Tbilisi` : null,
-    ``,
-    `📅 ${fDf(b.check_in)} — ${fDf(b.check_out)} (${nLbl(n)})`,
-    b.guest_name ? `👤 Гость: ${b.guest_name}` : null,
-    `📱 ${c.platform}`,
-    ``,
-    `💰 Пришло: ${S(c.gross)}`,
-    c.tax > 0 ? `📉 Налог Airbnb (${c.taxPct}%): -${S(c.tax)}` : null,
-    c.bookFee > 0 ? `📉 Комиссия Booking: -${S(c.bookFee)}` : null,
-    c.totalExp > 0 ? `🔧 Расходы: -${S(c.totalExp)}` : null,
-    ...(c.exps || []).filter(e => e.inBase > 0).map(e =>
-      `   • ${EXP_NAMES[e.cat] || e.cat}: ${e.currency} ${fN(e.amt)}${e.comment ? " (" + e.comment + ")" : ""}${e.payer === "owner" ? " [Собственник]" : ""}`
-    ),
-    ``,
-    `✅ Чистая прибыль: ${S(c.net)}`,
-    ``,
-    `👤 Давиду (${c.dPct}%): ${S(c.davidBase)}${c.expPlatform > 0 ? ` + ${S(c.expPlatform)} = ${S(c.davidFinal)}` : ""}`,
-    `🏦 ${apt?.owner_name || "Владельцу"} (${c.oPct}%): ${S(c.ownerBase)}${c.expOwner > 0 ? ` + ${S(c.expOwner)} = ${S(c.ownerFinal)}` : ""}`,
-    apt?.owner_contact ? `📞 ${apt.owner_contact}` : null,
-    apt?.owner_account ? `🏦 Счёт: ${apt.owner_account}` : null,
-    b.comment ? `\n💬 ${b.comment}` : null,
-  ];
-  return lines.filter(v => v !== null).join("\n");
+/* ─── REPORT ─────────────────────────────────────── */
+function report(apt,b,c){
+  var S=function(v){return c.cur+" "+fN(v);};
+  var n=nts(b.check_in,b.check_out);
+  var lines=[
+    "🏠 "+(apt?apt.apartment_name:"—"),
+    apt&&apt.address?"📍 "+apt.address+", Tbilisi":null,
+    "",
+    "📅 "+fDf(b.check_in)+" — "+fDf(b.check_out)+" ("+nL(n)+")",
+    b.guest_name?"👤 Гость: "+b.guest_name:null,
+    "📱 "+c.plat,
+    "",
+    "💰 Пришло: "+S(c.gross),
+    c.tax>0?"📉 Налог Airbnb ("+c.taxPct+"%): -"+S(c.tax):null,
+    c.bookFee>0?"📉 Комиссия Booking: -"+S(c.bookFee):null,
+    c.totalExp>0?"🔧 Расходы: -"+S(c.totalExp):null,
+  ].concat(c.exps.filter(function(e){return e.inB>0;}).map(function(e){
+    return "   • "+(EXP_LBL[e.cat]||e.cat)+": "+e.currency+" "+fN(e.amount)+(e.comment?" ("+e.comment+")":"")+(e.payer==="owner"?" [Собственник]":"");
+  })).concat([
+    "",
+    "✅ Чистая прибыль: "+S(c.net),
+    "",
+    "👤 Давиду ("+c.dPct+"%): "+S(c.dBase)+(c.expPlat>0?" + "+S(c.expPlat)+" = "+S(c.dFin):""),
+    "🏦 "+(apt?apt.owner_name||"Владелец":"Владелец")+" ("+c.oPct+"%): "+S(c.oBase)+(c.expOwn>0?" + "+S(c.expOwn)+" = "+S(c.oFin):""),
+    apt&&apt.owner_contact?"📞 "+apt.owner_contact:null,
+    apt&&apt.owner_account?"🏦 Счёт: "+apt.owner_account:null,
+    b.comment?"\n💬 "+b.comment:null,
+  ]);
+  return lines.filter(function(l){return l!==null;}).join("\n");
 }
 
-/* ══════════════════════════════════════════════════════
-   SEED DATA (из твоей таблицы)
-══════════════════════════════════════════════════════ */
-const SEED_APTS = [
+/* ─── SEED ───────────────────────────────────────── */
+var SEED=[
   {id:"1",apartment_name:"Rustaveli Warm Corner",address:"7 Solomon Zaldastanishvili St",owner_name:"Sophiko",owner_contact:"+995 599 50 13 34",owner_account:"",platforms:["Airbnb"],status:"active",david_pct:20,mapLink:"",notes:""},
   {id:"2",apartment_name:"House of Whispers",address:"22 Pavle Ingorokva St",owner_name:"Mari",owner_contact:"+995 555 58 23 50",owner_account:"",platforms:["Booking"],status:"active",david_pct:20,mapLink:"",notes:""},
   {id:"3",apartment_name:"Designer View Vake",address:"15 Chavchavadze, 1st Ln",owner_name:"Arseniy",owner_contact:"",owner_account:"",platforms:["Airbnb"],status:"active",david_pct:20,mapLink:"",notes:""},
@@ -323,807 +249,517 @@ const SEED_APTS = [
   {id:"7",apartment_name:"Old Tbilisi Courtyard",address:"30 Anton Katalikosi St",owner_name:"Giorgi",owner_contact:"+995 599 27 17 97",owner_account:"",platforms:["Airbnb"],status:"active",david_pct:20,mapLink:"",notes:""},
 ];
 
-/* ══════════════════════════════════════════════════════
-   STATE
-══════════════════════════════════════════════════════ */
-const state = {
-  apts: load("dr_apts", SEED_APTS),
-  bookings: load("dr_bk", []),
-  rate: load("dr_rate", DEFAULT_RATE),
-  tab: "apts",        // apts | dash
-  view: "list",       // list | apt | bk-form | apt-form
-  selApt: null,
-  selBk: null,
-  editApt: null,
-  editBk: null,
-  sync: "idle",
-  syncTime: null,
-  expOpen: {},        // bookingId -> expanded
+/* ─── STATE ──────────────────────────────────────── */
+var S={
+  apts:load("dr8_apts",SEED),
+  bks:load("dr8_bks",[]),
+  rate:load("dr8_rate",DEF_RATE),
+  tab:"apts",
+  view:"list",  // list|apt|bkform|aptform
+  selApt:null,
+  editBk:null,
+  editApt:null,
+  expOpen:{},
+  sync:"idle",
+  syncTime:null,
 };
+var bkTab="main";
+var bkF=null;  // booking form draft
+var aptF=null; // apt form draft
 
-/* ══════════════════════════════════════════════════════
-   RENDER ENGINE (vanilla JS, no React)
-══════════════════════════════════════════════════════ */
-const app = document.getElementById("app");
+var root=document.getElementById("root");
 
-function render() {
-  if (state.view === "bk-form") { renderBkForm(); return; }
-  if (state.view === "apt-form") { renderAptForm(); return; }
-  if (state.view === "apt") { renderAptDetail(); return; }
-  renderMain();
+/* ─── RENDER DISPATCH ────────────────────────────── */
+function render(){
+  try{
+    if(S.view==="bkform"){renderBkForm();return;}
+    if(S.view==="aptform"){renderAptForm();return;}
+    if(S.view==="apt"){renderApt();return;}
+    renderList();
+  }catch(e){
+    root.innerHTML="<div style='padding:20px;color:#f87171'>Ошибка: "+e.message+"</div>";
+    console.error(e);
+  }
 }
 
-/* ── SVG icons ── */
-const IC = {
+/* ─── ICONS ──────────────────────────────────────── */
+var I={
   back:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>',
   plus:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
   edit:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
-  trash:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>',
-  copy:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 17H5a2 2 0 01-2-2V5a2 2 0 012-2h10a2 2 0 012 2v2M11 21h8a2 2 0 002-2V9a2 2 0 00-2-2h-8a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>',
+  trash:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>',
+  copy:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 17H5a2 2 0 01-2-2V5a2 2 0 012-2h10a2 2 0 012 2v2M11 21h8a2 2 0 002-2V9a2 2 0 00-2-2h-8a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>',
   bar:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>',
   home:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20M4 20V8l8-6 8 6v12"/></svg>',
-  tg:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3L3 10l7 3 7-7-7 7 3 7 3-7"/></svg>',
-  check:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
-  map:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0zM12 10a1 1 0 110-2 1 1 0 010 2z"/></svg>',
-  sync:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>',
-  img:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h4l2 3h8a2 2 0 012 2z"/></svg>',
+  tg:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3L3 10l7 3 7-7-7 7 3 7 3-7"/></svg>',
+  check:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
+  map:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0zM12 10a1 1 0 110-2 1 1 0 010 2z"/></svg>',
+  sync:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>',
+  img:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h4l2 3h8a2 2 0 012 2z"/></svg>',
   x:'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>',
-  link:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>',
-  phone:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-5-5 19.79 19.79 0 01-3.07-8.63A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>',
-  bank:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 10v11M12 10v11M16 10v11"/></svg>',
 };
 
-function bdg(type, text) {
-  return `<span class="bdg bdg-${type}">${text}</span>`;
-}
+function bdg(cls,txt){return '<span class="bdg '+cls+'">'+txt+'</span>';}
+function platBdg(p){var m={airbnb:"or",booking:"bl","другое":"gy"};return bdg(m[(p||"").toLowerCase()]||"gy",p);}
+function g(id){return document.getElementById(id);}
+function on(id,ev,fn){var el=g(id);if(el)el.addEventListener(ev,fn);}
 
-/* ─────────────────────────────────────────────────────
-   MAIN SCREEN
-───────────────────────────────────────────────────── */
-function renderMain() {
-  const isApts = state.tab === "apts";
-  app.innerHTML = `
-<div id="app-inner" style="display:flex;flex-direction:column;height:100dvh;max-width:100vw;overflow:hidden">
-  <!-- Header -->
-  <div class="hdr">
-    <div class="hdr-row">
-      <div class="f1">
-        <div style="font-size:18px;font-weight:700">${isApts ? "Квартиры" : "Аналитика"}</div>
-        ${isApts ? `<div style="font-size:12px;color:#4a6fa0;margin-top:3px">${state.apts.length} объектов · Тбилиси</div>` : ""}
-      </div>
-      <div class="flex aic gap8">
-        <!-- Rate -->
-        <div class="rate-box">
-          <span style="font-size:11px;color:#4a6fa0">1$=</span>
-          <input type="number" id="rate-inp" value="${state.rate}" step="0.1" style="width:36px;background:none;border:none;color:#fde047;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;outline:none;padding:0;-webkit-appearance:none"/>
-          <span style="font-size:11px;color:#34d399">₾</span>
-        </div>
-        ${isApts ? `
-        <button id="sync-btn" class="btn btn-s" style="padding:7px 9px">${IC.sync}</button>
-        <button id="add-apt-btn" class="btn btn-p" style="padding:7px 9px;width:34px;height:34px">${IC.plus}</button>
-        ` : ""}
-      </div>
-    </div>
-  </div>
-
-  ${state.sync === "ok" && state.syncTime ? `<div class="sync-bar sync-ok">✓ Google Sheets · ${state.syncTime}</div>` : ""}
-  ${state.sync === "err" ? `<div class="sync-bar sync-err"><span style="flex:1">Ошибка синхронизации</span><button id="retry-btn" style="background:none;border:none;color:#fca5a5;cursor:pointer;font-size:12px;text-decoration:underline">Повторить</button></div>` : ""}
-
-  <!-- Content -->
-  <div style="flex:1;overflow:hidden;display:flex;flex-direction:column">
-    <div class="page" id="main-content">
-      ${isApts ? renderAptList() : renderDash()}
-    </div>
-  </div>
-
-  <!-- Nav -->
-  <div class="nav">
-    <button class="nav-btn ${isApts ? "on" : ""}" id="nav-apts">${IC.home}<span>Квартиры</span></button>
-    <button class="nav-btn ${!isApts ? "on" : ""}" id="nav-dash">${IC.bar}<span>Аналитика</span></button>
-  </div>
-</div>`;
-
-  // Events
-  document.getElementById("rate-inp").addEventListener("input", e => {
-    state.rate = parseFloat(e.target.value) || DEFAULT_RATE;
-    save("dr_rate", state.rate);
-  });
-  document.getElementById("nav-apts").addEventListener("click", () => { state.tab = "apts"; render(); });
-  document.getElementById("nav-dash").addEventListener("click", () => { state.tab = "dash"; render(); });
-  if (document.getElementById("sync-btn")) {
-    document.getElementById("sync-btn").addEventListener("click", doSync);
-  }
-  if (document.getElementById("add-apt-btn")) {
-    document.getElementById("add-apt-btn").addEventListener("click", () => { state.editApt = null; state.view = "apt-form"; render(); });
-  }
-  if (document.getElementById("retry-btn")) {
-    document.getElementById("retry-btn").addEventListener("click", doSync);
-  }
-
-  // Apt card clicks
-  document.querySelectorAll(".apt-card-btn").forEach(el => {
-    el.addEventListener("click", () => { state.selApt = state.apts.find(a => a.id === el.dataset.id); state.view = "apt"; render(); });
-  });
-
-  // Dashboard events
-  if (!isApts) bindDashEvents();
-}
-
-/* ─────────────────────────────────────────────────────
-   APT LIST
-───────────────────────────────────────────────────── */
-function renderAptList() {
-  if (!state.apts.length) return `<div class="empty">Нет квартир<br><span style="font-size:12px">Нажмите + чтобы добавить</span></div>`;
-  return state.apts.map(apt => {
-    const abs = state.bookings.filter(b => b.aptId === apt.id);
-    const net = abs.reduce((s, b) => s + calc(b, state.rate).net, 0);
-    const last = abs.slice().sort((a, b) => new Date(b.check_in) - new Date(a.check_in))[0];
-    const pls = apt.platforms || [];
-    const addr = apt.address ? apt.address.split(",")[0] : "";
-    return `
-<div class="apt-card apt-card-btn" data-id="${apt.id}">
-  <div class="apt-av">${apt.apartment_name[0]}</div>
-  <div class="f1" style="min-width:0">
-    <div class="flex aic gap6 wrap">
-      <span style="font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${apt.apartment_name}</span>
-      ${bdg(apt.status === "active" ? "green" : "gray", apt.status === "active" ? "Активна" : "Неакт.")}
-    </div>
-    <div style="font-size:12px;color:#4a6fa0;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${addr}</div>
-    <div class="gap-wrap" style="margin-top:5px">
-      ${pls.map(p => bdg(p.toLowerCase(), p)).join("")}
-      <span style="font-size:11px;color:#4a6fa060">${abs.length} прожив.</span>
-      ${last ? `<span style="font-size:11px;color:#4a6fa060">· ${fD(last.check_in)}</span>` : ""}
-    </div>
-    ${apt.owner_name ? `<div style="font-size:12px;color:#4a6fa0;margin-top:3px">${apt.owner_name}</div>` : ""}
-  </div>
-  <div class="tr fs0">
-    <div class="mono" style="font-size:14px;font-weight:700;color:#34d399">$${fN(net)}</div>
-    <div style="font-size:11px;color:#4a6fa060">чист.</div>
-  </div>
-</div>`;
+/* ─── CALC BOX HTML ──────────────────────────────── */
+function calcBoxHtml(c,ownerName){
+  var S=function(v){return c.cur+" "+fN(v);};
+  var rows=[
+    '<div class="crow"><span class="cl">Пришло</span><span class="cv">'+S(c.gross)+'</span></div>',
+    c.tax>0?'<div class="crow"><span class="cl">Налог Airbnb ('+c.taxPct+'%)</span><span class="cv neg">-'+S(c.tax)+'</span></div>':"",
+    c.bookFee>0?'<div class="crow"><span class="cl">Комиссия Booking</span><span class="cv neg">-'+S(c.bookFee)+'</span></div>':"",
+  ].join("");
+  var expRows=c.exps.filter(function(e){return e.inB>0;}).map(function(e){
+    return '<div class="crow sub"><span class="cl" style="color:rgba(147,197,253,.3)">• '+(EXP_LBL[e.cat]||e.cat)+' ('+e.currency+')</span><span class="cv neg">-'+e.currency+" "+fN(e.amount)+'</span></div>';
   }).join("");
+  return '<div class="cbox">'+rows+expRows+
+    '<div class="cdiv"></div>'+
+    '<div class="crow net-row"><span class="cl" style="font-weight:700;color:#fff">Чистая прибыль</span><span class="cv big '+(c.net>=0?"em":"neg")+'">'+S(c.net)+'</span></div>'+
+    '<div class="cdiv"></div>'+
+    '<div class="crow sub"><span class="cl" style="font-weight:600">Давиду ('+c.dPct+'%)</span><span class="cv tbl">'+S(c.dFin)+'</span></div>'+
+    '<div class="crow sub"><span class="cl" style="font-weight:600">'+(ownerName||"Владельцу")+' ('+c.oPct+'%)</span><span class="cv em">'+S(c.oFin)+'</span></div>'+
+    '</div>';
 }
 
-/* ─────────────────────────────────────────────────────
-   DASHBOARD
-───────────────────────────────────────────────────── */
-let dashFilter = { apt: "all", month: "" };
-function renderDash() {
-  const fil = state.bookings.filter(b => {
-    if (dashFilter.apt !== "all" && b.aptId !== dashFilter.apt) return false;
-    if (dashFilter.month && (b.check_in || "").slice(0, 7) !== dashFilter.month) return false;
+/* ─── LIST SCREEN ────────────────────────────────── */
+function renderList(){
+  var isApts=S.tab==="apts";
+  var content="";
+  if(isApts){
+    if(!S.apts.length){content='<div class="empty">Нет квартир<br><span style="font-size:12px">Нажмите + чтобы добавить</span></div>';}
+    else{content=S.apts.map(function(apt){
+      var abs=S.bks.filter(function(b){return b.aptId===apt.id;});
+      var net=abs.reduce(function(s,b){return s+calc(b,S.rate).net;},0);
+      var last=abs.slice().sort(function(a,b){return new Date(b.check_in)-new Date(a.check_in);})[0];
+      var pls=apt.platforms||[];
+      return '<div class="apt-card" onclick="selApt(\''+apt.id+'\')">'+
+        '<div class="apt-av">'+apt.apartment_name[0]+'</div>'+
+        '<div class="f1" style="min-width:0">'+
+          '<div class="row" style="flex-wrap:wrap;gap:5px">'+
+            '<span style="font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+apt.apartment_name+'</span>'+
+            bdg(apt.status==="active"?"g":"gy",apt.status==="active"?"Активна":"Неакт.")+
+          '</div>'+
+          (apt.address?'<div class="muted trunc" style="margin-top:3px">'+apt.address.split(",")[0]+'</div>':"")+
+          '<div class="wrap" style="margin-top:5px">'+
+            pls.map(function(p){return platBdg(p);}).join("")+
+            '<span class="muted">'+abs.length+' прожив.</span>'+
+            (last?'<span class="muted">· '+fD(last.check_in)+'</span>':"")+
+          '</div>'+
+          (apt.owner_name?'<div class="muted" style="margin-top:3px">'+apt.owner_name+'</div>':"")+
+        '</div>'+
+        '<div class="tr fs0"><div style="font-size:14px;font-weight:700;color:#34d399;font-family:monospace">$'+fN(net)+'</div><div class="muted">чист.</div></div>'+
+        '</div>';
+    }).join("");}
+  }else{
+    content=renderDash();
+  }
+  var syncBar="";
+  if(S.sync==="ok"&&S.syncTime)syncBar='<div class="sync-ok">'+I.check+' Google Sheets · '+S.syncTime+'</div>';
+  if(S.sync==="err")syncBar='<div class="sync-err">Ошибка синхронизации <button onclick="doSync()" style="background:none;border:none;color:#fca5a5;cursor:pointer;font-size:12px;text-decoration:underline;margin-left:8px">Повторить</button></div>';
+  root.innerHTML=
+    '<div id="root" style="display:flex;flex-direction:column;height:100dvh;overflow:hidden">'+
+    '<div class="hdr"><div class="hdr-row">'+
+      '<div class="f1"><div style="font-size:18px;font-weight:700">'+(isApts?"Квартиры":"Аналитика")+'</div>'+
+        (isApts?'<div class="muted" style="margin-top:2px">'+S.apts.length+' объектов · Тбилиси</div>':"")+
+      '</div>'+
+      '<div class="row" style="gap:8px">'+
+        '<div class="rate-box"><span class="muted" style="font-size:11px">1$=</span>'+
+          '<input id="rate-inp" type="number" step="0.1" value="'+S.rate+'" style="width:36px;background:none;border:none;color:#fde047;font-family:monospace;font-size:13px;font-weight:700;outline:none;padding:0"/>'+
+          '<span style="font-size:11px;color:#34d399">₾</span></div>'+
+        (isApts?'<button class="btn btn-s" style="padding:7px 9px" onclick="doSync()">'+I.sync+'</button>'+
+          '<button class="btn btn-p" style="padding:7px 9px;width:34px;height:34px" onclick="newApt()">'+I.plus+'</button>':"")+
+      '</div>'+
+    '</div></div>'+
+    syncBar+
+    '<div style="flex:1;overflow:hidden;display:flex;flex-direction:column">'+
+      '<div class="page">'+content+'</div>'+
+    '</div>'+
+    '<div class="nav">'+
+      '<button class="nav-btn'+(isApts?" on":"")+'\" onclick="setTab(\'apts\')">'+I.home+'<span>Квартиры</span></button>'+
+      '<button class="nav-btn'+(!isApts?" on":"")+'\" onclick="setTab(\'dash\')">'+I.bar+'<span>Аналитика</span></button>'+
+    '</div>'+
+    '</div>';
+  var ri=g("rate-inp");
+  if(ri)ri.addEventListener("input",function(e){S.rate=parseFloat(e.target.value)||DEF_RATE;save("dr8_rate",S.rate);});
+}
+
+window.setTab=function(t){S.tab=t;render();};
+window.selApt=function(id){S.selApt=S.apts.find(function(a){return a.id===id;});S.view="apt";render();};
+window.newApt=function(){aptF=null;S.editApt=null;S.view="aptform";render();};
+window.doSync=async function(){
+  S.sync="loading";render();
+  try{
+    var url="https://docs.google.com/spreadsheets/d/"+SHEET_ID+"/gviz/tq?tqx=out:json&gid=0";
+    var res=await fetch(url);
+    var txt=await res.text();
+    var json=JSON.parse(txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+    var cols=json.table.cols.map(function(c){return c.label;});
+    var rows=(json.table.rows||[]).map(function(row){
+      var o={};
+      cols.forEach(function(c,i){var cell=row.c&&row.c[i];o[c]=cell?(cell.v!==null&&cell.v!==undefined?cell.v:cell.f||""):"";});
+      return o;
+    }).filter(function(r){return Object.values(r).some(function(v){return v!=="";});});
+    if(rows.length){
+      var inc=rows.filter(function(r){return r.apartment_id||r.apartment_name;}).map(function(r){
+        return{id:String(r.apartment_id||uid()),apartment_id:r.apartment_id,apartment_name:r.apartment_name||"",address:r.address||"",owner_name:r.owner_name||"",owner_contact:r.owner_contact||"",owner_account:"",platforms:["Airbnb"],status:"active",david_pct:20,mapLink:"",notes:""};
+      });
+      var merged=inc.map(function(s){
+        var ex=S.apts.find(function(p){return String(p.id)===String(s.id)||String(p.apartment_id)===String(s.apartment_id);});
+        return ex?Object.assign({},ex,{apartment_name:s.apartment_name,address:s.address,owner_name:s.owner_name,owner_contact:s.owner_contact}):s;
+      });
+      S.apts.forEach(function(p){if(!merged.find(function(m){return String(m.id)===String(p.id);}))merged.push(p);});
+      S.apts=merged;save("dr8_apts",S.apts);
+    }
+    S.sync="ok";S.syncTime=new Date().toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"});
+    setTimeout(function(){S.sync="idle";render();},5000);
+  }catch(e){S.sync="err";}
+  render();
+};
+
+/* ─── DASHBOARD ──────────────────────────────────── */
+var dashF={apt:"all",month:""};
+function renderDash(){
+  var fil=S.bks.filter(function(b){
+    if(dashF.apt!=="all"&&b.aptId!==dashF.apt)return false;
+    if(dashF.month&&(b.check_in||"").slice(0,7)!==dashF.month)return false;
     return true;
   });
-  const T = fil.reduce((acc, b) => {
-    const c = calc(b, state.rate);
-    return { gross: acc.gross + c.gross, net: acc.net + c.net, exp: acc.exp + c.totalDeduct, david: acc.david + c.davidFinal, owner: acc.owner + c.ownerFinal };
-  }, { gross: 0, net: 0, exp: 0, david: 0, owner: 0 });
-
-  const aptOpts = `<option value="all">Все квартиры</option>` + state.apts.map(a => `<option value="${a.id}" ${dashFilter.apt === a.id ? "selected" : ""}>${a.apartment_name}</option>`).join("");
-
-  const aptRows = state.apts.map(apt => {
-    const ab = fil.filter(b => b.aptId === apt.id);
-    if (!ab.length) return "";
-    const net = ab.reduce((s, b) => s + calc(b, state.rate).net, 0);
-    const gross = ab.reduce((s, b) => s + calc(b, state.rate).gross, 0);
-    return `<div class="card card-p sp8">
-      <div class="flex jb aic">
-        <div>
-          <div style="font-size:14px;font-weight:600">${apt.apartment_name}</div>
-          ${apt.owner_name ? `<div style="font-size:12px;color:#4a6fa0">${apt.owner_name}</div>` : ""}
-          <div style="font-size:12px;color:#4a6fa0">${ab.length} прожив. · $${fN(gross)}</div>
-        </div>
-        <div class="mono" style="font-size:14px;font-weight:700;color:#34d399">$${fN(net)}</div>
-      </div>
-    </div>`;
+  var T=fil.reduce(function(acc,b){var c=calc(b,S.rate);return{g:acc.g+c.gross,n:acc.n+c.net,e:acc.e+(c.totalExp+c.bookFee+c.tax),d:acc.d+c.dFin,o:acc.o+c.oFin};},{g:0,n:0,e:0,d:0,o:0});
+  var opts='<option value="all">Все квартиры</option>'+S.apts.map(function(a){return'<option value="'+a.id+'"'+(dashF.apt===a.id?" selected":"")+'>'+a.apartment_name+'</option>';}).join("");
+  var aptRows=S.apts.map(function(apt){
+    var ab=fil.filter(function(b){return b.aptId===apt.id;});
+    if(!ab.length)return"";
+    var net=ab.reduce(function(s,b){return s+calc(b,S.rate).net;},0);
+    var gross=ab.reduce(function(s,b){return s+calc(b,S.rate).gross;},0);
+    return'<div class="card pad" style="margin-bottom:10px"><div class="row"><div class="f1"><div style="font-size:14px;font-weight:600">'+apt.apartment_name+'</div>'+(apt.owner_name?'<div class="muted">'+apt.owner_name+'</div>':"")+
+      '<div class="muted">'+ab.length+' прожив. · $'+fN(gross)+'</div></div>'+
+      '<div style="font-size:14px;font-weight:700;color:#34d399;font-family:monospace">$'+fN(net)+'</div></div></div>';
   }).join("");
-
-  return `
-<div class="field"><select id="dash-apt" class="sel">${aptOpts}</select></div>
-<div class="field"><input type="month" id="dash-month" value="${dashFilter.month}" class="inp"/></div>
-<div class="stat-grid">
-  ${[["Пришло", T.gross, "#fff"], ["Чистая прибыль", T.net, "#34d399"], ["Расходы", T.exp, "#fb923c"], ["Давиду", T.david, "#4f8ef7"]].map(([l, v, c]) =>
-    `<div class="stat"><div class="stat-l">${l}</div><div class="stat-v" style="color:${c}">$${fN(v)}</div></div>`
-  ).join("")}
-</div>
-<div class="card card-p sp" style="margin-bottom:14px">
-  ${[{l:"Давиду",v:T.david,c:"#4f8ef7",bar:"#3b82f6",w:"20%"},{l:"Владельцам",v:T.owner,c:"#34d399",bar:"#10b981",w:"80%"}].map(it => `
-  <div style="margin-bottom:12px">
-    <div class="flex jb" style="margin-bottom:5px"><span style="font-size:14px;color:#93c5fd">${it.l}</span><span class="mono" style="font-size:14px;font-weight:700;color:${it.c}">$${fN(it.v)}</span></div>
-    <div style="height:5px;background:#071020;border-radius:3px"><div style="height:5px;border-radius:3px;background:${it.bar};width:${it.w}"></div></div>
-  </div>`).join("")}
-</div>
-${aptRows}
-${!fil.length ? `<div class="empty">Нет данных</div>` : ""}`;
+  return'<div class="field"><select class="sel" onchange="dashFilter(\'apt\',this.value)">'+opts+'</select></div>'+
+    '<div class="field"><input type="month" class="inp" value="'+dashF.month+'" onchange="dashFilter(\'month\',this.value)"/></div>'+
+    '<div class="stats">'+
+      [["Пришло",T.g,"#fff"],["Чистая прибыль",T.n,"#34d399"],["Расходы",T.e,"#fb923c"],["Давиду",T.d,"#60a5fa"]].map(function(x){
+        return'<div class="stat"><div class="stat-l">'+x[0]+'</div><div class="stat-v" style="color:'+x[2]+'">$'+fN(x[1])+'</div></div>';
+      }).join("")+
+    '</div>'+
+    '<div class="card pad" style="margin-bottom:14px">'+
+      [["Давиду",T.d,"#60a5fa","#3b82f6","20%"],["Владельцам",T.o,"#34d399","#10b981","80%"]].map(function(x){
+        return'<div style="margin-bottom:12px"><div class="row" style="margin-bottom:5px"><span style="font-size:14px;color:#93c5fd">'+x[0]+'</span><span style="font-size:14px;font-weight:700;color:'+x[2]+';font-family:monospace">$'+fN(x[1])+'</span></div>'+
+          '<div style="height:5px;background:#071020;border-radius:3px"><div style="height:5px;border-radius:3px;background:'+x[3]+';width:'+x[4]+'"></div></div></div>';
+      }).join("")+
+    '</div>'+aptRows+
+    (!fil.length?'<div class="empty">Нет данных</div>':"");
 }
+window.dashFilter=function(k,v){dashF[k]=v;render();};
 
-function bindDashEvents() {
-  const aptSel = document.getElementById("dash-apt");
-  const monthInp = document.getElementById("dash-month");
-  if (aptSel) aptSel.addEventListener("change", e => { dashFilter.apt = e.target.value; document.getElementById("main-content").innerHTML = renderDash(); bindDashEvents(); });
-  if (monthInp) monthInp.addEventListener("input", e => { dashFilter.month = e.target.value; document.getElementById("main-content").innerHTML = renderDash(); bindDashEvents(); });
-}
-
-/* ─────────────────────────────────────────────────────
-   APT DETAIL
-───────────────────────────────────────────────────── */
-function renderAptDetail() {
-  const apt = state.selApt;
-  const abs = state.bookings.filter(b => b.aptId === apt.id).sort((a, b) => new Date(b.check_in) - new Date(a.check_in));
-  const totG = abs.reduce((s, b) => s + calc(b, state.rate).gross, 0);
-  const totN = abs.reduce((s, b) => s + calc(b, state.rate).net, 0);
-  const totD = abs.reduce((s, b) => s + calc(b, state.rate).davidFinal, 0);
-  const totO = abs.reduce((s, b) => s + calc(b, state.rate).ownerFinal, 0);
-
-  const bkHtml = abs.map(bk => {
-    const c = calc(bk, state.rate);
-    const open = !!state.expOpen[bk.id];
-    const stMap = {received:["ok","Получено"], pending:["wait","Ожидается"], partial:["part","Частично"]};
-    const [stType, stLabel] = stMap[bk.payment_status] || stMap.received;
-    const detailHtml = open ? renderBkDetail(bk, c, apt) : "";
-    return `
-<div class="bk-card">
-  <div class="bk-main bk-toggle" data-id="${bk.id}">
-    <div class="flex aic jb gap10">
-      <div class="f1">
-        <div class="flex aic gap6 wrap">
-          <span style="font-size:14px;font-weight:600">${fD(bk.check_in)} — ${fD(bk.check_out)}</span>
-          ${bdg(stType, stLabel)}
-        </div>
-        <div class="gap-wrap" style="margin-top:5px">
-          ${bdg((bk.platform || "").toLowerCase(), bk.platform || "—")}
-          ${bdg(c.cur.toLowerCase(), c.cur)}
-          <span style="font-size:11px;color:#4a6fa060">${nLbl(nights(bk.check_in, bk.check_out))}</span>
-          ${bk.guest_name ? `<span style="font-size:11px;color:#4a6fa060">· ${bk.guest_name}</span>` : ""}
-        </div>
-      </div>
-      <div class="tr fs0">
-        <div class="mono" style="font-size:15px;font-weight:700">${c.cur} ${fN(c.gross)}</div>
-        <div class="mono" style="font-size:13px;color:#34d399">${c.cur} ${fN(c.net)}</div>
-      </div>
-    </div>
-  </div>
-  ${open ? `<div class="bk-detail" id="bk-detail-${bk.id}">${detailHtml}</div>` : ""}
-</div>`;
+/* ─── APT DETAIL ─────────────────────────────────── */
+function renderApt(){
+  var apt=S.selApt;
+  var abs=S.bks.filter(function(b){return b.aptId===apt.id;}).sort(function(a,b){return new Date(b.check_in)-new Date(a.check_in);});
+  var totG=abs.reduce(function(s,b){return s+calc(b,S.rate).gross;},0);
+  var totN=abs.reduce(function(s,b){return s+calc(b,S.rate).net;},0);
+  var totD=abs.reduce(function(s,b){return s+calc(b,S.rate).dFin;},0);
+  var totO=abs.reduce(function(s,b){return s+calc(b,S.rate).oFin;},0);
+  var bkHtml=abs.map(function(bk){
+    var c=calc(bk,S.rate);
+    var open=!!S.expOpen[bk.id];
+    var stMap={received:["ok","Получено"],pending:["wt","Ожидается"],partial:["pt","Частично"]};
+    var st=stMap[bk.payment_status]||stMap.received;
+    var detail="";
+    if(open){
+      var S2=function(v){return c.cur+" "+fN(v);};
+      var expRows2=c.exps.filter(function(e){return e.inB>0;}).map(function(e){
+        return'<div class="crow sub"><span class="cl" style="color:rgba(147,197,253,.3)">• '+(EXP_LBL[e.cat]||e.cat)+'</span><span class="cv neg">-'+e.currency+" "+fN(e.amount)+'</span></div>';
+      }).join("");
+      detail='<div class="bk-body">'+
+        '<div class="cbox">'+
+          '<div class="crow"><span class="cl">Пришло</span><span class="cv">'+S2(c.gross)+'</span></div>'+
+          (c.tax>0?'<div class="crow"><span class="cl">Налог Airbnb</span><span class="cv neg">-'+S2(c.tax)+'</span></div>':"")+
+          (c.bookFee>0?'<div class="crow"><span class="cl">Комиссия Booking</span><span class="cv neg">-'+S2(c.bookFee)+'</span></div>':"")+
+          expRows2+
+          '<div class="cdiv"></div>'+
+          '<div class="crow net-row"><span class="cl" style="font-weight:700;color:#fff">Чистая прибыль</span><span class="cv big '+(c.net>=0?"em":"neg")+'">'+S2(c.net)+'</span></div>'+
+          '<div class="cdiv"></div>'+
+          '<div class="crow sub"><span class="cl" style="font-weight:600">Давиду</span><span class="cv tbl">'+S2(c.dFin)+'</span></div>'+
+          '<div class="crow sub"><span class="cl" style="font-weight:600">'+(apt.owner_name||"Владельцу")+'</span><span class="cv em">'+S2(c.oFin)+'</span></div>'+
+        '</div>'+
+        (bk.comment?'<div class="card pad" style="margin-top:10px"><div class="muted" style="margin-bottom:4px">Комментарий</div><div style="font-size:14px;color:#93c5fd">'+bk.comment+'</div></div>':"")+
+        ((bk.receipts||[]).length?'<div style="margin-top:10px"><div class="muted" style="margin-bottom:6px">Чеки</div><div class="receipt-grid">'+bk.receipts.map(function(r){return'<img src="'+r.data+'" class="thumb" onclick="window.open(this.src)">';}).join("")+'</div></div>':"")+
+        '<div class="row" style="margin-top:12px;gap:8px">'+
+          '<button class="btn btn-s btn-sm" onclick="editBk(\''+bk.id+'\')">'+I.edit+' Изменить</button>'+
+          '<button class="btn btn-d btn-sm" onclick="delBk(\''+bk.id+'\')">'+I.trash+' Удалить</button>'+
+        '</div>'+
+      '</div>';
+    }
+    return'<div class="bk-card">'+
+      '<div class="bk-main" onclick="toggleBk(\''+bk.id+'\')">'+
+        '<div class="row" style="align-items:flex-start;gap:10px">'+
+          '<div class="f1">'+
+            '<div class="row" style="flex-wrap:wrap;gap:5px">'+
+              '<span style="font-size:14px;font-weight:600">'+fD(bk.check_in)+' — '+fD(bk.check_out)+'</span>'+
+              bdg(st[0],st[1])+
+            '</div>'+
+            '<div class="wrap" style="margin-top:5px">'+
+              platBdg(bk.platform||"")+
+              bdg((c.cur||"usd").toLowerCase(),c.cur)+
+              '<span class="muted">'+nL(nts(bk.check_in,bk.check_out))+'</span>'+
+              (bk.guest_name?'<span class="muted">· '+bk.guest_name+'</span>':"")+
+            '</div>'+
+          '</div>'+
+          '<div class="tr fs0">'+
+            '<div style="font-size:15px;font-weight:700;font-family:monospace">'+c.cur+' '+fN(c.gross)+'</div>'+
+            '<div style="font-size:13px;color:#34d399;font-family:monospace">'+c.cur+' '+fN(c.net)+'</div>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+      detail+
+    '</div>';
   }).join("");
-
-  app.innerHTML = `
-<div class="screen">
-  <div class="hdr">
-    <div class="hdr-row">
-      <button id="back-btn" style="background:none;border:none;color:#4a6fa0;cursor:pointer;padding:4px 6px 4px 0">${IC.back}</button>
-      <div class="f1">
-        <div style="font-size:16px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${apt.apartment_name}</div>
-        <div style="font-size:12px;color:#4a6fa0;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${apt.address || ""}</div>
-      </div>
-      <button id="edit-apt-btn" style="background:none;border:none;color:#4a6fa060;cursor:pointer;padding:6px">${IC.edit}</button>
-    </div>
-    ${apt.owner_name || apt.owner_contact ? `
-    <div class="owner-strip">
-      <div class="ow-av">${(apt.owner_name || "?")[0]}</div>
-      <div class="f1">
-        <div style="font-size:13px;font-weight:600">${apt.owner_name || ""}</div>
-        ${apt.owner_contact ? `<div style="font-size:12px;color:#4a6fa0">${apt.owner_contact}</div>` : ""}
-      </div>
-      ${apt.owner_account ? `<div class="mono" style="font-size:11px;color:#93c5fd;max-width:110px;overflow:hidden;text-overflow:ellipsis">${apt.owner_account}</div>` : ""}
-    </div>` : ""}
-  </div>
-  <div class="page">
-    <div class="stat-grid">
-      ${[["Пришло", totG, "#fff"], ["Чистая прибыль", totN, "#34d399"], ["Давиду", totD, "#4f8ef7"], ["Владельцу", totO, "#34d399"]].map(([l, v, c]) =>
-        `<div class="stat"><div class="stat-l">${l}</div><div class="stat-v" style="color:${c}">$${fN(v)}</div></div>`
-      ).join("")}
-    </div>
-    <div class="flex aic jb" style="margin-bottom:10px">
-      <span style="font-size:14px;font-weight:600">Проживания</span>
-      <span style="font-size:12px;color:#4a6fa060">${abs.length}</span>
-    </div>
-    ${!abs.length ? `<div class="empty">Нет проживаний</div>` : ""}
-    ${bkHtml}
-  </div>
-  <div class="fab-bar">
-    <button id="add-bk-btn" class="fab">${IC.plus} Добавить проживание</button>
-  </div>
-</div>`;
-
-  document.getElementById("back-btn").addEventListener("click", () => { state.view = "list"; state.selApt = null; state.expOpen = {}; render(); });
-  document.getElementById("edit-apt-btn").addEventListener("click", () => { state.editApt = state.selApt; state.view = "apt-form"; render(); });
-  document.getElementById("add-bk-btn").addEventListener("click", () => { state.editBk = null; state.view = "bk-form"; render(); });
-
-  document.querySelectorAll(".bk-toggle").forEach(el => {
-    el.addEventListener("click", () => {
-      const id = el.dataset.id;
-      state.expOpen[id] = !state.expOpen[id];
-      renderAptDetail();
-    });
-  });
-
-  document.querySelectorAll(".bk-edit-btn").forEach(el => {
-    el.addEventListener("click", e => { e.stopPropagation(); state.editBk = state.bookings.find(b => b.id === el.dataset.id); state.view = "bk-form"; render(); });
-  });
-  document.querySelectorAll(".bk-del-btn").forEach(el => {
-    el.addEventListener("click", e => {
-      e.stopPropagation();
-      if (!confirm("Удалить проживание?")) return;
-      state.bookings = state.bookings.filter(b => b.id !== el.dataset.id);
-      save("dr_bk", state.bookings);
-      delete state.expOpen[el.dataset.id];
-      renderAptDetail();
-    });
-  });
+  root.innerHTML=
+    '<div class="modal">'+
+    '<div class="hdr"><div class="hdr-row">'+
+      '<button class="btn" style="background:none;border:none;color:rgba(147,197,253,.5);padding:4px 6px 4px 0" onclick="backToList()">'+I.back+'</button>'+
+      '<div class="f1"><div style="font-size:16px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+apt.apartment_name+'</div>'+
+        '<div class="muted trunc" style="margin-top:2px">'+apt.address+'</div></div>'+
+      '<button class="btn" style="background:none;border:none;color:rgba(147,197,253,.35);padding:6px" onclick="goEditApt()">'+I.edit+'</button>'+
+    '</div>'+
+    (apt.owner_name||apt.owner_contact?'<div class="owner-strip">'+
+      '<div class="ow-av">'+(apt.owner_name||"?")[0]+'</div>'+
+      '<div class="f1"><div style="font-size:13px;font-weight:600">'+(apt.owner_name||"")+'</div>'+(apt.owner_contact?'<div class="muted">'+apt.owner_contact+'</div>':"")+
+      '</div>'+(apt.owner_account?'<div style="font-size:11px;font-family:monospace;color:#93c5fd;max-width:110px;overflow:hidden;text-overflow:ellipsis">'+apt.owner_account+'</div>':"")+
+    '</div>':"")+
+    '</div>'+
+    '<div class="page">'+
+      '<div class="stats">'+
+        [["Пришло",totG,"#fff"],["Чистая прибыль",totN,"#34d399"],["Давиду",totD,"#60a5fa"],["Владельцу",totO,"#34d399"]].map(function(x){
+          return'<div class="stat"><div class="stat-l">'+x[0]+'</div><div class="stat-v" style="color:'+x[2]+'">$'+fN(x[1])+'</div></div>';
+        }).join("")+
+      '</div>'+
+      '<div class="row" style="margin-bottom:10px"><span style="font-size:14px;font-weight:600">Проживания</span><span class="muted" style="margin-left:auto">'+abs.length+'</span></div>'+
+      (!abs.length?'<div class="empty">Нет проживаний</div>':"")+
+      bkHtml+
+    '</div>'+
+    '<div class="fab-bar"><button class="fab" onclick="newBk()">'+I.plus+' Добавить проживание</button></div>'+
+    '</div>';
 }
 
-function renderBkDetail(bk, c, apt) {
-  const EXP_NAMES = {cleaning:"Уборка",utilities:"Коммуналка",supplies:"Расходники",repair:"Ремонт",other:"Прочее",booking_fee:"Комиссия Booking"};
-  const S = v => `${c.cur} ${fN(v)}`;
+window.backToList=function(){S.view="list";S.selApt=null;S.expOpen={};render();};
+window.goEditApt=function(){aptF=null;S.editApt=S.selApt;S.view="aptform";render();};
+window.toggleBk=function(id){S.expOpen[id]=!S.expOpen[id];renderApt();};
+window.editBk=function(id){S.editBk=S.bks.find(function(b){return b.id===id;});bkF=null;bkTab="main";S.view="bkform";render();};
+window.delBk=function(id){
+  if(!confirm("Удалить проживание?"))return;
+  S.bks=S.bks.filter(function(b){return b.id!==id;});
+  save("dr8_bks",S.bks);
+  delete S.expOpen[id];
+  renderApt();
+};
+window.newBk=function(){S.editBk=null;bkF=null;bkTab="main";S.view="bkform";render();};
 
-  const rows = [
-    `<div class="crow"><span class="cl">Пришло</span><span class="cv">${S(c.gross)}</span></div>`,
-    c.tax > 0 ? `<div class="crow"><span class="cl">Налог Airbnb (${c.taxPct}%)</span><span class="cv neg">-${S(c.tax)}</span></div>` : "",
-    c.bookFee > 0 ? `<div class="crow"><span class="cl">Комиссия Booking</span><span class="cv neg">-${S(c.bookFee)}</span></div>` : "",
-    ...c.exps.filter(e => e.inBase > 0).map(e =>
-      `<div class="crow sub"><span class="cl" style="color:#4a6fa060">• ${EXP_NAMES[e.cat] || e.cat} <span style="font-size:11px">(${e.currency})</span></span><span class="cv neg">-${e.currency} ${fN(e.amt)}</span></div>`
-    ),
-    `<div class="cdiv"></div>`,
-    `<div class="crow net"><span class="cl" style="font-weight:600;color:#fff">Чистая прибыль</span><span class="cv big ${c.net >= 0 ? "em" : "neg"}">${S(c.net)}</span></div>`,
-    `<div class="cdiv"></div>`,
-    `<div class="crow sub"><span class="cl">Давиду (${c.dPct}%)</span><span class="cv bl">${S(c.davidBase)}</span></div>`,
-    c.expPlatform > 0 ? `<div class="crow sub"><span class="cl" style="color:#4a6fa060">+ компенсация</span><span class="cv bl">+${S(c.expPlatform)}</span></div>` : "",
-    `<div class="crow sub"><span class="cl" style="font-weight:600">= Итого Давиду</span><span class="cv bl" style="font-size:15px;font-weight:700">${S(c.davidFinal)}</span></div>`,
-    `<div class="cdiv"></div>`,
-    `<div class="crow sub"><span class="cl">${apt.owner_name || "Владелец"} (${c.oPct}%)</span><span class="cv em">${S(c.ownerBase)}</span></div>`,
-    c.expOwner > 0 ? `<div class="crow sub"><span class="cl" style="color:#4a6fa060">+ компенсация</span><span class="cv em">+${S(c.expOwner)}</span></div>` : "",
-    `<div class="crow sub"><span class="cl" style="font-weight:600">= Итого владельцу</span><span class="cv em" style="font-size:15px;font-weight:700">${S(c.ownerFinal)}</span></div>`,
-  ].join("");
-
-  const receiptsHtml = (bk.receipts || []).length > 0 ? `
-    <div style="margin-top:10px">
-      <div style="font-size:11px;color:#4a6fa0;margin-bottom:6px">Чеки</div>
-      <div class="receipt-wrap">${(bk.receipts || []).map(r => `<img src="${r.data}" class="thumb" onclick="window.open('${r.data}','_blank')">`).join("")}</div>
-    </div>` : "";
-
-  const commentHtml = bk.comment ? `<div class="card card-p" style="margin-top:10px"><div style="font-size:11px;color:#4a6fa0;margin-bottom:4px">Комментарий</div><div style="font-size:14px;color:#93c5fd">${bk.comment}</div></div>` : "";
-
-  return `
-<div class="cbox" style="margin-bottom:10px">${rows}</div>
-${commentHtml}
-${receiptsHtml}
-<div class="flex gap8" style="margin-top:12px">
-  <button class="btn btn-s btn-sm bk-edit-btn" data-id="${bk.id}">${IC.edit} Изменить</button>
-  <button class="btn btn-d btn-sm bk-del-btn" data-id="${bk.id}">${IC.trash} Удалить</button>
-</div>`;
-}
-
-/* ─────────────────────────────────────────────────────
-   BOOKING FORM
-───────────────────────────────────────────────────── */
-let bkForm = null;
-
-function initBkForm() {
-  const apt = state.selApt;
-  const defPlat = apt?.platforms?.[0] || "Airbnb";
-  const defCur = defPlat === "Airbnb" ? "USD" : "GEL";
-  if (state.editBk) {
-    bkForm = JSON.parse(JSON.stringify(state.editBk));
-    if (!bkForm.expenses) bkForm.expenses = [];
-  } else {
-    bkForm = {
-      id: uid(), check_in: "", check_out: "", gross_income: "", income_currency: defCur,
-      platform: defPlat, guest_name: "", comment: "", receipts: [],
-      payment_status: "received", david_pct: apt?.david_pct || 20,
-      airbnb_tax_pct: 1, booking_fee: "", expenses: [],
-    };
+/* ─── BOOKING FORM ───────────────────────────────── */
+function initBkF(){
+  var apt=S.selApt;
+  if(S.editBk){bkF=JSON.parse(JSON.stringify(S.editBk));if(!bkF.expenses)bkF.expenses=[];}
+  else{
+    var defP=(apt&&apt.platforms&&apt.platforms[0])||"Airbnb";
+    var defC=defP==="Airbnb"?"USD":"GEL";
+    bkF={id:uid(),check_in:"",check_out:"",gross_income:"",income_currency:defC,platform:defP,guest_name:"",comment:"",receipts:[],payment_status:"received",david_pct:(apt&&apt.david_pct)||20,airbnb_tax_pct:1,booking_fee:"",expenses:[]};
   }
 }
 
-let bkTab = "main";
-const EXP_CATS = ["cleaning", "utilities", "supplies", "repair", "other"];
-const EXP_NAMES = {cleaning:"Уборка",utilities:"Коммуналка",supplies:"Расходники",repair:"Ремонт",other:"Прочее",booking_fee:"Комиссия Booking"};
-
-function renderBkForm() {
-  if (!bkForm) initBkForm();
-  const apt = state.selApt;
-  const b = bkForm;
-  const c = calc(b, state.rate);
-  const n = nights(b.check_in, b.check_out);
-  const cats = b.platform === "Booking" ? [...EXP_CATS, "booking_fee"] : EXP_CATS;
-  const usedCats = (b.expenses || []).map(e => e.cat);
-
-  const platBtns = [["Airbnb","a","plat-a"],["Booking","b","plat-b"],["Другое","o","plat-o"]].map(([p, k, cls]) =>
-    `<button class="plat-btn ${b.platform === p ? cls : ""}" data-plat="${p}">${p}</button>`
-  ).join("");
-
-  const curBtns = (cur) => ["USD","GEL"].map(c =>
-    `<button class="cur-btn ${cur === c ? (c === "USD" ? "usd" : "gel") : ""}" data-cur="${c}">${c}</button>`
-  ).join("");
-
-  const expRows = (b.expenses || []).map((e, i) => `
-<div class="exp-row">
-  <div class="flex aic jb" style="margin-bottom:8px">
-    <span style="font-size:13px;font-weight:600">${EXP_NAMES[e.cat] || e.cat}</span>
-    <button class="btn btn-d btn-sm exp-del-btn" data-idx="${i}" style="padding:4px 8px">${IC.trash}</button>
-  </div>
-  <div class="field flex gap8 aic">
-    <div class="f1 irel">
-      <span class="il" style="color:#4a6fa0;font-size:13px">$</span>
-      <input type="number" class="inp pl exp-amt" data-idx="${i}" value="${e.amount || ""}" placeholder="0" style="font-size:16px"/>
-    </div>
-    <div class="cur-btns">${curBtns(e.currency)}</div>
-  </div>
-  <div class="field">
-    <div class="lbl">Кто оплатил</div>
-    <div class="payer-row">
-      <button class="payer-btn ${e.payer === "platform" ? "on" : ""}" data-idx="${i}" data-payer="platform">Платформа</button>
-      <button class="payer-btn ${e.payer === "owner" ? "on" : ""}" data-idx="${i}" data-payer="owner">Собственник</button>
-    </div>
-  </div>
-  <div class="field">
-    <input type="text" class="inp exp-comment" data-idx="${i}" value="${e.comment || ""}" placeholder="Комментарий..." style="font-size:16px"/>
-  </div>
-</div>`).join("");
-
-  const addCatBtns = cats.filter(c => !usedCats.includes(c)).map(c =>
-    `<button class="btn btn-s btn-sm add-exp-btn" data-cat="${c}" style="margin:0 4px 6px 0">${IC.plus} ${EXP_NAMES[c]}</button>`
-  ).join("");
-
-  const calcHtml = renderCalcBox(c, apt?.owner_name);
-  const rpt = makeReport(apt, b, c);
-
-  app.innerHTML = `
-<div class="screen">
-  <div class="hdr">
-    <div class="hdr-row">
-      <button id="bk-back" style="background:none;border:none;color:#4a6fa0;cursor:pointer;padding:4px 6px 4px 0">${IC.back}</button>
-      <div class="f1">
-        <div style="font-size:12px;color:#4a6fa0">${apt?.apartment_name || ""}</div>
-        <div style="font-size:15px;font-weight:600">${state.editBk ? "Редактировать" : "Новое проживание"}</div>
-      </div>
-      <button id="bk-save" class="btn btn-p">${IC.check} Сохранить</button>
-    </div>
-  </div>
-  <div class="tabs">
-    <button class="tab ${bkTab==="main"?"on":""}" data-tab="main">Основное</button>
-    <button class="tab ${bkTab==="exp"?"on":""}" data-tab="exp">Расходы</button>
-    <button class="tab ${bkTab==="rpt"?"on":""}" data-tab="rpt">Отчёт</button>
-  </div>
-  <div class="page" id="bk-page">
-
-  ${bkTab === "main" ? `
-    <div class="grid2 field">
-      <div><div class="lbl">Заезд</div><input type="date" class="inp" id="f-checkin" value="${b.check_in}"/></div>
-      <div><div class="lbl">Выезд</div><input type="date" class="inp" id="f-checkout" value="${b.check_out}"/></div>
-    </div>
-    ${n > 0 ? `<div class="night-pill">${nLbl(n)}</div>` : ""}
-    <div class="field"><div class="lbl">Имя гостя</div><input type="text" class="inp" id="f-guest" value="${b.guest_name}" placeholder="Giorgi M."/></div>
-    <div class="field">
-      <div class="lbl">Платформа</div>
-      <div class="plat-pick">${platBtns}</div>
-    </div>
-    ${b.platform === "Airbnb" ? `<div class="field"><div class="lbl">Налог Airbnb (%)</div><div class="irel"><input type="number" class="inp pr" id="f-tax" value="${b.airbnb_tax_pct}" step="0.1"/><span class="ir">%</span></div></div>` : ""}
-    <div class="field">
-      <div class="lbl">Сумма поступления</div>
-      <div class="flex gap8 aic">
-        <div class="f1 irel"><span class="il" style="font-size:13px;color:#4a6fa0">$</span><input type="number" class="inp pl" id="f-gross" value="${b.gross_income}" placeholder="0"/></div>
-        <div class="cur-btns" id="income-cur">${curBtns(b.income_currency)}</div>
-      </div>
-    </div>
-    ${b.platform === "Booking" ? `<div class="field"><div class="lbl">Комиссия Booking</div><div class="irel"><span class="il" style="font-size:13px;color:#4a6fa0">$</span><input type="number" class="inp pl" id="f-bookfee" value="${b.booking_fee}" placeholder="0"/></div></div>` : ""}
-    <div class="grid2 field">
-      <div><div class="lbl">Доля Давида (%)</div><div class="irel"><input type="number" class="inp pr" id="f-david" value="${b.david_pct}"/><span class="ir">%</span></div></div>
-      <div><div class="lbl">Статус</div><select class="sel" id="f-status">
-        <option value="received" ${b.payment_status==="received"?"selected":""}>✓ Получено</option>
-        <option value="pending" ${b.payment_status==="pending"?"selected":""}>⏳ Ожидается</option>
-        <option value="partial" ${b.payment_status==="partial"?"selected":""}>◑ Частично</option>
-      </select></div>
-    </div>
-    ${c.gross > 0 ? calcHtml : ""}
-    <div class="field"><div class="lbl">Комментарий</div><textarea class="inp" id="f-comment" rows="3" placeholder="Заметки о госте..." style="resize:none">${b.comment}</textarea></div>
-  ` : ""}
-
-  ${bkTab === "exp" ? `
-    <div class="sec-ttl">Добавить категорию</div>
-    <div style="margin-bottom:12px">${addCatBtns}</div>
-    ${expRows || `<div class="empty" style="padding:20px">Нет расходов</div>`}
-    <div style="margin-top:12px">
-      <div class="sec-ttl">Чеки и фото</div>
-      <div class="receipt-wrap" id="receipt-wrap">
-        ${(b.receipts||[]).map((r,i) => `
-          <div style="position:relative">
-            <img src="${r.data}" class="thumb" onclick="window.open('${r.data}','_blank')"/>
-            <button class="del-receipt" data-idx="${i}" style="position:absolute;top:-5px;right:-5px;width:18px;height:18px;border-radius:50%;background:#ef4444;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer">${IC.x}</button>
-          </div>`).join("")}
-        <button id="add-receipt" class="add-thumb">${IC.img}<span>Фото</span></button>
-      </div>
-      <input type="file" id="file-inp" accept="image/*" multiple style="display:none"/>
-    </div>
-    ${c.gross > 0 ? `<div style="margin-top:12px">${calcHtml}</div>` : ""}
-  ` : ""}
-
-  ${bkTab === "rpt" ? `
-    <div class="card card-p field">
-      <div class="sec-ttl">Превью отчёта</div>
-      <div class="rpt">${rpt}</div>
-    </div>
-    ${apt?.owner_account ? `<div class="card flex aic gap8 card-p field">${IC.bank}<span style="font-size:12px;color:#4a6fa0">Счёт:</span><span class="mono" style="font-size:12px;color:#93c5fd">${apt.owner_account}</span></div>` : ""}
-    <div class="grid2 field">
-      <button id="copy-btn" class="btn btn-s">${IC.copy} Копировать</button>
-      <button id="tg-btn" class="btn btn-s">${IC.tg} Telegram</button>
-    </div>
-  ` : ""}
-
-  </div>
-</div>`;
-
-  // Nav
-  document.querySelectorAll(".tab[data-tab]").forEach(el => {
-    el.addEventListener("click", () => { bkTab = el.dataset.tab; syncFormToState(); renderBkForm(); });
-  });
-
-  // Back / Save
-  document.getElementById("bk-back").addEventListener("click", () => {
-    bkForm = null; bkTab = "main"; state.view = "apt"; renderAptDetail();
-  });
-  document.getElementById("bk-save").addEventListener("click", () => {
-    syncFormToState();
-    const saved = { ...bkForm, aptId: state.selApt.id };
-    if (state.editBk) {
-      state.bookings = state.bookings.map(b => b.id === saved.id ? saved : b);
-    } else {
-      state.bookings.push(saved);
-    }
-    save("dr_bk", state.bookings);
-    bkForm = null; bkTab = "main"; state.editBk = null; state.view = "apt"; renderAptDetail();
-  });
-
-  // Platform
-  document.querySelectorAll(".plat-btn[data-plat]").forEach(el => {
-    el.addEventListener("click", () => {
-      syncFormToState();
-      bkForm.platform = el.dataset.plat;
-      bkForm.income_currency = bkForm.platform === "Airbnb" ? "USD" : "GEL";
-      renderBkForm();
+function renderBkForm(){
+  if(!bkF)initBkF();
+  var apt=S.selApt;
+  var b=bkF;
+  var c=calc(b,S.rate);
+  var n=nts(b.check_in,b.check_out);
+  var cats=b.platform==="Booking"?EXP_CAT.concat(["booking_fee"]):EXP_CAT;
+  var usedCats=(b.expenses||[]).map(function(e){return e.cat;});
+  var platHtml=[["Airbnb","pa"],["Booking","pb"],["Другое","po"]].map(function(x){
+    return'<button class="plat-btn'+(b.platform===x[0]?" "+x[1]:"")+'\" onclick="setBkPlat(\''+x[0]+'\')">'+x[0]+'</button>';
+  }).join("");
+  var curHtml=function(cur,ev){return["USD","GEL"].map(function(c){return'<button class="cur-btn'+(cur===c?" "+(c==="USD"?"cusd":"cgel"):"")+'\" onclick="'+ev+'(\''+c+'\')">'+c+'</button>';}).join("");};
+  var addCatBtns=cats.filter(function(c){return!usedCats.includes(c);}).map(function(c){
+    return'<button class="btn btn-s btn-sm" style="margin:0 4px 6px 0" onclick="addExp(\''+c+'\')">'+I.plus+' '+(EXP_LBL[c]||c)+'</button>';
+  }).join("");
+  var expRows=(b.expenses||[]).map(function(e,i){
+    return'<div class="exp-block">'+
+      '<div class="row" style="margin-bottom:8px"><span style="font-size:13px;font-weight:600">'+(EXP_LBL[e.cat]||e.cat)+'</span>'+
+        '<button class="btn btn-d btn-sm" style="padding:4px 8px;margin-left:auto" onclick="delExp('+i+')">'+I.trash+'</button></div>'+
+      '<div class="field row gap8"><div class="f1 rel"><span class="il">$</span><input type="number" class="inp pl" value="'+(e.amount||"")+'" placeholder="0" onchange="upExp('+i+',\'amount\',this.value)" oninput="upExp('+i+',\'amount\',this.value)"/></div>'+
+        '<div class="cur-row">'+["USD","GEL"].map(function(cu){return'<button class="cur-btn'+(e.currency===cu?" "+(cu==="USD"?"cusd":"cgel"):"")+'\" onclick="upExp('+i+',\'currency\',\''+cu+'\')">'+cu+'</button>';}).join("")+'</div></div>'+
+      '<div class="field"><div class="lbl">Кто оплатил</div><div class="payer-row">'+
+        '<button class="payer-btn'+(e.payer==="platform"?" pon":"")+'\" onclick="upExp('+i+',\'payer\',\'platform\')">Платформа</button>'+
+        '<button class="payer-btn'+(e.payer==="owner"?" pon":"")+'\" onclick="upExp('+i+',\'payer\',\'owner\')">Собственник</button>'+
+      '</div></div>'+
+      '<div><input type="text" class="inp" value="'+(e.comment||"")+'" placeholder="Комментарий..." onchange="upExp('+i+',\'comment\',this.value)"/></div>'+
+    '</div>';
+  }).join("");
+  var rpt=report(apt,b,c);
+  var mainTab=bkTab==="main"?
+    '<div class="grid2 field">'+
+      '<div><div class="lbl">Заезд</div><input type="date" class="inp" id="f-ci" value="'+b.check_in+'" onchange="bkF.check_in=this.value;updateBkCalc()"/></div>'+
+      '<div><div class="lbl">Выезд</div><input type="date" class="inp" id="f-co" value="'+b.check_out+'" onchange="bkF.check_out=this.value;updateBkCalc()"/></div>'+
+    '</div>'+
+    (n>0?'<div class="night-pill">'+nL(n)+'</div>':"")+
+    '<div class="field"><div class="lbl">Имя гостя</div><input type="text" class="inp" value="'+b.guest_name+'" onchange="bkF.guest_name=this.value" placeholder="Giorgi M."/></div>'+
+    '<div class="field"><div class="lbl">Платформа</div><div class="plat-row">'+platHtml+'</div></div>'+
+    (b.platform==="Airbnb"?'<div class="field"><div class="lbl">Налог Airbnb (%)</div><div class="rel"><input type="number" class="inp pr" step="0.1" value="'+b.airbnb_tax_pct+'" oninput="bkF.airbnb_tax_pct=this.value;updateBkCalc()"/><span class="ir">%</span></div></div>':"")+
+    '<div class="field"><div class="lbl">Сумма поступления</div><div class="row gap8">'+
+      '<div class="f1 rel"><span class="il">$</span><input type="number" class="inp pl" value="'+b.gross_income+'" placeholder="0" oninput="bkF.gross_income=this.value;updateBkCalc()"/></div>'+
+      '<div class="cur-row">'+curHtml(b.income_currency,"setIncomeCur")+'</div>'+
+    '</div></div>'+
+    (b.platform==="Booking"?'<div class="field"><div class="lbl">Комиссия Booking</div><div class="rel"><span class="il">$</span><input type="number" class="inp pl" value="'+(b.booking_fee||"")+'" placeholder="0" oninput="bkF.booking_fee=this.value;updateBkCalc()"/></div></div>':"")+
+    '<div class="grid2 field">'+
+      '<div><div class="lbl">Доля Давида (%)</div><div class="rel"><input type="number" class="inp pr" value="'+b.david_pct+'" oninput="bkF.david_pct=this.value;updateBkCalc()"/><span class="ir">%</span></div></div>'+
+      '<div><div class="lbl">Статус</div><select class="sel" onchange="bkF.payment_status=this.value">'+
+        ['received:✓ Получено','pending:⏳ Ожидается','partial:◑ Частично'].map(function(x){var p=x.split(":");return'<option value="'+p[0]+'"'+(b.payment_status===p[0]?" selected":"")+'>'+p[1]+'</option>';}).join("")+
+      '</select></div>'+
+    '</div>'+
+    (c.gross>0?'<div class="field" id="calc-box">'+calcBoxHtml(c,apt&&apt.owner_name)+'</div>':"")+
+    '<div class="field"><div class="lbl">Комментарий</div><textarea class="inp" rows="3" style="resize:none" onchange="bkF.comment=this.value" placeholder="Заметки о госте...">'+b.comment+'</textarea></div>'
+    :"";
+  var expTab=bkTab==="exp"?
+    '<div class="sec">Добавить категорию</div>'+
+    '<div style="margin-bottom:12px">'+addCatBtns+'</div>'+
+    expRows+
+    (!expRows?'<div class="empty" style="padding:20px">Расходов нет</div>':"")+
+    '<div class="divider"></div>'+
+    '<div class="lbl" style="margin-bottom:8px">Чеки и фото</div>'+
+    '<div class="receipt-grid">'+
+      (b.receipts||[]).map(function(r,i){return'<div style="position:relative"><img src="'+r.data+'" class="thumb" onclick="window.open(this.src)"/><button onclick="delReceipt('+i+')" style="position:absolute;top:-5px;right:-5px;width:18px;height:18px;border-radius:50%;background:#ef4444;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer">'+I.x+'</button></div>';}).join("")+
+      '<button class="add-thumb" onclick="g(\'file-inp\').click()">'+I.img+'<span>Фото</span></button>'+
+    '</div>'+
+    '<input type="file" id="file-inp" accept="image/*" multiple style="display:none" onchange="addReceipts(this)"/>'+
+    (c.gross>0?'<div style="margin-top:12px">'+calcBoxHtml(c,apt&&apt.owner_name)+'</div>':"")
+    :"";
+  var rptTab=bkTab==="rpt"?
+    '<div class="card pad field"><div class="sec">Превью отчёта</div><div class="rpt">'+rpt+'</div></div>'+
+    (apt&&apt.owner_account?'<div class="card pad field" style="display:flex;align-items:center;gap:8px"><span style="color:#93c5fd">'+I.bank+'</span><span class="muted">Счёт:</span><span style="font-family:monospace;font-size:12px;color:#93c5fd">'+apt.owner_account+'</span></div>':"")+
+    '<div class="grid2 field">'+
+      '<button id="copy-btn" class="btn btn-s">'+I.copy+' Копировать</button>'+
+      '<button class="btn btn-s" onclick="window.open(\'https://t.me/share/url?text=\'+encodeURIComponent(document.querySelector(\'.rpt\').innerText),\'_blank\')">'+I.tg+' Telegram</button>'+
+    '</div>'
+    :"";
+  root.innerHTML=
+    '<div class="modal">'+
+    '<div class="hdr"><div class="hdr-row">'+
+      '<button class="btn" style="background:none;border:none;color:rgba(147,197,253,.5);padding:4px 6px 4px 0" onclick="backFromBkForm()">'+I.back+'</button>'+
+      '<div class="f1"><div class="muted" style="font-size:12px">'+(apt?apt.apartment_name:"")+'</div>'+
+        '<div style="font-size:15px;font-weight:600">'+(S.editBk?"Редактировать":"Новое проживание")+'</div></div>'+
+      '<button class="btn btn-p" onclick="saveBk()">'+I.check+' Сохранить</button>'+
+    '</div></div>'+
+    '<div class="tabs">'+
+      ['Основное:main','Расходы:exp','Отчёт:rpt'].map(function(x){var p=x.split(":");return'<button class="tab'+(bkTab===p[1]?" on":"")+'\" onclick="switchBkTab(\''+p[1]+'\')">'+p[0]+'</button>';}).join("")+
+    '</div>'+
+    '<div class="page">'+mainTab+expTab+rptTab+'</div>'+
+    '</div>';
+  if(g("copy-btn")){
+    g("copy-btn").addEventListener("click",function(){
+      navigator.clipboard.writeText(rpt).catch(function(){});
+      g("copy-btn").innerHTML=I.check+' Скопировано!';
+      setTimeout(function(){if(g("copy-btn"))g("copy-btn").innerHTML=I.copy+' Копировать';},2000);
     });
-  });
-
-  // Income currency
-  if (document.getElementById("income-cur")) {
-    document.querySelectorAll("#income-cur .cur-btn").forEach(el => {
-      el.addEventListener("click", () => { syncFormToState(); bkForm.income_currency = el.dataset.cur; renderBkForm(); });
-    });
-  }
-
-  // Expense currency
-  document.querySelectorAll(".exp-row .cur-btn").forEach(el => {
-    el.addEventListener("click", () => {
-      syncFormToState();
-      bkForm.expenses[parseInt(el.closest(".exp-row").querySelector(".exp-amt").dataset.idx)].currency = el.dataset.cur;
-      renderBkForm();
-    });
-  });
-
-  // Payer
-  document.querySelectorAll(".payer-btn[data-payer]").forEach(el => {
-    el.addEventListener("click", () => {
-      syncFormToState();
-      bkForm.expenses[parseInt(el.dataset.idx)].payer = el.dataset.payer;
-      renderBkForm();
-    });
-  });
-
-  // Add expense
-  document.querySelectorAll(".add-exp-btn[data-cat]").forEach(el => {
-    el.addEventListener("click", () => {
-      syncFormToState();
-      bkForm.expenses.push({ id: uid(), cat: el.dataset.cat, amount: "", currency: bkForm.income_currency || "USD", payer: "platform", comment: "" });
-      renderBkForm();
-    });
-  });
-
-  // Delete expense
-  document.querySelectorAll(".exp-del-btn[data-idx]").forEach(el => {
-    el.addEventListener("click", () => {
-      syncFormToState();
-      bkForm.expenses.splice(parseInt(el.dataset.idx), 1);
-      renderBkForm();
-    });
-  });
-
-  // Receipts
-  if (document.getElementById("add-receipt")) {
-    document.getElementById("add-receipt").addEventListener("click", () => document.getElementById("file-inp").click());
-    document.getElementById("file-inp").addEventListener("change", e => {
-      syncFormToState();
-      const files = Array.from(e.target.files);
-      let done = 0;
-      files.forEach(f => {
-        const r = new FileReader();
-        r.onload = ev => {
-          bkForm.receipts.push({ id: uid(), name: f.name, data: ev.target.result });
-          done++;
-          if (done === files.length) renderBkForm();
-        };
-        r.readAsDataURL(f);
-      });
-      e.target.value = "";
-    });
-    document.querySelectorAll(".del-receipt[data-idx]").forEach(el => {
-      el.addEventListener("click", () => {
-        syncFormToState();
-        bkForm.receipts.splice(parseInt(el.dataset.idx), 1);
-        renderBkForm();
-      });
-    });
-  }
-
-  // Report
-  if (bkTab === "rpt") {
-    document.getElementById("copy-btn").addEventListener("click", () => {
-      navigator.clipboard.writeText(rpt);
-      document.getElementById("copy-btn").innerHTML = IC.check + " Скопировано!";
-      setTimeout(() => document.getElementById("copy-btn") && (document.getElementById("copy-btn").innerHTML = IC.copy + " Копировать"), 2000);
-    });
-    document.getElementById("tg-btn").addEventListener("click", () => window.open("https://t.me/share/url?text=" + encodeURIComponent(rpt), "_blank"));
   }
 }
 
-function syncFormToState() {
-  if (!bkForm) return;
-  const g = id => document.getElementById(id);
-  if (g("f-checkin")) bkForm.check_in = g("f-checkin").value;
-  if (g("f-checkout")) bkForm.check_out = g("f-checkout").value;
-  if (g("f-guest")) bkForm.guest_name = g("f-guest").value;
-  if (g("f-gross")) bkForm.gross_income = g("f-gross").value;
-  if (g("f-tax")) bkForm.airbnb_tax_pct = g("f-tax").value;
-  if (g("f-bookfee")) bkForm.booking_fee = g("f-bookfee").value;
-  if (g("f-david")) bkForm.david_pct = g("f-david").value;
-  if (g("f-status")) bkForm.payment_status = g("f-status").value;
-  if (g("f-comment")) bkForm.comment = g("f-comment").value;
-  document.querySelectorAll(".exp-amt").forEach(el => { if (bkForm.expenses[parseInt(el.dataset.idx)]) bkForm.expenses[parseInt(el.dataset.idx)].amount = el.value; });
-  document.querySelectorAll(".exp-comment").forEach(el => { if (bkForm.expenses[parseInt(el.dataset.idx)]) bkForm.expenses[parseInt(el.dataset.idx)].comment = el.value; });
-}
-
-function renderCalcBox(c, ownerName) {
-  const S = v => `${c.cur} ${fN(v)}`;
-  return `<div class="cbox field">
-    <div class="crow"><span class="cl">Пришло</span><span class="cv">${S(c.gross)}</span></div>
-    ${c.tax > 0 ? `<div class="crow"><span class="cl">Налог Airbnb (${c.taxPct}%)</span><span class="cv neg">-${S(c.tax)}</span></div>` : ""}
-    ${c.bookFee > 0 ? `<div class="crow"><span class="cl">Комиссия Booking</span><span class="cv neg">-${S(c.bookFee)}</span></div>` : ""}
-    ${c.totalExp > 0 ? c.exps.filter(e=>e.inBase>0).map(e=>`<div class="crow sub"><span class="cl" style="color:#4a6fa060">• ${EXP_NAMES[e.cat]||e.cat}</span><span class="cv neg">-${e.currency} ${fN(e.amt)}</span></div>`).join("") : ""}
-    <div class="cdiv"></div>
-    <div class="crow net"><span class="cl" style="font-weight:600;color:#fff">Чистая прибыль</span><span class="cv big ${c.net>=0?"em":"neg"}">${S(c.net)}</span></div>
-    <div class="cdiv"></div>
-    <div class="crow sub"><span class="cl" style="font-weight:600">= Давиду</span><span class="cv bl" style="font-size:14px;font-weight:700">${S(c.davidFinal)}</span></div>
-    <div class="crow sub"><span class="cl" style="font-weight:600">= ${ownerName||"Владельцу"}</span><span class="cv em" style="font-size:14px;font-weight:700">${S(c.ownerFinal)}</span></div>
-  </div>`;
-}
-
-/* ─────────────────────────────────────────────────────
-   APT FORM
-───────────────────────────────────────────────────── */
-let aptForm = null;
-
-function renderAptForm() {
-  if (!aptForm) {
-    aptForm = state.editApt ? JSON.parse(JSON.stringify(state.editApt)) : {
-      id: uid(), apartment_name: "", address: "", mapLink: "", platforms: ["Airbnb"],
-      status: "active", owner_name: "", owner_contact: "", owner_account: "", david_pct: 20, notes: ""
-    };
+function updateBkCalc(){
+  if(!bkF||bkTab!=="main")return;
+  var c=calc(bkF,S.rate);
+  var box=g("calc-box");
+  if(c.gross>0){
+    if(box){box.innerHTML=calcBoxHtml(c,S.selApt&&S.selApt.owner_name);}
+    else{var pg=document.querySelector(".modal .page");if(pg){var d=document.createElement("div");d.id="calc-box";d.className="field";d.innerHTML=calcBoxHtml(c,S.selApt&&S.selApt.owner_name);pg.insertBefore(d,pg.lastElementChild);}}
   }
-  const a = aptForm;
-  const pls = a.platforms || [];
-  const platBtns = [["Airbnb","a","plat-a"],["Booking","b","plat-b"],["Другое","o","plat-o"]].map(([p,k,cls]) =>
-    `<button class="plat-btn ${pls.includes(p)?cls:""} apt-plat-btn" data-plat="${p}">${p}</button>`
-  ).join("");
-
-  app.innerHTML = `
-<div class="screen">
-  <div class="hdr">
-    <div class="hdr-row">
-      <button id="af-back" style="background:none;border:none;color:#4a6fa0;cursor:pointer;padding:4px 6px 4px 0">${IC.back}</button>
-      <div class="f1" style="font-size:15px;font-weight:600">${state.editApt ? "Редактировать квартиру" : "Новая квартира"}</div>
-      <button id="af-save" class="btn btn-p">${IC.check} Сохранить</button>
-    </div>
-  </div>
-  <div class="page">
-    <div class="field"><div class="lbl">Название</div><input type="text" class="inp" id="af-name" value="${a.apartment_name}" placeholder="Rustaveli Warm Corner"/></div>
-    <div class="field"><div class="lbl">Адрес</div><input type="text" class="inp" id="af-addr" value="${a.address}" placeholder="7 Solomon Zaldastanishvili St"/></div>
-    <div class="field">
-      <div class="lbl">Ссылка на карту</div>
-      <div class="flex gap8">
-        <div class="f1 irel"><span class="il">${IC.map}</span><input type="url" class="inp pl" id="af-map" value="${a.mapLink||""}" placeholder="https://maps.google.com/..."/></div>
-        ${a.mapLink ? `<a href="${a.mapLink}" target="_blank" class="btn btn-s" style="padding:11px 13px;flex-shrink:0">${IC.link}</a>` : ""}
-      </div>
-    </div>
-    <div class="field">
-      <div class="lbl">Платформы</div>
-      <div class="plat-pick">${platBtns}</div>
-    </div>
-    <div class="field"><div class="lbl">Статус</div><select class="sel" id="af-status">
-      <option value="active" ${a.status==="active"?"selected":""}>Активна</option>
-      <option value="inactive" ${a.status==="inactive"?"selected":""}>Неактивна</option>
-    </select></div>
-    <div style="height:1px;background:#1e3a6e44;margin:4px 0 12px"></div>
-    <div class="sec-ttl">Владелец</div>
-    <div class="field"><div class="lbl">Имя</div><input type="text" class="inp" id="af-ownname" value="${a.owner_name}" placeholder="Sophiko"/></div>
-    <div class="field">
-      <div class="lbl">Контакт</div>
-      <div class="irel"><span class="il">${IC.phone}</span><input type="text" class="inp pl" id="af-owncontact" value="${a.owner_contact||""}" placeholder="+995 599 00 00 00"/></div>
-    </div>
-    <div class="field">
-      <div class="lbl">Счёт / реквизиты</div>
-      <div class="irel"><span class="il">${IC.bank}</span><input type="text" class="inp pl mono" id="af-ownacc" value="${a.owner_account||""}" placeholder="GE29NB0000000101904917"/></div>
-    </div>
-    <div class="field">
-      <div class="lbl">Доля Давида (%)</div>
-      <div class="irel"><input type="number" class="inp pr" id="af-david" value="${a.david_pct}"/><span class="ir">%</span></div>
-    </div>
-    <div class="field"><div class="lbl">Заметки</div><textarea class="inp" id="af-notes" rows="3" style="resize:none" placeholder="Особенности, правила...">${a.notes||""}</textarea></div>
-  </div>
-</div>`;
-
-  document.getElementById("af-back").addEventListener("click", () => {
-    aptForm = null;
-    state.view = state.editApt ? "apt" : "list";
-    state.editApt = null;
-    if (state.view === "apt") renderAptDetail(); else render();
-  });
-
-  document.getElementById("af-save").addEventListener("click", () => {
-    const name = document.getElementById("af-name").value.trim();
-    if (!name) return alert("Укажите название");
-    aptForm.apartment_name = name;
-    aptForm.address = document.getElementById("af-addr").value;
-    aptForm.mapLink = document.getElementById("af-map").value;
-    aptForm.status = document.getElementById("af-status").value;
-    aptForm.owner_name = document.getElementById("af-ownname").value;
-    aptForm.owner_contact = document.getElementById("af-owncontact").value;
-    aptForm.owner_account = document.getElementById("af-ownacc").value;
-    aptForm.david_pct = parseFloat(document.getElementById("af-david").value) || 20;
-    aptForm.notes = document.getElementById("af-notes").value;
-    if (state.editApt) {
-      state.apts = state.apts.map(a => a.id === aptForm.id ? aptForm : a);
-      state.selApt = aptForm;
-    } else {
-      state.apts.push(aptForm);
-    }
-    save("dr_apts", state.apts);
-    aptForm = null; state.editApt = null;
-    state.view = state.selApt ? "apt" : "list";
-    if (state.view === "apt") renderAptDetail(); else render();
-  });
-
-  document.querySelectorAll(".apt-plat-btn").forEach(el => {
-    el.addEventListener("click", () => {
-      aptForm.apartment_name = document.getElementById("af-name").value;
-      aptForm.address = document.getElementById("af-addr").value;
-      const p = el.dataset.plat;
-      const pls = aptForm.platforms || [];
-      aptForm.platforms = pls.includes(p) ? pls.filter(x => x !== p) : [...pls, p];
-      renderAptForm();
-    });
-  });
 }
 
-/* ─────────────────────────────────────────────────────
-   SYNC
-───────────────────────────────────────────────────── */
-async function doSync() {
-  state.sync = "loading";
-  render();
-  try {
-    const rows = await fetchApts();
-    if (rows.length) {
-      const incoming = rows.filter(r => r.apartment_id || r.apartment_name).map(r => ({
-        id: String(r.apartment_id || uid()),
-        apartment_id: r.apartment_id,
-        apartment_name: r.apartment_name || "",
-        address: r.address || "",
-        owner_name: r.owner_name || "",
-        owner_contact: r.owner_contact || "",
-        owner_account: "",
-        platforms: ["Airbnb"], status: "active", david_pct: 20, mapLink: "", notes: ""
-      }));
-      const merged = incoming.map(s => {
-        const ex = state.apts.find(p => String(p.id) === String(s.id) || String(p.apartment_id) === String(s.apartment_id));
-        return ex ? { ...ex, apartment_name: s.apartment_name, address: s.address, owner_name: s.owner_name, owner_contact: s.owner_contact } : s;
-      })
+window.backFromBkForm=function(){bkF=null;bkTab="main";S.editBk=null;S.view="apt";renderApt();};
+window.switchBkTab=function(t){bkTab=t;renderBkForm();};
+window.setBkPlat=function(p){bkF.platform=p;bkF.income_currency=p==="Airbnb"?"USD":"GEL";renderBkForm();};
+window.setIncomeCur=function(c){bkF.income_currency=c;renderBkForm();};
+window.addExp=function(cat){bkF.expenses=bkF.expenses||[];bkF.expenses.push({id:uid(),cat:cat,amount:"",currency:bkF.income_currency||"USD",payer:"platform",comment:""});renderBkForm();};
+window.delExp=function(i){bkF.expenses.splice(i,1);renderBkForm();};
+window.upExp=function(i,k,v){if(bkF.expenses[i]){bkF.expenses[i][k]=v;}};
+window.addReceipts=function(inp){
+  var files=Array.from(inp.files);var done=0;
+  files.forEach(function(f){var r=new FileReader();r.onload=function(ev){bkF.receipts=bkF.receipts||[];bkF.receipts.push({id:uid(),name:f.name,data:ev.target.result});done++;if(done===files.length)renderBkForm();};r.readAsDataURL(f);});
+  inp.value="";
+};
+window.delReceipt=function(i){bkF.receipts.splice(i,1);renderBkForm();};
+window.saveBk=function(){
+  if(!bkF)return;
+  var saved=Object.assign({},bkF,{aptId:S.selApt.id});
+  if(S.editBk){S.bks=S.bks.map(function(b){return b.id===saved.id?saved:b;});}
+  else{S.bks.push(saved);}
+  save("dr8_bks",S.bks);
+  bkF=null;bkTab="main";S.editBk=null;S.view="apt";renderApt();
+};
+
+/* ─── APT FORM ───────────────────────────────────── */
+function renderAptForm(){
+  if(!aptF){
+    aptF=S.editApt?JSON.parse(JSON.stringify(S.editApt)):{id:uid(),apartment_name:"",address:"",mapLink:"",platforms:["Airbnb"],status:"active",owner_name:"",owner_contact:"",owner_account:"",david_pct:20,notes:""};
+  }
+  var a=aptF;
+  var pls=a.platforms||[];
+  var platHtml=[["Airbnb","pa"],["Booking","pb"],["Другое","po"]].map(function(x){
+    return'<button class="plat-btn'+(pls.includes(x[0])?" "+x[1]:"")+'\" onclick="togAptPlat(\''+x[0]+'\')">'+x[0]+'</button>';
+  }).join("");
+  root.innerHTML=
+    '<div class="modal">'+
+    '<div class="hdr"><div class="hdr-row">'+
+      '<button class="btn" style="background:none;border:none;color:rgba(147,197,253,.5);padding:4px 6px 4px 0" onclick="backFromAptForm()">'+I.back+'</button>'+
+      '<div class="f1" style="font-size:15px;font-weight:600">'+(S.editApt?"Редактировать квартиру":"Новая квартира")+'</div>'+
+      '<button class="btn btn-p" onclick="saveApt()">'+I.check+' Сохранить</button>'+
+    '</div></div>'+
+    '<div class="page">'+
+      '<div class="field"><div class="lbl">Название</div><input type="text" class="inp" id="a-name" value="'+a.apartment_name+'" placeholder="Rustaveli Warm Corner"/></div>'+
+      '<div class="field"><div class="lbl">Адрес</div><input type="text" class="inp" id="a-addr" value="'+a.address+'" placeholder="7 Solomon Zaldastanishvili St"/></div>'+
+      '<div class="field"><div class="lbl">Ссылка на карту</div><input type="url" class="inp" id="a-map" value="'+(a.mapLink||"")+'" placeholder="https://maps.google.com/..."/></div>'+
+      '<div class="field"><div class="lbl">Платформы</div><div class="plat-row">'+platHtml+'</div></div>'+
+      '<div class="field"><div class="lbl">Статус</div><select class="sel" id="a-status">'+
+        '<option value="active"'+(a.status==="active"?" selected":"")+'>Активна</option>'+
+        '<option value="inactive"'+(a.status==="inactive"?" selected":"")+'>Неактивна</option>'+
+      '</select></div>'+
+      '<div class="divider"></div>'+
+      '<div class="sec">Владелец</div>'+
+      '<div class="field"><div class="lbl">Имя</div><input type="text" class="inp" id="a-ownname" value="'+(a.owner_name||"")+'" placeholder="Sophiko"/></div>'+
+      '<div class="field"><div class="lbl">Контакт</div><input type="text" class="inp" id="a-owncontact" value="'+(a.owner_contact||"")+'" placeholder="+995 599 00 00 00"/></div>'+
+      '<div class="field"><div class="lbl">Счёт / реквизиты</div><input type="text" class="inp" id="a-ownacc" value="'+(a.owner_account||"")+'" placeholder="GE29NB0000000101904917" style="font-family:monospace"/></div>'+
+      '<div class="field"><div class="lbl">Доля Давида (%)</div><div class="rel"><input type="number" class="inp pr" id="a-david" value="'+(a.david_pct||20)+'"/><span class="ir">%</span></div></div>'+
+      '<div class="field"><div class="lbl">Заметки</div><textarea class="inp" id="a-notes" rows="3" style="resize:none">'+(a.notes||"")+'</textarea></div>'+
+    '</div>'+
+    '</div>';
+}
+
+window.togAptPlat=function(p){var pls=aptF.platforms||[];aptF.platforms=pls.includes(p)?pls.filter(function(x){return x!==p;}):[...pls,p];renderAptForm();};
+window.backFromAptForm=function(){aptF=null;S.editApt=null;S.view=S.selApt?"apt":"list";S.selApt?renderApt():render();};
+window.saveApt=function(){
+  var name=(g("a-name")||{}).value;if(!name||!name.trim()){alert("Укажите название");return;}
+  aptF.apartment_name=name.trim();
+  aptF.address=(g("a-addr")||{}).value||"";
+  aptF.mapLink=(g("a-map")||{}).value||"";
+  aptF.status=(g("a-status")||{}).value||"active";
+  aptF.owner_name=(g("a-ownname")||{}).value||"";
+  aptF.owner_contact=(g("a-owncontact")||{}).value||"";
+  aptF.owner_account=(g("a-ownacc")||{}).value||"";
+  aptF.david_pct=parseFloat((g("a-david")||{}).value)||20;
+  aptF.notes=(g("a-notes")||{}).value||"";
+  if(S.editApt){S.apts=S.apts.map(function(a){return a.id===aptF.id?aptF:a;});S.selApt=aptF;}
+  else{S.apts.push(aptF);}
+  save("dr8_apts",S.apts);
+  aptF=null;S.editApt=null;
+  S.view=S.selApt?"apt":"list";
+  S.selApt?renderApt():render();
+};
+
+/* ─── START ──────────────────────────────────────── */
+try{if(window.Telegram&&window.Telegram.WebApp){window.Telegram.WebApp.ready();window.Telegram.WebApp.expand();}}catch(e){}
+render();
+setTimeout(doSync,500);
+</script>
+</body>
+</html>
