@@ -576,34 +576,39 @@ function renderBkForm(){
     return'<button class="btn btn-s btn-sm" style="margin:0 4px 6px 0" onclick="addExp(\''+c+'\')">'+I.plus+' '+(EXP_LBL[c]||c)+'</button>';
   }).join("");
 
-  var expRows=(b.expenses||[]).map(function(e,i){
-    return'<div class="exp-block" id="exp-'+i+'">'+
-      '<div class="row" style="margin-bottom:10px">'+
-        '<span style="font-size:13px;font-weight:600;flex:1">'+(EXP_LBL[e.cat]||e.cat)+'</span>'+
-        '<button class="btn btn-d btn-sm" style="padding:4px 8px" onclick="delExp('+i+')">'+I.trash+'</button>'+
-      '</div>'+
-      '<div class="field row" style="gap:8px">'+
-        '<div class="f1 rel"><span class="il">$</span><input type="number" class="inp pl" value="'+(e.amount||"")+'" placeholder="0" oninput="setExpAmt('+i+',this.value)"/></div>'+
-        '<div class="cur-row">'+curBtns(e.currency,"function(c){setExpCur("+i+",c)}")+'</div>'+
-      '</div>'+
-      '<div class="field"><div class="lbl">Кто оплатил</div>'+payerBtns(e.payer,i)+'</div>'+
-      '<div><input type="text" class="inp" value="'+(e.comment||"")+'" placeholder="Комментарий..." oninput="setExpComment('+i+',this.value)"/></div>'+
-    '</div>';
-  }).join("");
-
-  // Fix: use data attributes for cur buttons in expenses to avoid inline function issues
+  var HOUR_RATE=16.70; // ₾ per hour
+  var WITH_HOURS=["cleaning","repair"]; // categories that support hours
   var expRowsSafe=(b.expenses||[]).map(function(e,i){
+    var curIcon=e.currency==="GEL"?"₾":"$";
     var curRow='<div class="cur-row">'+
-      '<button class="cur-btn'+(e.currency==="USD"?" cusd":"")+'\" data-ei="'+i+'" data-cur="USD" onclick="setExpCur('+i+',\'USD\')">USD</button>'+
-      '<button class="cur-btn'+(e.currency==="GEL"?" cgel":"")+'\" data-ei="'+i+'" data-cur="GEL" onclick="setExpCur('+i+',\'GEL\')">GEL</button>'+
+      '<button class="cur-btn'+(e.currency==="USD"?" cusd":"")+'\" onclick="setExpCur('+i+',\'USD\')">USD</button>'+
+      '<button class="cur-btn'+(e.currency==="GEL"?" cgel":"")+'\" onclick="setExpCur('+i+',\'GEL\')">GEL</button>'+
     '</div>';
+    var hoursBlock="";
+    if(WITH_HOURS.indexOf(e.cat)!==-1){
+      var hrs=e.hours||"";
+      var hoursAmt=hrs?parseFloat((parseFloat(hrs)*HOUR_RATE).toFixed(2)):"";
+      hoursBlock=
+        '<div style="margin-bottom:8px;background:rgba(30,58,110,.3);border-radius:10px;padding:10px 12px">'+
+          '<div class="lbl" style="margin-bottom:6px">⏱ Расчёт по часам (1ч = 16.70 ₾)</div>'+
+          '<div style="display:flex;gap:8px;align-items:center">'+
+            '<div class="f1 rel">'+
+              '<span class="il" style="font-size:12px">ч</span>'+
+              '<input type="number" class="inp pl" value="'+hrs+'" placeholder="0" step="0.5" style="font-size:16px" oninput="setExpHours('+i+',this.value)"/>'+
+            '</div>'+
+            (hoursAmt?'<div style="font-size:13px;color:#6ee7b7;font-family:monospace;font-weight:700;white-space:nowrap">= ₾ '+fN(hoursAmt)+'</div>':'<div style="font-size:12px;color:rgba(147,197,253,.3)">введите часы</div>')+
+          '</div>'+
+          (hoursAmt?'<button class="btn btn-s btn-sm" style="width:100%;margin-top:8px" onclick="applyHours('+i+')">Применить сумму</button>':"")+
+        '</div>';
+    }
     return'<div class="exp-block">'+
       '<div class="row" style="margin-bottom:10px">'+
         '<span style="font-size:13px;font-weight:600;flex:1">'+(EXP_LBL[e.cat]||e.cat)+'</span>'+
         '<button class="btn btn-d btn-sm" style="padding:4px 8px" onclick="delExp('+i+')">'+I.trash+'</button>'+
       '</div>'+
+      hoursBlock+
       '<div class="field" style="display:flex;gap:8px;align-items:flex-end">'+
-        '<div class="f1 rel"><span class="il">$</span><input type="number" class="inp pl" value="'+(e.amount||"")+'" placeholder="0" oninput="setExpAmt('+i+',this.value)"/></div>'+
+        '<div class="f1 rel"><span class="il">'+curIcon+'</span><input type="number" class="inp pl" value="'+(e.amount||"")+'" placeholder="0" oninput="setExpAmt('+i+',this.value)"/></div>'+
         curRow+
       '</div>'+
       '<div class="field"><div class="lbl">Кто оплатил</div>'+payerBtns(e.payer,i)+'</div>'+
@@ -624,7 +629,7 @@ function renderBkForm(){
     '<div class="field">'+
       '<div class="lbl">Сумма поступления</div>'+
       '<div style="display:flex;gap:8px;align-items:flex-end">'+
-        '<div class="f1 rel"><span class="il">$</span><input type="number" class="inp pl" value="'+b.gross_income+'" placeholder="0" oninput="bkF.gross_income=this.value;rerenderCalc()"/></div>'+
+        '<div class="f1 rel"><span class="il">'+(b.income_currency==="GEL"?"₾":"$")+'</span><input type="number" class="inp pl" value="'+b.gross_income+'" placeholder="0" oninput="bkF.gross_income=this.value;rerenderCalc()"/></div>'+
         '<div class="cur-row">'+
           '<button class="cur-btn'+(b.income_currency==="USD"?" cusd":"")+'\" onclick="setIncomeCur(\'USD\')">USD</button>'+
           '<button class="cur-btn'+(b.income_currency==="GEL"?" cgel":"")+'\" onclick="setIncomeCur(\'GEL\')">GEL</button>'+
@@ -705,6 +710,20 @@ window.addExp=function(cat){
 };
 window.delExp=function(i){bkF.expenses.splice(i,1);renderBkForm();};
 window.setExpAmt=function(i,v){if(bkF.expenses[i])bkF.expenses[i].amount=v;};
+window.setExpHours=function(i,v){
+  if(!bkF.expenses[i])return;
+  bkF.expenses[i].hours=v;
+  // live update the preview label without full rerender
+  renderBkForm();
+};
+window.applyHours=function(i){
+  if(!bkF.expenses[i])return;
+  var hrs=parseFloat(bkF.expenses[i].hours)||0;
+  var amt=parseFloat((hrs*16.70).toFixed(2));
+  bkF.expenses[i].amount=amt;
+  bkF.expenses[i].currency="GEL";
+  renderBkForm();
+};
 window.setExpCur=function(i,v){if(bkF.expenses[i]){bkF.expenses[i].currency=v;renderBkForm();}};
 window.setExpPayer=function(i,v){if(bkF.expenses[i]){bkF.expenses[i].payer=v;renderBkForm();}};
 window.setExpComment=function(i,v){if(bkF.expenses[i])bkF.expenses[i].comment=v;};
