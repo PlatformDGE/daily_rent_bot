@@ -560,6 +560,7 @@ function renderApt(){
               platBdg(bk.platform||"")+bdg(c.cur==="GEL"?"ok":"gy",c.cur)+
               '<span class="muted">'+nL(nts(bk.check_in,bk.check_out))+'</span>'+
               (bk.guest_name?'<span class="muted">· '+bk.guest_name+'</span>':"")+
+              (bk.assigned_staff?'<span class="bdg bl">👤 '+bk.assigned_staff+'</span>':"")+
             '</div>'+
           '</div>'+
           '<div class="tr fs0">'+
@@ -659,7 +660,7 @@ function renderBkForm(){
   var n=nts(b.check_in,b.check_out);
   var C=cs(b.income_currency);
   var plat=b.platform||"Airbnb";
-  var cats=plat==="Booking"?EXP_CATS.concat(["booking_fee"]):EXP_CATS;
+  var cats=EXP_CATS; // booking_fee is in main form, not in expenses
   // Expenses linked to this booking
   var linkedExps=DB.expenses.filter(function(e){return e.booking_id===b.id;});
   var usedCats=linkedExps.map(function(e){return e.category||e.cat;});
@@ -683,15 +684,28 @@ function renderBkForm(){
     var ecs=cs(e.currency||"GEL");
     var hoursBlock="";
     if(e.category==="cleaning"||e.category==="repair"){
-      var hrs=e.hours||"";
-      var hAmt=hrs?parseFloat((parseFloat(hrs)*HOUR_RATE).toFixed(2)):"";
+      var startT=e.time_start||"";
+      var endT=e.time_end||"";
+      var hrs="";
+      if(startT&&endT){
+        var s=startT.split(":");var f=endT.split(":");
+        if(s.length===2&&f.length===2){
+          var mins=(parseInt(f[0])*60+parseInt(f[1]))-(parseInt(s[0])*60+parseInt(s[1]));
+          if(mins>0)hrs=parseFloat((mins/60).toFixed(2));
+        }
+      }
+      var hAmt=hrs?parseFloat((hrs*HOUR_RATE).toFixed(2)):"";
       hoursBlock='<div class="hours-block">'+
-        '<div class="lbl" style="margin-bottom:6px">⏱ '+t("hours")+' (1ч = ₾'+fN(HOUR_RATE)+')</div>'+
-        '<div style="display:flex;gap:8px;align-items:center">'+
-          '<div class="f1 rel"><span class="il" style="font-size:12px">ч</span><input type="number" class="inp pl" value="'+hrs+'" placeholder="0" step="0.5" oninput="setExpHoursInline(\''+e.id+'\',this.value)"/></div>'+
-          (hAmt?'<span style="font-family:monospace;font-weight:700;color:#6ee7b7;white-space:nowrap">= ₾'+fN(hAmt)+'</span>':'<span class="muted">ч</span>')+
+        '<div class="lbl" style="margin-bottom:8px">⏱ '+t("hours")+' (1ч = ₾'+fN(HOUR_RATE)+')</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">'+
+          '<div><div class="lbl">'+t("startTime")+'</div><input type="time" class="inp" value="'+startT+'" onchange="setExpTimeInline(\''+e.id+'\',\'time_start\',this.value)"/></div>'+
+          '<div><div class="lbl">'+t("endTime")+'</div><input type="time" class="inp" value="'+endT+'" onchange="setExpTimeInline(\''+e.id+'\',\'time_end\',this.value)"/></div>'+
         '</div>'+
-        (hAmt?'<button class="btn btn-s btn-sm" style="width:100%;margin-top:8px" onclick="applyHoursInline(\''+e.id+'\')">'+t("applyH")+'</button>':"")+
+        (hrs?'<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(52,211,153,.08);border-radius:9px">'+
+          '<span style="font-size:13px;color:rgba(147,197,253,.6)">'+startT+' → '+endT+' = <strong style="color:#6ee7b7">'+fN(hrs)+' ч</strong></span>'+
+          '<span style="font-family:monospace;font-weight:700;color:#34d399">₾'+fN(hAmt)+'</span>'+
+        '</div>':"")+
+        (hAmt?'<button class="btn btn-s btn-sm" style="width:100%;margin-top:8px" onclick="applyHoursInline(\''+e.id+'\','+hAmt+')">'+t("applyH")+' ₾'+fN(hAmt)+'</button>':"")+
       '</div>';
     }
     return'<div class="exp-block">'+
@@ -749,6 +763,21 @@ function renderBkForm(){
       '<div><div class="lbl">'+t("status")+'</div><select class="sel" onchange="bkF.payment_status=this.value">'+
         [["received",t("received")],["pending",t("pending")],["partial",t("partial")]].map(function(x){return'<option value="'+x[0]+'"'+(b.payment_status===x[0]?" selected":"")+'>'+x[1]+'</option>';}).join("")+
       '</select></div>'+
+    '</div>'+
+    // Assigned staff
+    '<div class="field">'+
+      '<div class="lbl">👤 Назначить сотрудника</div>'+
+      (DB.staff.length?
+        '<select class="sel" onchange="bkF.assigned_staff=this.value">'+
+          '<option value="">— Не назначен —</option>'+
+          DB.staff.filter(function(s){return s.active!=="false"&&s.active!==false&&s.active!=="0";}).map(function(s){
+            return'<option value="'+s.name+'"'+(b.assigned_staff===s.name?" selected":"")+'>'+s.name+(s.role?" ("+s.role+")":"")+'</option>';
+          }).join("")+
+        '</select>'
+      :'<div style="display:flex;gap:8px;align-items:center">'+
+          '<input type="text" class="inp f1" value="'+(b.assigned_staff||"")+'" placeholder="Имя сотрудника..." oninput="bkF.assigned_staff=this.value"/>'+
+          '<span class="muted" style="white-space:nowrap;font-size:11px">Добавьте<br>Staff в таблицу</span>'+
+        '</div>')+
     '</div>'+
     (c.gross>0?'<div class="field" id="calc-live">'+calcBoxInline(c,apt&&apt.owner_name)+'</div>':"")+
     '<div class="field"><div class="lbl">'+t("comment")+'</div><textarea class="inp" rows="3" style="resize:none" placeholder="..." oninput="bkF.comment=this.value">'+b.comment+'</textarea></div>';
@@ -823,7 +852,8 @@ window.addExpInline=function(cat){
 window.delExpInline=function(id){DB.expenses=DB.expenses.filter(function(e){return e.id!==id;});dbSave();renderBkForm();apiDelete("delete_expense",id);};
 window.setExpAmt=function(id,v){var e=DB.expenses.find(function(e){return e.id===id;});if(e){e.amount=v;dbSave();}};
 window.setExpHoursInline=function(id,v){var e=DB.expenses.find(function(e){return e.id===id;});if(e){e.hours=v;dbSave();renderBkForm();}};
-window.applyHoursInline=function(id){var e=DB.expenses.find(function(e){return e.id===id;});if(!e)return;e.amount=parseFloat((parseFloat(e.hours)*HOUR_RATE).toFixed(2));e.currency="GEL";dbSave();renderBkForm();};
+window.setExpTimeInline=function(id,field,v){var e=DB.expenses.find(function(x){return x.id===id;});if(e){e[field]=v;dbSave();renderBkForm();}};
+window.applyHoursInline=function(id,amt){var e=DB.expenses.find(function(e){return e.id===id;});if(!e)return;if(amt!==undefined){e.amount=amt;}else{e.amount=parseFloat((parseFloat(e.hours||0)*HOUR_RATE).toFixed(2));}e.currency="GEL";dbSave();renderBkForm();};
 window.setExpCur=function(id,v){var e=DB.expenses.find(function(e){return e.id===id;});if(e){e.currency=v;dbSave();renderBkForm();}};
 window.setExpPayer=function(id,v){var e=DB.expenses.find(function(e){return e.id===id;});if(e){e.payer=v;dbSave();renderBkForm();}};
 window.setExpComment=function(id,v){var e=DB.expenses.find(function(e){return e.id===id;});if(e){e.comment=v;dbSave();}};
@@ -927,7 +957,7 @@ function renderCleaningList(){
         '<span style="font-family:monospace;font-weight:700;color:#6ee7b7;font-size:14px">₾'+fN(cl.total_amount)+'</span>'+
       '</div>'+
       '<div class="row" style="flex-wrap:wrap;gap:5px">'+
-        (cl.cleaner?'<span class="muted">👤 '+cl.cleaner+'</span>':"")+
+        (cl.cleaner?'<span class="bdg bl">👤 '+cl.cleaner+'</span>':"")+
         (cl.date?'<span class="muted">📅 '+fD(cl.date)+'</span>':"")+
         (cl.total_hours?'<span class="bdg g">'+fN(cl.total_hours)+'ч</span>':"")+
         (cl.started_at&&cl.finished_at?'<span class="muted">'+cl.started_at+' — '+cl.finished_at+'</span>':"")+
