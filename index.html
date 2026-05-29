@@ -6,127 +6,181 @@
 <title>ApartFlow</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
+/* ── Reset ── */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{width:100%;overflow-x:hidden;background:#0b1829;color:#fff;font-family:system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+html,body{width:100%;overflow-x:hidden;background:#111;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',sans-serif;-webkit-font-smoothing:antialiased}
 input,select,textarea,button{font-family:inherit;font-size:16px}
 input[type=number]{-moz-appearance:textfield}
 input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
-::-webkit-scrollbar{width:2px}::-webkit-scrollbar-thumb{background:#1e3a6e;border-radius:2px}
-select option{background:#0e1f3a;color:#fff}
+::-webkit-scrollbar{width:2px}::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
+select option{background:#1c1c1e;color:#fff}
 input[type=date]::-webkit-calendar-picker-indicator,
 input[type=time]::-webkit-calendar-picker-indicator,
-input[type=month]::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.5}
+input[type=month]::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.4}
+
+/* ── Layout ── */
 #root{display:flex;flex-direction:column;height:100dvh;overflow:hidden}
-.page{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:14px 16px 90px}
-.modal{position:fixed;inset:0;background:#0b1829;display:flex;flex-direction:column;z-index:50;overflow:hidden}
-.modal>.page{padding-bottom:20px}
-.hdr{background:#0e1f3a;border-bottom:1px solid rgba(30,58,110,.5);padding:12px 16px;flex-shrink:0}
-.hdr-row{display:flex;align-items:center;gap:10px}
-.tabs{display:flex;background:#0b1829;border-bottom:1px solid rgba(30,58,110,.5);flex-shrink:0}
-.tab{flex:1;padding:12px 4px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:rgba(147,197,253,.3);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer}
-.tab.on{color:#60a5fa;border-bottom-color:#60a5fa}
-.nav{position:fixed;bottom:0;left:0;right:0;background:rgba(11,24,41,.97);backdrop-filter:blur(10px);border-top:1px solid rgba(30,58,110,.5);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:40}
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px;font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:rgba(74,111,160,.6);background:none;border:none;cursor:pointer}
-.nav-btn.on{color:#60a5fa}
-.card{background:#0e1f3a;border:1px solid rgba(30,58,110,.5);border-radius:14px}
-.pad{padding:14px}
-.bk-card{background:#0e1f3a;border:1px solid rgba(30,58,110,.5);border-radius:14px;overflow:hidden;margin-bottom:10px}
-.bk-main{padding:13px 14px;cursor:pointer}
-.bk-body{border-top:1px solid rgba(30,58,110,.3);padding:13px 14px;background:#071020}
-.apt-item{background:#0e1f3a;border:1px solid rgba(30,58,110,.5);border-radius:14px;padding:13px 14px;margin-bottom:10px;cursor:pointer}
-.apt-item:active{opacity:.8}
-.field{margin-bottom:12px}
-.lbl{display:block;font-size:11px;font-weight:700;color:rgba(147,197,253,.5);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
-.inp{width:100%;background:#071020;border:1px solid rgba(30,58,110,.6);border-radius:11px;padding:12px 13px;font-size:16px;color:#fff;outline:none;-webkit-appearance:none;transition:border-color .15s}
-.inp:focus{border-color:#4f8ef7}
-.inp::placeholder{color:rgba(30,58,110,.9)}
-.inp.pl{padding-left:37px}
-.inp.pr{padding-right:37px}
-.sel{width:100%;background:#071020;border:1px solid rgba(30,58,110,.6);border-radius:11px;padding:12px 13px;font-size:16px;color:#fff;outline:none;-webkit-appearance:none}
+.page{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:16px 16px 96px}
+.modal{position:fixed;inset:0;background:#111;display:flex;flex-direction:column;z-index:50;overflow:hidden}
+.modal>.page{padding-bottom:24px}
+
+/* ── Header ── */
+.hdr{background:#1c1c1e;border-bottom:1px solid rgba(255,255,255,.06);padding:14px 16px;flex-shrink:0}
+.hdr-row{display:flex;align-items:center;gap:12px}
+
+/* ── Tabs ── */
+.tabs{display:flex;background:#111;border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0}
+.tab{flex:1;padding:13px 4px;font-size:11px;font-weight:600;letter-spacing:.02em;text-transform:uppercase;color:rgba(255,255,255,.28);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:color .15s}
+.tab.on{color:#fff;border-bottom-color:#fff}
+
+/* ── Nav ── */
+.nav{position:fixed;bottom:0;left:0;right:0;background:rgba(17,17,17,.95);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-top:1px solid rgba(255,255,255,.07);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:40}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;font-size:9px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:rgba(255,255,255,.28);background:none;border:none;cursor:pointer;transition:color .15s}
+.nav-btn.on{color:#fff}
+
+/* ── Cards ── */
+.card{background:#1c1c1e;border-radius:16px}
+.pad{padding:16px}
+.bk-card{background:#1c1c1e;border-radius:16px;overflow:hidden;margin-bottom:10px}
+.bk-main{padding:15px 16px;cursor:pointer;transition:background .1s}
+.bk-main:active{background:rgba(255,255,255,.04)}
+.bk-body{border-top:1px solid rgba(255,255,255,.06);padding:15px 16px;background:#161616}
+.apt-item{background:#1c1c1e;border-radius:16px;padding:0;margin-bottom:10px;cursor:pointer;overflow:hidden;transition:transform .1s}
+.apt-item:active{transform:scale(.985)}
+
+/* ── Owner amount highlight ── */
+.owner-amount{font-size:26px;font-weight:700;letter-spacing:-.5px;color:#34c759}
+
+/* ── Form ── */
+.field{margin-bottom:14px}
+.lbl{display:block;font-size:12px;font-weight:600;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.04em;margin-bottom:7px}
+.inp{width:100%;background:#2c2c2e;border:none;border-radius:12px;padding:13px 14px;font-size:16px;color:#fff;outline:none;-webkit-appearance:none;transition:box-shadow .15s}
+.inp:focus{box-shadow:0 0 0 2px rgba(255,255,255,.2)}
+.inp::placeholder{color:rgba(255,255,255,.2)}
+.inp.pl{padding-left:38px}
+.inp.pr{padding-right:38px}
+.sel{width:100%;background:#2c2c2e;border:none;border-radius:12px;padding:13px 14px;font-size:16px;color:#fff;outline:none;-webkit-appearance:none}
 .rel{position:relative}
-.il{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:rgba(147,197,253,.5);pointer-events:none;font-size:14px;font-weight:700}
-.ir{position:absolute;right:11px;top:50%;transform:translateY(-50%);color:rgba(147,197,253,.4);pointer-events:none;font-size:13px;font-weight:700}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-weight:600;cursor:pointer;-webkit-appearance:none;border-radius:11px;transition:opacity .1s}
-.btn:active{opacity:.7}
-.btn-p{background:#1e3a6e;border:1px solid rgba(79,142,247,.2);color:#fff;padding:11px 15px;font-size:14px}
-.btn-s{background:#0e1f3a;border:1px solid rgba(30,58,110,.6);color:#fff;padding:11px 15px;font-size:14px}
-.btn-d{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5;padding:7px 12px;font-size:13px;border-radius:9px}
-.btn-sm{padding:8px 12px;font-size:13px;border-radius:9px}
-.btn-g{background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.3);color:#6ee7b7;padding:8px 14px;font-size:13px;border-radius:10px}
-.fab-bar{background:#0e1f3a;border-top:1px solid rgba(30,58,110,.5);padding:13px 16px;padding-bottom:max(13px,env(safe-area-inset-bottom));flex-shrink:0}
-.fab{width:100%;background:#1e3a6e;border:1px solid rgba(79,142,247,.2);color:#fff;border-radius:14px;padding:14px;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;-webkit-appearance:none}
-.fab:active{opacity:.8}
-.bdg{display:inline-flex;align-items:center;padding:3px 8px;border-radius:99px;font-size:11px;font-weight:600;border:1px solid}
-.g{background:rgba(52,211,153,.15);color:#6ee7b7;border-color:rgba(52,211,153,.3)}
-.gy{background:rgba(100,116,139,.15);color:#94a3b8;border-color:rgba(100,116,139,.25)}
-.or{background:rgba(249,115,22,.15);color:#fdba74;border-color:rgba(249,115,22,.3)}
-.bl{background:rgba(59,130,246,.15);color:#93c5fd;border-color:rgba(59,130,246,.3)}
-.ok{background:rgba(52,211,153,.15);color:#6ee7b7;border-color:rgba(52,211,153,.3)}
-.wt{background:rgba(239,68,68,.15);color:#fca5a5;border-color:rgba(239,68,68,.3)}
-.pt{background:rgba(245,158,11,.15);color:#fcd34d;border-color:rgba(245,158,11,.3)}
-.yw{background:rgba(253,224,71,.12);color:#fde047;border-color:rgba(253,224,71,.3)}
-.plat-row{display:flex;gap:8px;flex-wrap:wrap}
-.plat-btn{flex:1;min-width:80px;padding:11px 8px;border-radius:11px;font-size:14px;font-weight:600;border:2px solid rgba(30,58,110,.6);background:#071020;color:rgba(147,197,253,.35);cursor:pointer;text-align:center;-webkit-appearance:none}
+.il{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.35);pointer-events:none;font-size:15px;font-weight:600}
+.ir{position:absolute;right:13px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.3);pointer-events:none;font-size:13px;font-weight:600}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font-weight:600;cursor:pointer;-webkit-appearance:none;border-radius:12px;transition:opacity .1s}
+.btn:active{opacity:.6}
+.btn-p{background:#fff;border:none;color:#000;padding:12px 18px;font-size:14px;font-weight:700}
+.btn-s{background:#2c2c2e;border:none;color:#fff;padding:12px 18px;font-size:14px}
+.btn-d{background:rgba(255,69,58,.12);border:none;color:#ff453a;padding:8px 14px;font-size:13px;border-radius:10px}
+.btn-sm{padding:8px 13px;font-size:13px;border-radius:10px}
+.fab-bar{background:#1c1c1e;border-top:1px solid rgba(255,255,255,.06);padding:14px 16px;padding-bottom:max(14px,env(safe-area-inset-bottom));flex-shrink:0}
+.fab{width:100%;background:#fff;border:none;color:#000;border-radius:14px;padding:15px;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;-webkit-appearance:none}
+.fab:active{opacity:.7}
+
+/* ── Badges ── */
+.bdg{display:inline-flex;align-items:center;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:600}
+.g{background:rgba(52,199,89,.15);color:#34c759}
+.gy{background:rgba(142,142,147,.15);color:#8e8e93}
+.or{background:rgba(255,149,0,.15);color:#ff9500}
+.bl{background:rgba(10,132,255,.15);color:#0a84ff}
+.ok{background:rgba(52,199,89,.15);color:#34c759}
+.wt{background:rgba(255,69,58,.15);color:#ff453a}
+.pt{background:rgba(255,214,10,.15);color:#ffd60a}
+.yw{background:rgba(255,214,10,.12);color:#ffd60a}
+
+/* ── Segment controls (platform, currency, payer) ── */
+.plat-row{display:flex;gap:8px}
+.plat-btn{flex:1;padding:11px 8px;border-radius:12px;font-size:14px;font-weight:600;border:none;background:#2c2c2e;color:rgba(255,255,255,.3);cursor:pointer;text-align:center;-webkit-appearance:none;transition:all .15s}
 .plat-btn:active{opacity:.7}
-.pa{background:rgba(249,115,22,.12);border-color:#f97316;color:#fdba74}
-.pb{background:rgba(59,130,246,.12);border-color:#3b82f6;color:#93c5fd}
-.po{background:rgba(100,116,139,.18);border-color:#64748b;color:#cbd5e1}
+.pa{background:rgba(255,149,0,.15);color:#ff9500}
+.pb{background:rgba(10,132,255,.15);color:#0a84ff}
+.po{background:rgba(142,142,147,.15);color:#8e8e93}
 .cur-row{display:flex;gap:6px}
-.cur-btn{padding:9px 14px;border-radius:9px;font-size:14px;font-weight:700;border:2px solid rgba(30,58,110,.6);background:#071020;color:rgba(147,197,253,.35);cursor:pointer;-webkit-appearance:none}
+.cur-btn{flex:1;padding:10px 6px;border-radius:10px;font-size:14px;font-weight:700;border:none;background:#2c2c2e;color:rgba(255,255,255,.3);cursor:pointer;-webkit-appearance:none;transition:all .15s;text-align:center}
 .cur-btn:active{opacity:.7}
-.cusd{background:rgba(253,224,71,.1);border-color:rgba(253,224,71,.7);color:#fde047}
-.cgel{background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.7);color:#6ee7b7}
+.cusd{background:rgba(255,214,10,.12);color:#ffd60a}
+.cgel{background:rgba(52,199,89,.12);color:#34c759}
 .payer-row{display:flex;gap:8px}
-.payer-btn{flex:1;padding:10px 6px;border-radius:10px;font-size:13px;font-weight:600;border:2px solid rgba(30,58,110,.6);background:#071020;color:rgba(147,197,253,.35);cursor:pointer;text-align:center;-webkit-appearance:none}
+.payer-btn{flex:1;padding:11px 6px;border-radius:10px;font-size:13px;font-weight:600;border:none;background:#2c2c2e;color:rgba(255,255,255,.3);cursor:pointer;text-align:center;-webkit-appearance:none;transition:all .15s}
 .payer-btn:active{opacity:.7}
-.pon{background:rgba(59,130,246,.15);border-color:#3b82f6;color:#93c5fd}
-.lang-btn{padding:8px 14px;border-radius:10px;font-size:13px;font-weight:700;border:2px solid rgba(30,58,110,.6);background:#071020;color:rgba(147,197,253,.4);cursor:pointer;-webkit-appearance:none}
-.lang-btn.on{background:rgba(59,130,246,.15);border-color:#3b82f6;color:#93c5fd}
-.cbox{background:#071020;border:1px solid rgba(30,58,110,.6);border-radius:13px;overflow:hidden}
-.crow{display:flex;justify-content:space-between;align-items:center;padding:8px 13px}
-.crow.sub{padding-left:24px}
-.crow.net-row{background:#0e1f3a}
-.cl{font-size:13px;color:rgba(147,197,253,.45)}
-.cv{font-size:13px;font-family:monospace;font-weight:700;color:#fff}
-.cv.neg{color:#f87171}.cv.em{color:#34d399}.cv.tbl{color:#60a5fa}.cv.big{font-size:15px}
-.cdiv{height:1px;background:rgba(30,58,110,.5)}
-.exp-block{background:#0e1f3a;border:1px solid rgba(30,58,110,.5);border-radius:12px;padding:12px 13px;margin-bottom:8px}
-.rpt{font-family:monospace;font-size:12px;line-height:1.8;color:#93c5fd;background:#071020;border:1px solid rgba(30,58,110,.5);border-radius:11px;padding:13px;white-space:pre-wrap;word-break:break-word}
+.pon{background:rgba(10,132,255,.15);color:#0a84ff}
+.lang-btn{padding:9px 16px;border-radius:10px;font-size:13px;font-weight:600;border:none;background:#2c2c2e;color:rgba(255,255,255,.35);cursor:pointer;-webkit-appearance:none;transition:all .15s}
+.lang-btn.on{background:rgba(10,132,255,.2);color:#0a84ff}
+
+/* ── Calc box ── */
+.cbox{background:#161616;border-radius:14px;overflow:hidden}
+.crow{display:flex;justify-content:space-between;align-items:center;padding:9px 14px}
+.crow.sub{padding-left:26px}
+.crow.net-row{background:#1c1c1e}
+.cl{font-size:13px;color:rgba(255,255,255,.45)}
+.cv{font-size:13px;font-family:-apple-system,monospace;font-weight:600;color:#fff}
+.cv.neg{color:#ff453a}.cv.em{color:#34c759}.cv.tbl{color:#0a84ff}.cv.big{font-size:16px;font-weight:700}
+.cdiv{height:1px;background:rgba(255,255,255,.06)}
+
+/* ── Expense block ── */
+.exp-block{background:#1c1c1e;border-radius:14px;padding:14px;margin-bottom:10px}
+
+/* ── Report ── */
+.rpt{font-family:'SF Mono',monospace;font-size:12px;line-height:1.8;color:rgba(255,255,255,.7);background:#161616;border-radius:12px;padding:14px;white-space:pre-wrap;word-break:break-word}
+
+/* ── Misc ── */
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .row{display:flex;align-items:center;gap:8px}
 .f1{flex:1;min-width:0}.fs0{flex-shrink:0}
 .tr{text-align:right}
 .trunc{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.muted{color:rgba(147,197,253,.45);font-size:12px}
+.muted{color:rgba(255,255,255,.35);font-size:12px}
 .wrap{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
-.empty{text-align:center;padding:40px 16px;color:rgba(147,197,253,.3);font-size:14px}
-.loading{text-align:center;padding:60px 16px;color:rgba(147,197,253,.4)}
+.empty{text-align:center;padding:48px 16px;color:rgba(255,255,255,.2);font-size:15px}
+.loading{text-align:center;padding:60px 16px;color:rgba(255,255,255,.25)}
 .spin-icon{display:inline-block;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Sync bar ── */
 .sync-bar{display:flex;align-items:center;gap:8px;padding:7px 16px;font-size:12px;flex-shrink:0}
-.sync-ok{background:rgba(52,211,153,.07);border-bottom:1px solid rgba(52,211,153,.15);color:#6ee7b7}
-.sync-err{background:rgba(239,68,68,.07);border-bottom:1px solid rgba(239,68,68,.15);color:#fca5a5}
-.sync-ing{background:rgba(59,130,246,.07);border-bottom:1px solid rgba(59,130,246,.15);color:#93c5fd}
-.owner-strip{display:flex;align-items:center;gap:10px;background:rgba(30,58,110,.2);border:1px solid rgba(30,58,110,.4);border-radius:11px;padding:10px 12px;margin-top:10px}
-.ow-av{width:28px;height:28px;border-radius:50%;background:#1e3a6e;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#93c5fd;flex-shrink:0}
-.rate-pill{display:flex;align-items:center;gap:5px;background:rgba(30,58,110,.25);border:1px solid rgba(30,58,110,.6);border-radius:9px;padding:6px 10px}
-.sec{font-size:11px;font-weight:700;color:rgba(147,197,253,.45);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
-.divider{height:1px;background:rgba(30,58,110,.45);margin:12px 0}
+.sync-ok{background:rgba(52,199,89,.07);border-bottom:1px solid rgba(52,199,89,.12);color:#34c759}
+.sync-err{background:rgba(255,69,58,.07);border-bottom:1px solid rgba(255,69,58,.12);color:#ff453a}
+.sync-ing{background:rgba(10,132,255,.07);border-bottom:1px solid rgba(10,132,255,.12);color:#0a84ff}
+
+/* ── Owner strip in apt detail ── */
+.owner-strip{display:flex;align-items:center;gap:12px;background:#1c1c1e;border-radius:12px;padding:12px 14px;margin-top:10px}
+.ow-av{width:30px;height:30px;border-radius:50%;background:#2c2c2e;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:rgba(255,255,255,.6);flex-shrink:0}
+
+/* ── Rate pill ── */
+.rate-pill{display:flex;align-items:center;gap:5px;background:#2c2c2e;border-radius:10px;padding:7px 11px}
+
+/* ── Section title ── */
+.sec{font-size:11px;font-weight:600;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.divider{height:1px;background:rgba(255,255,255,.06);margin:14px 0}
+
+/* ── Receipts ── */
 .receipt-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
-.thumb{width:66px;height:66px;border-radius:11px;object-fit:cover;border:1px solid rgba(30,58,110,.6);cursor:pointer}
-.add-thumb{width:66px;height:66px;border-radius:11px;border:2px dashed rgba(30,58,110,.7);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:rgba(30,58,110,.9);cursor:pointer;background:none;font-size:11px;-webkit-appearance:none}
-.night-pill{text-align:center;background:rgba(30,58,110,.3);border:1px solid rgba(30,58,110,.6);border-radius:11px;padding:9px;color:#93c5fd;font-size:15px;font-weight:600;margin-bottom:12px}
-.hours-block{background:rgba(30,58,110,.2);border-radius:10px;padding:10px 12px;margin-bottom:8px}
-.cur-block{border-radius:12px;overflow:hidden;margin-bottom:10px}
-.cur-hdr{padding:9px 13px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
-.cur-row-s{display:flex;justify-content:space-between;padding:7px 13px;font-size:13px;border-top:1px solid rgba(30,58,110,.3)}
-.total-bar{background:rgba(30,58,110,.35);border:1px solid rgba(30,58,110,.7);border-radius:12px;padding:12px 14px;margin-bottom:12px}
-.status-btn{flex:1;padding:10px 6px;border-radius:10px;font-size:12px;font-weight:600;border:2px solid rgba(30,58,110,.5);background:#071020;color:rgba(147,197,253,.35);cursor:pointer;text-align:center;-webkit-appearance:none}
-.status-btn.s-free{background:rgba(52,211,153,.12);border-color:#34d399;color:#6ee7b7}
-.status-btn.s-busy{background:rgba(239,68,68,.12);border-color:#ef4444;color:#fca5a5}
-.status-btn.s-clean{background:rgba(253,224,71,.12);border-color:#fde047;color:#fde047}
-.status-btn.s-tech{background:rgba(156,163,175,.12);border-color:#9ca3af;color:#d1d5db}
-.clean-card{background:#0e1f3a;border:1px solid rgba(30,58,110,.5);border-radius:12px;padding:12px 13px;margin-bottom:8px}
+.thumb{width:68px;height:68px;border-radius:12px;object-fit:cover;cursor:pointer}
+.add-thumb{width:68px;height:68px;border-radius:12px;background:#2c2c2e;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:rgba(255,255,255,.25);cursor:pointer;border:none;font-size:11px;-webkit-appearance:none}
+
+/* ── Night pill ── */
+.night-pill{text-align:center;background:#2c2c2e;border-radius:12px;padding:10px;color:rgba(255,255,255,.7);font-size:15px;font-weight:600;margin-bottom:14px}
+
+/* ── Hours block ── */
+.hours-block{background:#2c2c2e;border-radius:12px;padding:12px 14px;margin-bottom:10px}
+
+/* ── Currency blocks in stats ── */
+.cur-block{border-radius:14px;overflow:hidden;margin-bottom:10px}
+.cur-hdr{padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.cur-row-s{display:flex;justify-content:space-between;padding:8px 14px;font-size:14px;border-top:1px solid rgba(255,255,255,.06)}
+.total-bar{background:#1c1c1e;border-radius:14px;padding:14px;margin-bottom:12px}
+
+/* ── Status buttons ── */
+.status-btn{flex:1;padding:10px 6px;border-radius:10px;font-size:12px;font-weight:600;border:none;background:#2c2c2e;color:rgba(255,255,255,.3);cursor:pointer;text-align:center;-webkit-appearance:none;transition:all .15s}
+.status-btn.s-free{background:rgba(52,199,89,.15);color:#34c759}
+.status-btn.s-busy{background:rgba(255,69,58,.15);color:#ff453a}
+.status-btn.s-clean{background:rgba(255,214,10,.12);color:#ffd60a}
+.status-btn.s-tech{background:rgba(142,142,147,.15);color:#8e8e93}
+
+/* ── Cleaning card ── */
+.clean-card{background:#1c1c1e;border-radius:14px;padding:14px;margin-bottom:10px}
+
+/* ── Apt card inner ── */
+.apt-inner{padding:14px 16px}
+.apt-owner-bar{padding:10px 16px;background:#161616;border-top:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-between}
 </style>
 </head>
 <body>
@@ -135,11 +189,23 @@ input[type=month]::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.5
 "use strict";
 
 /* ══ CONFIG ════════════════════════════════════════════════ */
-var GAS_URL = "https://script.google.com/macros/s/AKfycbzEjSbFM-mnRchlUgLb_yIdHWILjnOofF5a9YNUZaJwgEeZypyVVJmYXQEQxLGqbA8E/exec";
+var GAS_URL = "https://script.google.com/macros/s/AKfycbzuB89o-_deQGjgZHiJNjiZ5IZvON4aFBeEdBg6U98aT-lt_eZkaS7lkQqay2xvikoH/exec";
 var SYNC_INTERVAL = 45000; // 45 sec auto-refresh
 var HOUR_RATE = 16.70;
-var EXP_CATS = ["cleaning","utilities","supplies","repair","other"];
-var EXP_LBL = {cleaning:"Уборка",utilities:"Коммуналка",supplies:"Расходники",repair:"Ремонт",other:"Прочее",booking_fee:"Комиссия Booking"};
+var EXP_CATS = ["cleaning","telmico","gwp","energy","internet","tbilisi_clean","supplies","repair","other"];
+var EXP_LBL = {
+  cleaning:"Уборка",
+  telmico:"💧 Telmico",
+  gwp:"🔥 GWP",
+  energy:"⚡ Tbilisi Energy",
+  internet:"🌐 Internet",
+  tbilisi_clean:"🗑 Tbilisi Clean",
+  supplies:"Расходники",
+  repair:"Ремонт",
+  other:"Прочее",
+  booking_fee:"Комиссия Booking"
+};
+var INTERNET_PROVIDERS=["Magti","Silknet"];
 var APT_STATUSES = [
   {key:"free",  label:"Свободно", cls:"s-free"},
   {key:"busy",  label:"Занято",   cls:"s-busy"},
@@ -311,7 +377,8 @@ async function deleteBk(id){
 function calc(bk){
   var rate=DB.rate;
   var plat=bk.platform||"Airbnb";
-  var cur=bk.income_currency||"USD";
+  // Use stored currency; if missing, infer from platform
+  var cur=bk.income_currency||(plat==="Airbnb"?"USD":"GEL");
   var gross=parseFloat(bk.gross_income)||0;
   var taxPct=plat==="Airbnb"?(parseFloat(bk.tax_pct)||0):0;
   var tax=parseFloat((gross*taxPct/100).toFixed(2));
@@ -343,7 +410,7 @@ function makeReport(apt,bk,c,lng){
   var S=function(v){return cs(c.cur)+fN(v);};
   var n=nts(bk.check_in,bk.check_out);
   var nLabel=lng==="ka"?(n+" ღამე"):nL(n);
-  var ELK={cleaning:"დასუფთავება",utilities:"კომუნალური",supplies:"მასალები",repair:"რემონტი",other:"სხვა",booking_fee:"Booking-ის საკომისიო"};
+  var ELK={cleaning:"დასუფთავება",telmico:"💧 Telmico",gwp:"🔥 GWP",energy:"⚡ Tbilisi Energy",internet:"🌐 Internet",tbilisi_clean:"🗑 Tbilisi Clean",supplies:"მასალები",repair:"რემონტი",other:"სხვა",booking_fee:"Booking-ის საკომისიო"};
   var expLines=c.exps.filter(function(e){return e.inBase>0;}).map(function(e){
     return"   • "+((lng==="ka"?ELK:EXP_LBL)[e.category||e.cat]||e.category||e.cat)+": "+cs(e.currency)+fN(e.amt)+(e.comment?" ("+e.comment+")":"")+(e.payer==="owner"?" ["+tL.nbySelf+"]":"");
   });
@@ -473,26 +540,30 @@ function renderAptList(){
   return DB.apartments.filter(function(a){return a.id&&a.apartment_name;}).map(function(apt){
     var abs=DB.bookings.filter(function(b){return String(b.apartment_id)===String(apt.id);});
     var netUSD=abs.reduce(function(s,b){return s+calc(b).netUSD;},0);
+    var unpaidUSD=abs.filter(function(b){return!b.paid_out;}).reduce(function(s,b){return s+calc(b).oFinUSD;},0);
     var last=abs.slice().sort(function(a,b){return new Date(b.check_in)-new Date(a.check_in);})[0];
     var pls=(apt.platforms||"Airbnb,Booking").split(",").map(function(p){return p.trim();});
     var status=apt.status||"free";
     var stObj=APT_STATUSES.find(function(s){return s.key===status;})||APT_STATUSES[0];
     return'<div class="apt-item" onclick="V.selApt=\''+apt.id+'\';V.view=\'apt\';render()">'+
-      '<div class="row" style="justify-content:space-between;align-items:flex-start;gap:10px">'+
-        '<div class="f1" style="min-width:0">'+
-          '<div class="row" style="flex-wrap:wrap;gap:5px;margin-bottom:4px">'+
-            '<span style="font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+apt.apartment_name+'</span>'+
-            statusBdg(status)+
-          '</div>'+
-          (apt.address?'<div class="muted trunc">'+String(apt.address).split(",")[0]+'</div>':"")+
-          '<div class="wrap" style="margin-top:5px">'+
-            pls.map(function(p){return platBdg(p);}).join("")+
-            '<span class="muted">'+abs.length+' '+t("stays")+'</span>'+
-            (last?'<span class="muted">· '+fD(last.check_in)+'</span>':"")+
-          '</div>'+
-          (apt.owner_name?'<div class="muted" style="margin-top:4px">'+apt.owner_name+'</div>':"")+
+      '<div class="apt-inner">'+
+        '<div class="row" style="justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px">'+
+          '<span style="font-size:16px;font-weight:600;letter-spacing:-.2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+apt.apartment_name+'</span>'+
+          statusBdg(status)+
         '</div>'+
-        '<div class="tr fs0"><div style="font-size:14px;font-weight:700;color:#34d399;font-family:monospace">$'+fN(netUSD)+'</div><div class="muted">'+t("clean")+'</div></div>'+
+        (apt.address?'<div class="muted trunc" style="margin-bottom:8px">'+String(apt.address).split(",")[0]+'</div>':"")+
+        '<div class="wrap">'+
+          pls.map(function(p){return platBdg(p);}).join("")+
+          '<span class="muted">'+abs.length+' '+t("stays")+'</span>'+
+          (last?'<span class="muted">· '+fD(last.check_in)+'</span>':"")+
+        '</div>'+
+      '</div>'+
+      '<div class="apt-owner-bar">'+
+        '<span class="muted">'+(apt.owner_name||t("owner"))+'</span>'+
+        '<div style="text-align:right">'+
+          '<div class="owner-amount">'+cs("USD")+fN(unpaidUSD)+'</div>'+
+          '<div class="muted">'+(unpaidUSD>0?"к выплате":"✓ выплачено")+'</div>'+
+        '</div>'+
       '</div>'+
     '</div>';
   }).join("");
@@ -542,6 +613,14 @@ function renderApt(){
           '</div>'+
           '<div class="rpt" id="rpt-'+bk.id+'">'+rpt+'</div>'+
           '<button class="btn btn-s" style="width:100%;margin-top:10px" onclick="copyRpt(\''+bk.id+'\')">'+I.copy+' '+t("copyRpt")+'</button>'+
+          (bk.paid_out?
+            '<div style="margin-top:10px;padding:10px 14px;background:rgba(52,199,89,.1);border-radius:12px;display:flex;align-items:center;justify-content:space-between">'+
+              '<span style="color:#34c759;font-size:13px;font-weight:600">✓ Выплачено владельцу</span>'+
+              '<button class="btn btn-d btn-sm" onclick="markPaidOut(\''+bk.id+'\',false)">Отменить</button>'+
+            '</div>'
+          :
+            '<button class="btn" style="width:100%;margin-top:10px;background:rgba(52,199,89,.15);border:none;color:#34c759;padding:13px;font-size:15px;font-weight:700;border-radius:12px" onclick="markPaidOut(\''+bk.id+'\',true)">💸 Выплачено владельцу</button>'
+          )+
         '</div>'+
         '<div class="row" style="margin-top:12px;gap:8px">'+
           '<button class="btn btn-s btn-sm" onclick="editBkBtn(\''+bk.id+'\')">'+I.edit+' '+t("edit")+'</button>'+
@@ -556,11 +635,12 @@ function renderApt(){
             '<div class="row" style="flex-wrap:wrap;gap:5px">'+
               '<span style="font-size:14px;font-weight:600">'+fD(bk.check_in)+' — '+fD(bk.check_out)+'</span>'+bdg(st[0],st[1])+
             '</div>'+
-            '<div class="wrap" style="margin-top:5px">'+
+            '<div class="row" style="flex-wrap:wrap;gap:5px">'+
               platBdg(bk.platform||"")+bdg(c.cur==="GEL"?"ok":"gy",c.cur)+
               '<span class="muted">'+nL(nts(bk.check_in,bk.check_out))+'</span>'+
               (bk.guest_name?'<span class="muted">· '+bk.guest_name+'</span>':"")+
               (bk.assigned_staff?'<span class="bdg bl">👤 '+bk.assigned_staff+'</span>':"")+
+              (bk.paid_out?'<span class="bdg g">💸 Выплачено</span>':"")+
             '</div>'+
           '</div>'+
           '<div class="tr fs0">'+
@@ -573,8 +653,8 @@ function renderApt(){
   }).join("");
 
   // Currency summary
-  var usdBks=abs.filter(function(b){return(b.income_currency||"USD")==="USD";});
-  var gelBks=abs.filter(function(b){return(b.income_currency||"USD")==="GEL";});
+  var usdBks=abs.filter(function(b){return b.income_currency==="USD";});
+  var gelBks=abs.filter(function(b){return b.income_currency==="GEL";});
   function tot(arr){return arr.reduce(function(acc,b){var c=calc(b);return{gross:acc.gross+c.gross,net:acc.net+c.net,plat:acc.plat+c.dFin,own:acc.own+c.oFin,netUSD:acc.netUSD+c.netUSD};},{gross:0,net:0,plat:0,own:0,netUSD:0});}
   var tU=tot(usdBks),tG=tot(gelBks);
   var sumHtml="";
@@ -628,6 +708,16 @@ window.copyRpt=function(id){
   var btn=event.target.closest("button");
   if(btn){btn.innerHTML=I.check+" "+t("copied");setTimeout(function(){if(btn)btn.innerHTML=I.copy+" "+t("copyRpt");},2000);}
 };
+window.markPaidOut=async function(id,val){
+  var bk=DB.bookings.find(function(b){return b.id===id;});
+  if(!bk)return;
+  bk.paid_out=val;
+  if(val) bk.paid_out_at=new Date().toISOString().slice(0,10);
+  var idx=DB.bookings.findIndex(function(b){return b.id===id;});
+  if(idx>-1)DB.bookings[idx]=bk;
+  dbSave();renderApt();
+  try{await apiPost("upsert_booking",bk);}catch(e){}
+};
 window.editBkBtn=function(id){V.editBk=DB.bookings.find(function(b){return b.id===id;});bkF=null;V.view="bkform";render();};
 window.delBkBtn=function(id){if(!confirm("Удалить?"))return;deleteBk(id);};
 window.newBkBtn=function(){V.editBk=null;bkF=null;V.view="bkform";render();};
@@ -660,7 +750,6 @@ function renderBkForm(){
   var n=nts(b.check_in,b.check_out);
   var C=cs(b.income_currency);
   var plat=b.platform||"Airbnb";
-  var cats=EXP_CATS; // booking_fee is in main form, not in expenses
   // Expenses linked to this booking
   var linkedExps=DB.expenses.filter(function(e){return e.booking_id===b.id;});
   var usedCats=linkedExps.map(function(e){return e.category||e.cat;});
@@ -676,13 +765,32 @@ function renderBkForm(){
     '</div>';
   }
 
-  var addCatBtns=cats.filter(function(cat){return!usedCats.includes(cat);}).map(function(cat){
-    return'<button class="btn btn-s btn-sm" style="margin:0 4px 6px 0" onclick="addExpInline(\''+cat+'\')">'+I.plus+' '+(EXP_LBL[cat]||cat)+'</button>';
-  }).join("");
+  var mainCats=["cleaning","supplies","repair","other"];
+  var utilCats=["telmico","gwp","energy","internet","tbilisi_clean"];
+
+  var addCatBtns=
+    '<div class="sec" style="margin-bottom:6px">Основные</div>'+
+    '<div style="margin-bottom:12px">'+mainCats.map(function(cat){
+      return'<button class="btn btn-s btn-sm" style="margin:0 4px 6px 0" onclick="addExpInline(\''+cat+'\')">+ '+(EXP_LBL[cat]||cat)+'</button>';
+    }).join("")+'</div>'+
+    '<div class="sec" style="margin-bottom:6px">Коммуналка</div>'+
+    '<div style="margin-bottom:12px">'+utilCats.map(function(cat){
+      return'<button class="btn btn-s btn-sm" style="margin:0 4px 6px 0" onclick="addExpInline(\''+cat+'\')">+ '+(EXP_LBL[cat]||cat)+'</button>';
+    }).join("")+'</div>';
 
   var expRowsHtml=linkedExps.map(function(e){
-    var ecs=cs(e.currency||"GEL");
     var hoursBlock="";
+    // Internet provider selector
+    var providerBlock="";
+    if(e.category==="internet"){
+      providerBlock='<div class="field"><div class="lbl">Провайдер</div>'+
+        '<div style="display:flex;gap:8px">'+
+          INTERNET_PROVIDERS.map(function(p){
+            return'<button class="plat-btn'+(e.provider===p?" po":"")+'\" style="font-size:13px;padding:9px 8px" onclick="setExpProvider(\''+e.id+'\',\''+p+'\')">'+p+'</button>';
+          }).join("")+
+        '</div>'+
+      '</div>';
+    }
     if(e.category==="cleaning"||e.category==="repair"){
       var startT=e.time_start||"";
       var endT=e.time_end||"";
@@ -714,8 +822,9 @@ function renderBkForm(){
         '<button class="btn btn-d btn-sm" style="padding:4px 8px" onclick="delExpInline(\''+e.id+'\')">'+I.trash+'</button>'+
       '</div>'+
       hoursBlock+
+      providerBlock+
       '<div class="field" style="display:flex;gap:8px;align-items:flex-end">'+
-        '<div class="f1 rel"><span class="il">'+ecs+'</span><input type="number" class="inp pl" value="'+(e.amount||"")+'" placeholder="0" oninput="setExpAmt(\''+e.id+'\',this.value)"/></div>'+
+        '<div class="f1"><input type="number" class="inp" value="'+(e.amount||"")+'" placeholder="0" oninput="setExpAmt(\''+e.id+'\',this.value)"/></div>'+
         '<div class="cur-row">'+
           '<button class="cur-btn'+(e.currency==="USD"?" cusd":"")+'\" onclick="setExpCur(\''+e.id+'\',\'USD\')">USD</button>'+
           '<button class="cur-btn'+(e.currency==="GEL"?" cgel":"")+'\" onclick="setExpCur(\''+e.id+'\',\'GEL\')">GEL</button>'+
@@ -799,7 +908,15 @@ function renderBkForm(){
       '</div>'+
       '<div class="rpt">'+rpt+'</div>'+
     '</div>'+
-    '<button id="copy-btn" class="btn btn-s" style="width:100%">'+I.copy+' '+t("copyRpt")+'</button>';
+    '<button id="copy-btn" class="btn btn-s" style="width:100%">'+I.copy+' '+t("copyRpt")+'</button>'+
+    (bkF&&bkF.paid_out?
+      '<div style="margin-top:10px;padding:10px 14px;background:rgba(52,199,89,.1);border-radius:12px;display:flex;align-items:center;justify-content:space-between">'+
+        '<span style="color:#34c759;font-size:13px;font-weight:600">✓ Выплачено владельцу</span>'+
+        '<button class="btn btn-d btn-sm" onclick="bkF.paid_out=false;renderBkForm()">Отменить</button>'+
+      '</div>'
+    :
+      '<button class="btn" style="width:100%;margin-top:10px;background:rgba(52,199,89,.15);border:none;color:#34c759;padding:13px;font-size:15px;font-weight:700;border-radius:12px" onclick="bkF.paid_out=true;renderBkForm()">💸 Выплачено владельцу</button>'
+    );
 
   root.innerHTML=
     '<div class="modal">'+
@@ -855,6 +972,7 @@ window.setExpHoursInline=function(id,v){var e=DB.expenses.find(function(e){retur
 window.setExpTimeInline=function(id,field,v){var e=DB.expenses.find(function(x){return x.id===id;});if(e){e[field]=v;dbSave();renderBkForm();}};
 window.applyHoursInline=function(id,amt){var e=DB.expenses.find(function(e){return e.id===id;});if(!e)return;if(amt!==undefined){e.amount=amt;}else{e.amount=parseFloat((parseFloat(e.hours||0)*HOUR_RATE).toFixed(2));}e.currency="GEL";dbSave();renderBkForm();};
 window.setExpCur=function(id,v){var e=DB.expenses.find(function(e){return e.id===id;});if(e){e.currency=v;dbSave();renderBkForm();}};
+window.setExpProvider=function(id,v){var e=DB.expenses.find(function(e){return e.id===id;});if(e){e.provider=v;dbSave();renderBkForm();}};
 window.setExpPayer=function(id,v){var e=DB.expenses.find(function(e){return e.id===id;});if(e){e.payer=v;dbSave();renderBkForm();}};
 window.setExpComment=function(id,v){var e=DB.expenses.find(function(e){return e.id===id;});if(e){e.comment=v;dbSave();}};
 
@@ -911,6 +1029,34 @@ function renderAptForm(){
         '<div><div class="lbl">Комнат</div><input type="number" class="inp" id="af-rooms" value="'+(a.rooms||"")+'" placeholder="2"/></div>'+
       '</div>'+
       '<div class="field"><div class="lbl">Заметки</div><textarea class="inp" id="af-notes" rows="3" style="resize:none" placeholder="Особенности, правила...">'+(a.notes||"")+'</textarea></div>'+
+      '<div class="divider"></div>'+
+      '<div class="sec">💡 Коммунальные счета (₾/мес)</div>'+
+      '<div style="background:#1c1c1e;border-radius:14px;overflow:hidden;margin-bottom:12px">'+
+        [
+          {id:"telmico",name:"💧 Telmico"},
+          {id:"gwp",name:"🔥 GWP"},
+          {id:"energy",name:"⚡ Tbilisi Energy"},
+          {id:"tbilisi_clean",name:"🗑 Tbilisi Clean"},
+        ].map(function(u,i){
+          var val=(a.util_rates&&a.util_rates[u.id])||"";
+          return'<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px'+(i>0?";border-top:1px solid rgba(255,255,255,.06)":"")+'">'+'<span style="font-size:14px">'+u.name+'</span>'+
+            '<div style="display:flex;align-items:center;gap:6px"><input type="number" class="inp" id="af-util-'+u.id+'" value="'+val+'" placeholder="0" style="width:100px;text-align:right;padding:8px 12px;font-size:15px"/><span class="muted">₾</span></div>'+
+          '</div>';
+        }).join("")+
+        // Internet with provider choice
+        '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-top:1px solid rgba(255,255,255,.06)">'+
+          '<span style="font-size:14px">🌐 Internet</span>'+
+          '<div style="display:flex;align-items:center;gap:8px">'+
+            '<div style="display:flex;gap:6px">'+
+              INTERNET_PROVIDERS.map(function(p){
+                var sel=(a.util_rates&&a.util_rates.internet_provider)===p;
+                return'<button class="cur-btn'+(sel?" cgel":"")+'\" style="padding:7px 10px;font-size:12px" onclick="aptF.util_rates=aptF.util_rates||{};aptF.util_rates.internet_provider=\''+p+'\';renderAptForm()">'+p+'</button>';
+              }).join("")+
+            '</div>'+
+            '<div style="display:flex;align-items:center;gap:6px"><input type="number" class="inp" id="af-util-internet" value="'+((a.util_rates&&a.util_rates.internet)||"")+'" placeholder="0" style="width:100px;text-align:right;padding:8px 12px;font-size:15px"/><span class="muted">₾</span></div>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
     '</div>'+
     '</div>';
 }
@@ -934,6 +1080,12 @@ window.saveAptForm=async function(){
   aptF.platform_pct=parseFloat((g("af-pct")||{}).value)||20;
   aptF.rooms=(g("af-rooms")||{}).value||"";
   aptF.notes=(g("af-notes")||{}).value||"";
+  // Save utility rates
+  var ur=aptF.util_rates||{};
+  ["telmico","gwp","energy","tbilisi_clean","internet"].forEach(function(k){
+    var el=g("af-util-"+k);if(el)ur[k]=el.value||"";
+  });
+  aptF.util_rates=ur;
   // Optimistic: add or update local DB
   var idx=DB.apartments.findIndex(function(a){return a.id===saved.id;});
   if(idx>-1){DB.apartments[idx]=saved;}else{DB.apartments.push(saved);}
@@ -979,7 +1131,8 @@ function renderCleanForm(){
   }
   var cl=clF;
   var aptOpts='<option value="">— Выберите квартиру —</option>'+DB.apartments.map(function(a){return'<option value="'+a.id+'"'+(cl.apartment_id===String(a.id)?" selected":"")+'>'+a.apartment_name+'</option>';}).join("");
-  var staffOpts='<option value="">— Уборщик —</option>'+DB.staff.filter(function(s){return s.active!=="false"&&s.active!==false;}).map(function(s){return'<option value="'+s.name+'"'+(cl.cleaner===s.name?" selected":"")+'>'+s.name+'</option>';}).join("");
+  var staffList=DB.staff.filter(function(s){return s.active!=="false"&&s.active!==false&&s.active!=="0";});
+  var staffOpts='<option value="">— Выбрать из списка —</option>'+staffList.map(function(s){return'<option value="'+s.name+'"'+(cl.cleaner===s.name?" selected":"")+'>'+s.name+(s.role?" · "+s.role:"")+'</option>';}).join("");
   // Auto-calc hours
   var hours="";
   if(cl.started_at&&cl.finished_at){
@@ -1002,7 +1155,9 @@ function renderCleanForm(){
     '<div class="page">'+
       '<div class="field"><div class="lbl">Квартира</div><select class="sel" onchange="clF.apartment_id=this.value">'+aptOpts+'</select></div>'+
       '<div class="field"><div class="lbl">'+t("cleaner")+'</div>'+
-        (DB.staff.length?'<select class="sel" onchange="clF.cleaner=this.value">'+staffOpts+'</select>':'<input type="text" class="inp" value="'+cl.cleaner+'" placeholder="Имя уборщика" oninput="clF.cleaner=this.value"/>')+
+        (staffList.length?
+          '<select class="sel" style="margin-bottom:8px" onchange="if(this.value)clF.cleaner=this.value">'+staffOpts+'</select>':"")+
+        '<input type="text" class="inp" value="'+(cl.cleaner||"")+'" placeholder="Или введите имя вручную..." oninput="clF.cleaner=this.value"/>'+
       '</div>'+
       '<div class="field"><div class="lbl">Дата</div><input type="date" class="inp" value="'+cl.date+'" onchange="clF.date=this.value"/></div>'+
       '<div class="g2 field">'+
@@ -1035,16 +1190,16 @@ function renderDash(){
     if(V.dashFilter.month&&(b.check_in||"").slice(0,7)!==V.dashFilter.month)return false;
     return true;
   });
-  var usdBks=fil.filter(function(b){return(b.income_currency||"USD")==="USD";});
-  var gelBks=fil.filter(function(b){return(b.income_currency||"USD")==="GEL";});
+  var usdBks=fil.filter(function(b){return b.income_currency==="USD";});
+  var gelBks=fil.filter(function(b){return b.income_currency==="GEL";});
   function tot(arr){return arr.reduce(function(acc,b){var c=calc(b);return{gross:acc.gross+c.gross,net:acc.net+c.net,plat:acc.plat+c.dFin,own:acc.own+c.oFin,netUSD:acc.netUSD+c.netUSD,platUSD:acc.platUSD+c.dFinUSD,ownUSD:acc.ownUSD+c.oFinUSD};},{gross:0,net:0,plat:0,own:0,netUSD:0,platUSD:0,ownUSD:0});}
   var tU=tot(usdBks),tG=tot(gelBks);
   var opts='<option value="all">'+t("analytics")+'</option>'+DB.apartments.map(function(a){return'<option value="'+a.id+'"'+(V.dashFilter.apt===a.id?" selected":"")+'>'+a.apartment_name+'</option>';}).join("");
   var aptRows=DB.apartments.map(function(apt){
     var ab=fil.filter(function(b){return String(b.apartment_id)===String(apt.id);});
     if(!ab.length)return"";
-    var uB=ab.filter(function(b){return(b.income_currency||"USD")==="USD";});
-    var gB=ab.filter(function(b){return(b.income_currency||"USD")==="GEL";});
+    var uB=ab.filter(function(b){return b.income_currency==="USD";});
+    var gB=ab.filter(function(b){return b.income_currency==="GEL";});
     var tUa=tot(uB),tGa=tot(gB);
     return'<div class="card pad" style="margin-bottom:12px">'+
       '<div style="font-size:14px;font-weight:600;margin-bottom:10px">'+apt.apartment_name+'</div>'+
