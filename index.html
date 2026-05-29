@@ -328,13 +328,45 @@ async function syncFull(){
   DB.syncState="loading"; render();
   try{
     var data = await apiGet();
+
+    // Smart merge: Sheets is truth for most fields,
+    // but local wins for fields that Sheets may not have yet
+    var LOCAL_APT_FIELDS=["status","util_rates","platform_pct","platforms","mapLink","notes","owner_account"];
+    var LOCAL_BK_FIELDS=["paid_out","paid_out_at","assigned_staff","income_currency","tax_pct","booking_fee","platform_pct","comment"];
+
     DB.apartments = (data.apartments || []).map(function(a){
-      return Object.assign({}, a, {id: String(a.id || a.apartment_id || uid())});
+      var id=String(a.id||a.apartment_id||uid());
+      var local=DB.apartments.find(function(x){return x.id===id;});
+      var merged=Object.assign({},a,{id:id});
+      if(local){
+        LOCAL_APT_FIELDS.forEach(function(f){
+          if(local[f]!==undefined&&local[f]!==""&&(merged[f]===undefined||merged[f]===""))
+            merged[f]=local[f];
+        });
+      }
+      return merged;
     });
-    DB.bookings   = (data.bookings   || []).map(function(b){return Object.assign({},b,{id:String(b.id||uid())});});
-    DB.expenses   = (data.expenses   || []).map(function(e){return Object.assign({},e,{id:String(e.id||uid())});});
-    DB.cleaning   = (data.cleaning   || []).map(function(c){return Object.assign({},c,{id:String(c.id||uid())});});
-    DB.staff      = (data.staff      || []).map(function(s){return Object.assign({},s,{id:String(s.id||uid())});});
+
+    DB.bookings = (data.bookings || []).map(function(b){
+      var id=String(b.id||uid());
+      var local=DB.bookings.find(function(x){return x.id===id;});
+      var merged=Object.assign({},b,{id:id});
+      if(local){
+        LOCAL_BK_FIELDS.forEach(function(f){
+          if(local[f]!==undefined&&local[f]!==""&&(merged[f]===undefined||merged[f]===""))
+            merged[f]=local[f];
+        });
+        // paid_out is boolean - preserve if true
+        if(local.paid_out===true) merged.paid_out=true;
+        if(local.paid_out_at) merged.paid_out_at=local.paid_out_at;
+      }
+      return merged;
+    });
+
+    DB.expenses = (data.expenses || []).map(function(e){return Object.assign({},e,{id:String(e.id||uid())});});
+    DB.cleaning = (data.cleaning || []).map(function(c){return Object.assign({},c,{id:String(c.id||uid())});});
+    DB.staff    = (data.staff    || []).map(function(s){return Object.assign({},s,{id:String(s.id||uid())});});
+
     if(data.rate) DB.rate = data.rate;
     DB.lastFull = new Date().toISOString();
     DB.syncState="ok";
@@ -698,8 +730,17 @@ window.setStatus=async function(st){
   apt.status=st;
   var idx=DB.apartments.findIndex(function(a){return String(a.id)===String(apt.id);});
   if(idx>-1)DB.apartments[idx]=apt;
-  dbSave();renderApt();
-  try{await apiPost("upsert_apt",apt);}catch(e){}
+  dbSave(); renderApt();
+  // Push to Sheets with retry
+  var attempts=0;
+  function push(){
+    attempts++;
+    apiPost("upsert_apt",apt).catch(function(e){
+      if(attempts<3)setTimeout(push,2000);
+      else console.error("Status save failed:",e);
+    });
+  }
+  push();
 };
 window.copyRpt=function(id){
   var d=window._rpts&&window._rpts[id];if(!d)return;
@@ -708,15 +749,24 @@ window.copyRpt=function(id){
   var btn=event.target.closest("button");
   if(btn){btn.innerHTML=I.check+" "+t("copied");setTimeout(function(){if(btn)btn.innerHTML=I.copy+" "+t("copyRpt");},2000);}
 };
-window.markPaidOut=async function(id,val){
+window.markPaidOut=function(id,val){
   var bk=DB.bookings.find(function(b){return b.id===id;});
   if(!bk)return;
   bk.paid_out=val;
   if(val) bk.paid_out_at=new Date().toISOString().slice(0,10);
+  else bk.paid_out_at="";
   var idx=DB.bookings.findIndex(function(b){return b.id===id;});
   if(idx>-1)DB.bookings[idx]=bk;
-  dbSave();renderApt();
-  try{await apiPost("upsert_booking",bk);}catch(e){}
+  dbSave(); renderApt();
+  // Push with retry
+  var attempts=0;
+  function push(){
+    attempts++;
+    apiPost("upsert_booking",bk).catch(function(e){
+      if(attempts<3)setTimeout(push,2000);
+    });
+  }
+  push();
 };
 window.editBkBtn=function(id){V.editBk=DB.bookings.find(function(b){return b.id===id;});bkF=null;V.view="bkform";render();};
 window.delBkBtn=function(id){if(!confirm("Удалить?"))return;deleteBk(id);};
