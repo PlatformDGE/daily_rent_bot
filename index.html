@@ -262,11 +262,13 @@ async function syncFull(){
   DB.syncState="loading"; render();
   try{
     var data = await apiGet();
-    DB.apartments = data.apartments || [];
-    DB.bookings   = data.bookings   || [];
-    DB.expenses   = data.expenses   || [];
-    DB.cleaning   = data.cleaning   || [];
-    DB.staff      = data.staff      || [];
+    DB.apartments = (data.apartments || []).map(function(a){
+      return Object.assign({}, a, {id: String(a.id || a.apartment_id || uid())});
+    });
+    DB.bookings   = (data.bookings   || []).map(function(b){return Object.assign({},b,{id:String(b.id||uid())});});
+    DB.expenses   = (data.expenses   || []).map(function(e){return Object.assign({},e,{id:String(e.id||uid())});});
+    DB.cleaning   = (data.cleaning   || []).map(function(c){return Object.assign({},c,{id:String(c.id||uid())});});
+    DB.staff      = (data.staff      || []).map(function(s){return Object.assign({},s,{id:String(s.id||uid())});});
     if(data.rate) DB.rate = data.rate;
     DB.lastFull = new Date().toISOString();
     DB.syncState="ok";
