@@ -1042,7 +1042,7 @@ function renderAptScreen(){
         '</div>';
       }
       detail='<div class="bk-body">'+
-        '<div class="cbox">'+
+        '<div class="cbox" id="cbox-'+bk.id+'">'+
           '<div class="crow"><span class="cl">'+t("arrived")+'</span><span class="cv">'+C+fN(c.gross)+'</span></div>'+
           (c.tax>0?'<div class="crow"><span class="cl">'+t("tax")+' ('+c.taxPct+'%)</span><span class="cv neg">-'+C+fN(c.tax)+'</span></div>':"")+
           (c.bookFee>0?'<div class="crow"><span class="cl">Booking fee</span><span class="cv neg">-'+C+fN(c.bookFee)+'</span></div>':"")+
@@ -1069,7 +1069,7 @@ function renderAptScreen(){
               '<button class="lang-btn'+(V.rptLang==="ka"?" on":"")+'\" onclick="V.rptLang=\'ka\';renderAptScreen()">🇬🇪</button>'+
             '</div>'+
           '</div>'+
-          '<div class="rpt-box">'+rpt+'</div>'+
+          '<div class="rpt-box" id="rpt-'+bk.id+'">'+rpt+'</div>'+
           '<button id="cp-'+bk.id+'" class="btn btn-g" style="width:100%;margin-top:8px" onclick="copyRpt(\''+bk.id+'\')">'+I.copy+' '+t("copyRpt")+'</button>'+
         '</div>'+
         // Paid out
@@ -1209,17 +1209,31 @@ window.delExpFromDetail=function(expId,bkId){
 window.saveExpEdits=function(bkId){
   var exps=DB.expenses.filter(function(e){return String(e.booking_id)===String(bkId);});
   dbSave();
-  // Send sequentially with delay to avoid GAS race condition
-  exps.forEach(function(e,i){
-    setTimeout(function(){pushBg("upsert_expense",e);}, i*300);
-  });
+  // Send sequentially
+  exps.forEach(function(e,i){setTimeout(function(){pushBg("upsert_expense",e);},i*300);});
+
+  // Update report text in DOM directly — no scroll jump
+  var bk=DB.bookings.find(function(b){return b.id===bkId;});
+  var apt=getApt(V.aptId);
+  if(bk&&apt){
+    var c=calcBk(bk);
+    // Update _RPT cache
+    if(window._RPT)window._RPT[bkId]={apt:apt,bk:bk,c:c};
+    // Update report text element
+    var rptEl=document.getElementById("rpt-"+bkId);
+    if(rptEl)rptEl.textContent=makeReport(apt,bk,c,V.rptLang);
+    // Update calc box
+    var cboxEl=document.getElementById("cbox-"+bkId);
+    if(cboxEl)cboxEl.innerHTML=calcBoxRows(c);
+  }
+
   // Show confirmation
   var btn=document.querySelector("[onclick=\"saveExpEdits('"+bkId+"')\"]");
   if(btn){
-    var orig=btn.innerHTML;
-    btn.innerHTML="✓ Сохранено!";
-    btn.style.background="#1a7a35";
-    setTimeout(function(){if(btn){btn.innerHTML=orig;btn.style.background="#34c759";}},1500);
+    btn.innerHTML="✓ Сохранено!";btn.style.background="#1a7a35";
+    setTimeout(function(){
+      if(btn){btn.innerHTML="✓ Сохранить";btn.style.background="#34c759";}
+    },1500);
   }
 };
 window.doDelBk=function(id){
@@ -1411,6 +1425,9 @@ function calcBox(c,own){
     '<div class="crow ind"><span class="cl">'+(own||t("owner"))+' ('+c.oPct+'%)</span><span class="cv pos">'+C+fN(c.oFin)+'</span></div>'+
     '</div>';
 }
+// Alias for updating cbox innerHTML directly
+function calcBoxRows(c){return calcBox(c,"");}
+
 
 window.updCalc=function(){
   if(!BKF||_bkTab!=="main")return;
