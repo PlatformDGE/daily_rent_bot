@@ -1118,15 +1118,19 @@ window.addExpInline=function(bkId,cat){
   V.editingExps=bkId;
   renderAptScreen();
 };
+window.updExpField=function(id,field,val){
   var e=DB.expenses.find(function(e){return e.id===id;});
   if(!e)return;
-  e[field]=field==="amount"?val:val; // keep as string for amount, will parse in calcBk
+  e[field]=val;
   dbSave();
-  // Only full rerender for button fields (currency/payer) - they need visual update
+  // Rerender only for button-triggered fields, not text/number input
   if(field==="currency"||field==="payer"){
+    var pg=document.querySelector(".bk-body");
+    var st=pg?pg.scrollTop:0;
     renderAptScreen();
+    var pg2=document.querySelector(".bk-body");
+    if(pg2)pg2.scrollTop=st;
   }
-  // For amount/comment - just save silently, no rerender (avoids scroll jump)
 };
 window.delExpFromDetail=function(expId,bkId){
   if(!confirm("Удалить расход?"))return;
@@ -1532,7 +1536,7 @@ window.saveClean=function(){
    HAPTIC
 ═══════════════════════════════════════════════ */
 function vibe(){try{if(window.Telegram&&window.Telegram.WebApp&&window.Telegram.WebApp.HapticFeedback){window.Telegram.WebApp.HapticFeedback.impactOccurred("light");}else if(navigator.vibrate){navigator.vibrate(8);}}catch(e){}}
-document.addEventListener("touchstart",function(e){var el=e.target.closest("button,a,.apt-card,.bk-main,.tab,.nav-btn,.seg-btn,.cur-btn,.pay-btn,.st-btn,.lang-btn,.fab");if(el)vibe();},{passive:true});
+document.addEventListener("click",function(e){var el=e.target.closest("button,a,.apt-card,.bk-tile,.nav-btn");if(el)vibe();});
 
 /* ═══════════════════════════════════════════════
    AUTO SYNC
