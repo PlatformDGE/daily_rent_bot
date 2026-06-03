@@ -319,7 +319,20 @@ function syncFull(){
       }
       return m;
     });
-    DB.expenses=(data.expenses||[]).map(function(e){return Object.assign({},e,{id:String(e.id||uid())});});
+    DB.expenses=(data.expenses||[]).map(function(e){
+      var raw=String(e.amount||"");
+      var amt=0;
+      // If amount looks like a date - set to 0
+      if(raw.match(/^\d{4}-\d{2}/)||raw.includes("T")||raw.match(/^\d{2}\.\d{2}\.\d{4}/)){
+        amt=0;
+      } else {
+        amt=parseFloat(raw)||0;
+      }
+      return Object.assign({},e,{id:String(e.id||uid()),amount:amt});
+    }).filter(function(e){
+      // Remove orphaned (no booking_id) and empty-amount utilities/supplies
+      return e.booking_id&&String(e.booking_id).length>3;
+    });
     // Clean orphaned expenses (no valid booking_id)
     var validBkIds=DB.bookings.map(function(b){return String(b.id);});
     DB.expenses=DB.expenses.filter(function(e){
