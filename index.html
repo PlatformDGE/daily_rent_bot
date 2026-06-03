@@ -320,6 +320,11 @@ function syncFull(){
       return m;
     });
     DB.expenses=(data.expenses||[]).map(function(e){return Object.assign({},e,{id:String(e.id||uid())});});
+    // Clean orphaned expenses (no valid booking_id)
+    var validBkIds=DB.bookings.map(function(b){return String(b.id);});
+    DB.expenses=DB.expenses.filter(function(e){
+      return e.booking_id&&e.booking_id!==""&&e.booking_id!=="undefined"&&validBkIds.indexOf(String(e.booking_id))>-1;
+    });
     DB.cleaning=(data.cleaning||[]).map(function(c){return Object.assign({},c,{id:String(c.id||uid())});});
     DB.staff=(data.staff||[]).map(function(s){return Object.assign({},s,{id:String(s.id||uid())});});
     if(data.rate)DB.rate=data.rate;
@@ -354,7 +359,10 @@ function calcBk(bk){
   var tax=parseFloat((gross*taxPct/100).toFixed(2));
   var afterTax=parseFloat((gross-tax).toFixed(2));
   var bookFee=plat==="Booking"?(parseFloat(bk.booking_fee)||0):0;
-  var exps=DB.expenses.filter(function(e){return String(e.booking_id)===String(bk.id);}).map(function(e){
+  var exps=DB.expenses.filter(function(e){
+    if(!e.booking_id||e.booking_id===""||e.booking_id==="undefined")return false;
+    return String(e.booking_id)===String(bk.id);
+  }).map(function(e){
     var amt=parseFloat(e.amount)||0;
     var inB=cur==="USD"?(e.currency==="USD"?amt:parseFloat((amt/rate).toFixed(2))):(e.currency==="GEL"?amt:parseFloat((amt*rate).toFixed(2)));
     return Object.assign({},e,{amt:amt,inB:inB});
@@ -981,7 +989,10 @@ function renderBkForm(){
   var n=nts(b.check_in,b.check_out);
   var C=cs(b.income_currency||"USD");
   var plat=b.platform||"Airbnb";
-  var linkedExps=DB.expenses.filter(function(e){return String(e.booking_id)===String(b.id);});
+  var linkedExps=DB.expenses.filter(function(e){
+    if(!e.booking_id||e.booking_id===""||e.booking_id==="undefined")return false;
+    return String(e.booking_id)===String(b.id);
+  });
 
   var platBtns=[["Airbnb","s-a"],["Booking","s-b"],["Другое","s-o"]].map(function(x){
     return'<button class="seg-btn'+(plat===x[0]?" "+x[1]:"")+'\" onclick="changePlat(\''+x[0]+'\')">'+x[0]+'</button>';
