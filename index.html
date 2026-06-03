@@ -361,7 +361,13 @@ function calcBk(bk){
   var bookFee=plat==="Booking"?(parseFloat(bk.booking_fee)||0):0;
   var exps=DB.expenses.filter(function(e){
     if(!e.booking_id||e.booking_id===""||e.booking_id==="undefined")return false;
-    return String(e.booking_id)===String(bk.id);
+    if(String(e.booking_id)!==String(bk.id))return false;
+    // Skip expenses with invalid amounts (date strings, etc)
+    var v=parseFloat(e.amount);
+    if(isNaN(v)||v<0||v>50000)return false;
+    var raw=String(e.amount||"");
+    if(raw.includes("T")||raw.includes("-20"))return false;
+    return true;
   }).map(function(e){
     var amt=parseFloat(e.amount)||0;
     var inB=cur==="USD"?(e.currency==="USD"?amt:parseFloat((amt/rate).toFixed(2))):(e.currency==="GEL"?amt:parseFloat((amt*rate).toFixed(2)));
@@ -676,8 +682,14 @@ function renderHome(){
 
   html+=apts.map(function(apt){
     var abs=DB.bookings.filter(function(b){return String(b.apartment_id)===String(apt.id);})
-      .sort(function(a,b){return new Date(b.check_in)-new Date(a.check_in);})
-      .slice(0,4);
+      .sort(function(a,b){
+        // paid_out goes to bottom
+        if(a.paid_out&&!b.paid_out)return 1;
+        if(!a.paid_out&&b.paid_out)return -1;
+        // then by check_in descending
+        return new Date(b.check_in)-new Date(a.check_in);
+      })
+      .slice(0,5);
     if(!abs.length){
       return'<div style="margin-bottom:16px">'+aptRowHdr(apt,today)+'<div onclick="goAptNewBk(\''+apt.id+'\')" style="background:#1c1c1e;border-radius:12px;padding:12px;text-align:center;color:rgba(255,255,255,.25);font-size:13px;cursor:pointer">+ Добавить первое проживание</div></div>';
     }
@@ -714,26 +726,39 @@ function aptRowHdr(apt,today){
   '</div>';
 }
 
+function bkColor(bk){
+  // 3 states: pending=blue, received+unpaid=orange, paid_out=green
+  if(bk.paid_out)return{accent:"#34c759",bg:"rgba(52,199,89,.04)",label:"",labelColor:""};
+  if(bk.payment_status==="pending"||bk.payment_status==="")return{accent:"#0a84ff",bg:"rgba(10,132,255,.05)",label:"Не получено",labelColor:"#0a84ff"};
+  if(bk.payment_status==="partial")return{accent:"#ffd60a",bg:"rgba(255,214,10,.05)",label:"Частично",labelColor:"#ffd60a"};
+  // received but not paid to owner
+  return{accent:"#ff9500",bg:"rgba(255,149,0,.05)",label:"Не выплачено",labelColor:"#ff9500"};
+}
+
 function bkTile(bk,today,soonStr){
   var c=calcBk(bk);
   var ci=bk.check_in&&bk.check_in.slice(0,10);
   var co=bk.check_out&&bk.check_out.slice(0,10);
-  var isActive=ci&&co&&ci<=today&&co>today;
-  var isUpcoming=ci&&ci>today&&ci<=soonStr;
-  var accent=isActive?"#34c759":isUpcoming?"#ffd60a":"rgba(255,255,255,.1)";
-  return'<div onclick="goAptBk(\''+bk.apartment_id+'\',\''+bk.id+'\')" style="background:#1c1c1e;border-radius:12px;padding:12px 14px;cursor:pointer;border-left:3px solid '+accent+';display:flex;align-items:center;gap:12px">'+
+  var isNow=ci&&co&&ci<=today&&co>today;
+  var isSoon=ci&&ci>today&&ci<=soonStr;
+  var col=bkColor(bk);
+  var opacity=bk.paid_out?"opacity:0.5;":"";
+  return'<div onclick="goAptBk(\''+bk.apartment_id+'\',\''+bk.id+'\')" style="'+opacity+'background:'+col.bg+';border-radius:12px;padding:12px 14px;cursor:pointer;border-left:3px solid '+col.accent+';display:flex;align-items:center;gap:12px">'+
     '<div style="flex:1;min-width:0">'+
       '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap">'+
         '<span style="font-size:13px;font-weight:600">'+(bk.guest_name||"—")+'</span>'+
-        (isActive?'<span style="font-size:10px;background:rgba(52,199,89,.15);color:#34c759;padding:2px 7px;border-radius:99px;font-weight:700">● Сейчас</span>':"")+
-        (isUpcoming?'<span style="font-size:10px;background:rgba(255,214,10,.12);color:#ffd60a;padding:2px 7px;border-radius:99px;font-weight:600">Скоро</span>':"")+
+        (isNow?'<span style="font-size:10px;background:rgba(52,199,89,.15);color:#34c759;padding:2px 7px;border-radius:99px;font-weight:700">● Сейчас</span>':"")+
+        (isSoon?'<span style="font-size:10px;background:rgba(255,214,10,.12);color:#ffd60a;padding:2px 7px;border-radius:99px;font-weight:600">Скоро</span>':"")+
+        (col.label?'<span style="font-size:10px;color:'+col.labelColor+';padding:2px 7px;border-radius:99px;background:rgba(0,0,0,.2)">'+col.label+'</span>':"")+
         (bk.paid_out?'<span style="font-size:10px;color:#34c759">💸</span>':"")+
       '</div>'+
       '<div class="mu" style="font-size:11px">'+fD(bk.check_in)+' — '+fD(bk.check_out)+'</div>'+
     '</div>'+
     '<div style="text-align:right;flex-shrink:0">'+
-      '<div style="font-size:14px;font-weight:700">'+cs(c.cur)+fN(c.gross)+'</div>'+
-      '<div style="font-size:12px;color:#34c759;font-weight:600">'+cs(c.cur)+fN(c.net)+'</div>'+
+      '<div style="font-size:14px;font-weight:700;color:'+(bk.paid_out?"rgba(255,255,255,.4)":"#fff")+'">'+cs(c.cur)+fN(c.gross)+'</div>'+
+      '<div style="font-size:12px;font-weight:600;color:'+(bk.paid_out?"#34c759":col.accent)+'">'+
+        (bk.paid_out?"✓ выплачено":cs(c.cur)+fN(c.oFin)+" ?")+
+      '</div>'+
     '</div>'+
   '</div>';
 }
@@ -909,7 +934,12 @@ function renderAptScreen(){
   var savedScroll=pg?pg.scrollTop:0;
   var apt=getApt(V.aptId);
   if(!apt){V.screen=null;render();return;}
-  var abs=DB.bookings.filter(function(b){return String(b.apartment_id)===String(apt.id);}).sort(function(a,b){return new Date(b.check_in)-new Date(a.check_in);});
+  var abs=DB.bookings.filter(function(b){return String(b.apartment_id)===String(apt.id);})
+    .sort(function(a,b){
+      if(a.paid_out&&!b.paid_out)return 1;
+      if(!a.paid_out&&b.paid_out)return -1;
+      return new Date(b.check_in)-new Date(a.check_in);
+    });
 
   // Summary
   var uBks=abs.filter(function(b){return (b.income_currency||"USD")==="USD";});
@@ -936,7 +966,8 @@ function renderAptScreen(){
     var c=calcBk(bk);
     var open=!!V.expOpen[bk.id];
     var C=cs(c.cur);
-    var stM={received:["b-g",t("received")],pending:["b-rd",t("pending")],partial:["b-yw",t("partial")]};
+    var col=bkColor(bk);
+    var stM={received:["b-g",t("received")],pending:["b-bl",t("pending")],partial:["b-yw",t("partial")]};
     var st=stM[bk.payment_status]||stM.received;
     var detail="";
     if(open){
@@ -1040,13 +1071,13 @@ function renderAptScreen(){
         '</div>'+
       '</div>';
     }
-    return'<div class="bk-card">'+
+    return'<div class="bk-card" style="border-left:3px solid '+col.accent+';'+(bk.paid_out?"opacity:0.55;":"")+'">'+
       '<div class="bk-main" onclick="V.expOpen[\''+bk.id+'\']=!V.expOpen[\''+bk.id+'\'];renderAptScreen()">'+
         '<div class="row" style="align-items:flex-start;gap:10px">'+
           '<div class="f1">'+
             '<div class="row" style="flex-wrap:wrap;gap:5px;margin-bottom:6px">'+
               '<span style="font-size:14px;font-weight:600">'+fD(bk.check_in)+' — '+fD(bk.check_out)+'</span>'+
-              bdg(st[0],st[1])+
+              (col.label?'<span style="font-size:11px;color:'+col.labelColor+';font-weight:600">'+col.label+'</span>':"")+
             '</div>'+
             '<div class="wrap">'+
               platBdg(bk.platform||"")+bdg(c.cur==="GEL"?"b-g":"b-gy",c.cur)+
@@ -1058,7 +1089,9 @@ function renderAptScreen(){
           '</div>'+
           '<div class="tr fs0">'+
             '<div style="font-size:15px;font-weight:700">'+C+fN(c.gross)+'</div>'+
-            '<div style="font-size:13px;color:#34c759;font-weight:600">'+C+fN(c.net)+'</div>'+
+            '<div style="font-size:13px;font-weight:600;color:'+col.accent+'">'+
+              (bk.paid_out?"✓ выплачено":C+fN(c.oFin)+" ?")+
+            '</div>'+
           '</div>'+
         '</div>'+
       '</div>'+detail+
@@ -1131,25 +1164,34 @@ window.addExpInline=function(bkId,cat){
   if(pg2)pg2.scrollTop=st;
 };
 window.updExpField=function(id,field,val){
-  var e=DB.expenses.find(function(e){return e.id===id;});
+  var e=DB.expenses.find(function(x){return x.id===id;});
   if(!e)return;
   e[field]=val;
   dbSave();
-  // Rerender only for button-triggered fields, not text/number input
+  // Only rerender for button fields - preserve scroll for text inputs
   if(field==="currency"||field==="payer"){
-    var pg=document.querySelector(".bk-body");
+    var pg=document.querySelector(".modal .page")||document.querySelector(".page");
     var st=pg?pg.scrollTop:0;
     renderAptScreen();
-    var pg2=document.querySelector(".bk-body");
-    if(pg2)pg2.scrollTop=st;
+    setTimeout(function(){
+      var pg2=document.querySelector(".modal .page")||document.querySelector(".page");
+      if(pg2)pg2.scrollTop=st;
+    },0);
   }
 };
+
 window.delExpFromDetail=function(expId,bkId){
   if(!confirm("Удалить расход?"))return;
   DB.expenses=DB.expenses.filter(function(e){return e.id!==expId;});
   dbSave();
   apiDel("delete_expense",expId);
+  var pg=document.querySelector(".modal .page")||document.querySelector(".page");
+  var st=pg?pg.scrollTop:0;
   renderAptScreen();
+  setTimeout(function(){
+    var pg2=document.querySelector(".modal .page")||document.querySelector(".page");
+    if(pg2)pg2.scrollTop=st;
+  },0);
 };
 window.saveExpEdits=function(bkId){
   var exps=DB.expenses.filter(function(e){return String(e.booking_id)===String(bkId);});
@@ -1566,6 +1608,16 @@ setInterval(function(){if(V.screen!=="bkform"&&V.screen!=="aptform"&&V.screen!==
 try{if(window.Telegram&&window.Telegram.WebApp){window.Telegram.WebApp.ready();window.Telegram.WebApp.expand();}}catch(e){}
 // Skip onboarding for internal version
 lsSet("onboarded",true);
+// Clean bad expenses (amount = date string or >50000)
+DB.expenses=DB.expenses.filter(function(e){
+  if(!e.booking_id||e.booking_id==="")return false;
+  var v=String(e.amount||"");
+  if(v.includes("T00:00")||v.includes("-20")||v.match(/^\d{4}-\d{2}/))return false;
+  var n=parseFloat(v);
+  if(!isNaN(n)&&n>50000)return false;
+  return true;
+});
+dbSave();
 render();
 syncFull();
 </script>
