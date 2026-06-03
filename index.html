@@ -950,20 +950,37 @@ function renderAptScreen(){
       var expEditRows="";
       if(editingExps){
         var linked=DB.expenses.filter(function(e){return e.booking_id&&String(e.booking_id)===String(bk.id);});
+        var mainCats=["cleaning","supplies","repair","other"];
+        var utilCats=["telmico","gwp","energy","internet","tbilisi_clean"];
         expEditRows='<div style="margin-bottom:10px">'+
-          '<div class="sec" style="margin-bottom:8px">✏️ Редактирование расходов</div>'+
-          (linked.length===0?'<div class="mu" style="padding:10px 0;font-size:13px">Расходов нет</div>':"")+
+          // Add new expense buttons
+          '<div class="sec" style="margin-bottom:8px">Добавить расход</div>'+
+          '<div style="margin-bottom:6px;display:flex;flex-wrap:wrap;gap:6px">'+
+            mainCats.map(function(cat){
+              return'<button onclick="addExpInline(\''+bk.id+'\',\''+cat+'\')" style="background:#2c2c2e;border:none;border-radius:9px;padding:8px 12px;color:#fff;font-size:13px;cursor:pointer">+ '+(EXP_LABELS[cat]||cat)+'</button>';
+            }).join("")+
+          '</div>'+
+          '<div style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:6px">'+
+            utilCats.map(function(cat){
+              return'<button onclick="addExpInline(\''+bk.id+'\',\''+cat+'\')" style="background:#2c2c2e;border:none;border-radius:9px;padding:8px 12px;color:rgba(255,255,255,.6);font-size:12px;cursor:pointer">+ '+(EXP_LABELS[cat]||cat)+'</button>';
+            }).join("")+
+          '</div>'+
+          // Existing expenses
+          (linked.length?'<div class="sec" style="margin-bottom:8px">Текущие расходы</div>':"")+
           linked.map(function(e){
             var name=(EXP_LABELS[e.category||e.cat]||e.category||e.cat)+(e.provider?" "+e.provider:"");
             return'<div style="background:#2c2c2e;border-radius:12px;padding:12px;margin-bottom:8px">'+
-              '<div style="font-size:13px;font-weight:600;margin-bottom:8px">'+name+'</div>'+
-              '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-end">'+
+              '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'+
+                '<span style="font-size:13px;font-weight:600">'+name+'</span>'+
+                '<button class="btn btn-r btn-sm" onclick="delExpFromDetail(\''+e.id+'\',\''+bk.id+'\')" style="padding:4px 10px;font-size:12px">'+I.trash+'</button>'+
+              '</div>'+
+              '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">'+
                 '<div style="flex:1"><div class="mu" style="font-size:10px;margin-bottom:4px">Сумма</div>'+
                   '<input type="number" class="inp" value="'+(e.amount||0)+'" style="padding:9px 12px;font-size:15px" oninput="updExpField(\''+e.id+'\',\'amount\',this.value)" onchange="updExpField(\''+e.id+'\',\'amount\',this.value)"/></div>'+
                 '<div><div class="mu" style="font-size:10px;margin-bottom:4px">Валюта</div>'+
                   '<div style="display:flex;gap:4px">'+
-                    '<button class="cur-btn'+(e.currency==="USD"?" cusd":"")+'\" style="padding:8px 10px;font-size:13px" onclick="updExpField(\''+e.id+'\',\'currency\',\'USD\')">$</button>'+
-                    '<button class="cur-btn'+(e.currency==="GEL"?" cgel":"")+'\" style="padding:8px 10px;font-size:13px" onclick="updExpField(\''+e.id+'\',\'currency\',\'GEL\')">₾</button>'+
+                    '<button class="cur-btn'+(e.currency==="USD"?" cusd":"")+'\" style="padding:9px 12px;font-size:13px" onclick="updExpField(\''+e.id+'\',\'currency\',\'USD\')">$</button>'+
+                    '<button class="cur-btn'+(e.currency==="GEL"?" cgel":"")+'\" style="padding:9px 12px;font-size:13px" onclick="updExpField(\''+e.id+'\',\'currency\',\'GEL\')">₾</button>'+
                   '</div></div>'+
               '</div>'+
               '<div style="margin-bottom:8px"><div class="mu" style="font-size:10px;margin-bottom:4px">Кто оплатил</div>'+
@@ -973,10 +990,9 @@ function renderAptScreen(){
                 '</div></div>'+
               '<div><div class="mu" style="font-size:10px;margin-bottom:4px">Комментарий</div>'+
                 '<input type="text" class="inp" value="'+(e.comment||"")+'" placeholder="..." style="padding:9px 12px;font-size:14px" oninput="updExpField(\''+e.id+'\',\'comment\',this.value)" onchange="updExpField(\''+e.id+'\',\'comment\',this.value)"/></div>'+
-              '<div style="margin-top:8px;text-align:right"><button class="btn btn-r btn-sm" onclick="delExpFromDetail(\''+e.id+'\',\''+bk.id+'\')">'+I.trash+' Удалить</button></div>'+
             '</div>';
           }).join("")+
-          '<button style="width:100%;background:#34c759;border:none;border-radius:12px;padding:13px;color:#000;font-size:14px;font-weight:700;cursor:pointer;margin-top:2px" onclick="saveExpEdits(\''+bk.id+'\')">✓ Сохранить расходы</button>'+
+          '<button style="width:100%;background:#34c759;border:none;border-radius:12px;padding:13px;color:#000;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px" onclick="saveExpEdits(\''+bk.id+'\')">✓ Сохранить</button>'+
         '</div>';
       }
       detail='<div class="bk-body">'+
@@ -994,8 +1010,8 @@ function renderAptScreen(){
         (bk.comment?'<div style="padding:10px 14px;background:#1c1c1e;border-radius:12px;margin-bottom:10px"><div class="mu" style="margin-bottom:3px">'+t("comment")+'</div><div style="font-size:14px">'+bk.comment+'</div></div>':"")+
         // Expense editor toggle
         '<button style="width:100%;background:#2c2c2e;border:none;border-radius:12px;padding:11px 14px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between" onclick="V.editingExps=V.editingExps===\''+bk.id+'\'?null:\''+bk.id+'\';renderAptScreen()">'+
-          '<span>✏️ Расходы ('+c.exps.length+')</span>'+
-          '<span style="color:rgba(255,255,255,.4);font-size:12px">'+(editingExps?"Закрыть ▲":"Редактировать ▼")+'</span>'+
+          '<span>💳 Расходы ('+c.exps.length+')</span>'+
+          '<span style="color:rgba(255,255,255,.4);font-size:12px">'+(editingExps?"Закрыть ▲":"+ Добавить / Изменить ▼")+'</span>'+
         '</button>'+
         expEditRows+
         // Report
@@ -1093,7 +1109,15 @@ window.setPaidOut=function(id,val){
   var i=DB.bookings.findIndex(function(b){return b.id===id;});if(i>-1)DB.bookings[i]=bk;
   dbSave();renderAptScreen();pushBg("upsert_booking",bk);
 };
-window.updExpField=function(id,field,val){
+window.addExpInline=function(bkId,cat){
+  var bk=DB.bookings.find(function(b){return b.id===bkId;});
+  var defCur=(bk&&bk.income_currency)||"GEL";
+  var e={id:uid(),booking_id:bkId,apartment_id:bk?bk.apartment_id:"",category:cat,amount:"",currency:defCur,payer:"platform",comment:"",date:new Date().toISOString().slice(0,10)};
+  DB.expenses.push(e);
+  dbSave();
+  V.editingExps=bkId;
+  renderAptScreen();
+};
   var e=DB.expenses.find(function(e){return e.id===id;});
   if(!e)return;
   e[field]=field==="amount"?val:val; // keep as string for amount, will parse in calcBk
