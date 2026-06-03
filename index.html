@@ -462,7 +462,7 @@ function stBdg(s){var m={free:["b-g","Своб."],busy:["b-rd","Занято"],c
    VIEW STATE
 ═══════════════════════════════════════════════ */
 var V = {
-  tab:"apts",          // apts | dash | cleaning
+  tab:"home",          // home | apts | dash
   screen:null,         // null | apt | bkform | aptform | cleanform
   aptId:null,
   editBkId:null,
@@ -616,17 +616,16 @@ window.obBack=function(step){
    MAIN SCREEN
 ═══════════════════════════════════════════════ */
 function renderMain(){
-  // Show onboarding if first time
   if(lsGet("onboarded",false)===false){renderOnboarding();return;}
-  var content = V.tab==="apts" ? renderAptList() : renderDash();
-  root.innerHTML =
-    '<div id="root" style="display:flex;flex-direction:column;height:100dvh;overflow:hidden">'+
+  var tabs={home:renderHome,apts:renderAptList,dash:renderDash};
+  var content=(tabs[V.tab]||renderHome)();
+  var titles={home:"ApartFlow",apts:t("apts"),dash:t("analytics")};
+  root.innerHTML=
+    '<div style="display:flex;flex-direction:column;height:100dvh;overflow:hidden">'+
     '<div class="hdr"><div class="hdr-row">'+
-      '<div class="f1">'+
-        '<div style="font-size:18px;font-weight:700;letter-spacing:-.3px">'+
-          (V.tab==="apts"?t("apts"):t("analytics"))+
-        '</div>'+
-        (V.tab==="apts"?'<div class="mu" style="margin-top:2px">'+DB.apts.filter(function(a){return a.id&&a.apartment_name;}).length+' · Tbilisi</div>':"")+
+      '<div class="f1"><div style="font-size:18px;font-weight:700;letter-spacing:-.3px">'+titles[V.tab]+'</div>'+
+        (V.tab==="home"?'<div class="mu" style="margin-top:1px">'+new Date().toLocaleDateString(DB.lang==="ka"?"ka-GE":"ru-RU",{weekday:"long",day:"numeric",month:"long"})+'</div>':"")+
+        (V.tab==="apts"?'<div class="mu" style="margin-top:1px">'+DB.apts.filter(function(a){return a.id&&a.apartment_name;}).length+' · Tbilisi</div>':"")+
       '</div>'+
       '<div class="row" style="gap:8px">'+
         '<button onclick="DB.lang=DB.lang===\'ru\'?\'ka\':\'ru\';lsSet(\'lang\',DB.lang);render()" style="background:#2c2c2e;border:none;border-radius:10px;padding:7px 11px;color:rgba(255,255,255,.7);font-size:13px;font-weight:700;cursor:pointer">'+(DB.lang==="ru"?"🇬🇪":"🇷🇺")+'</button>'+
@@ -638,12 +637,113 @@ function renderMain(){
     '<div id="sync-bar"></div>'+
     '<div style="flex:1;overflow:hidden;display:flex;flex-direction:column"><div class="page">'+content+'</div></div>'+
     '<div class="nav">'+
-      '<button class="nav-btn'+(V.tab==="apts"?" on":"")+'\" onclick="V.tab=\'apts\';render()">'+I.home+'<span>'+t("apts")+'</span></button>'+
+      '<button class="nav-btn'+(V.tab==="home"?" on":"")+'\" onclick="V.tab=\'home\';render()">'+I.home+'<span>Главная</span></button>'+
+      '<button class="nav-btn'+(V.tab==="apts"?" on":"")+'\" onclick="V.tab=\'apts\';render()">'+
+        '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>'+
+        '<span>'+t("apts")+'</span>'+
+      '</button>'+
       '<button class="nav-btn'+(V.tab==="dash"?" on":"")+'\" onclick="V.tab=\'dash\';render()">'+I.bar+'<span>'+t("analytics")+'</span></button>'+
     '</div>'+
     '</div>';
   renderSyncBar();
 }
+
+/* ─── HOME SCREEN ─── */
+function renderHome(){
+  var today=new Date().toISOString().slice(0,10);
+  var soon=new Date();soon.setDate(soon.getDate()+7);
+  var soonStr=soon.toISOString().slice(0,10);
+  var apts=DB.apts.filter(function(a){return a.id&&a.apartment_name;});
+  if(!apts.length)return'<div class="empty">'+t("noApts")+'</div>';
+
+  var activeCount=DB.bookings.filter(function(b){
+    var ci=b.check_in&&b.check_in.slice(0,10);
+    var co=b.check_out&&b.check_out.slice(0,10);
+    return ci&&co&&ci<=today&&co>today;
+  }).length;
+  var upcomingCount=DB.bookings.filter(function(b){
+    var ci=b.check_in&&b.check_in.slice(0,10);
+    return ci&&ci>today&&ci<=soonStr;
+  }).length;
+  var unpaidTotal=DB.bookings.filter(function(b){return!b.paid_out;}).reduce(function(s,b){return s+calcBk(b).oFinUSD;},0);
+
+  var html=
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px">'+
+      mkStatTile(String(activeCount),"Заняты сейчас","#34c759")+
+      mkStatTile(String(upcomingCount),"Скоро заедут","#ffd60a")+
+      mkStatTile(unpaidTotal>0?"$"+fN(unpaidTotal):"✓","К выплате",unpaidTotal>0?"#ff9500":"#34c759")+
+    '</div>';
+
+  html+=apts.map(function(apt){
+    var abs=DB.bookings.filter(function(b){return String(b.apartment_id)===String(apt.id);})
+      .sort(function(a,b){return new Date(b.check_in)-new Date(a.check_in);})
+      .slice(0,4);
+    if(!abs.length){
+      return'<div style="margin-bottom:16px">'+aptRowHdr(apt,today)+'<div onclick="goAptNewBk(\''+apt.id+'\')" style="background:#1c1c1e;border-radius:12px;padding:12px;text-align:center;color:rgba(255,255,255,.25);font-size:13px;cursor:pointer">+ Добавить первое проживание</div></div>';
+    }
+    return'<div style="margin-bottom:20px">'+
+      aptRowHdr(apt,today)+
+      '<div style="display:flex;flex-direction:column;gap:6px">'+
+        abs.map(function(bk){return bkTile(bk,today,soonStr);}).join("")+
+        '<div onclick="goAptNewBk(\''+apt.id+'\')" style="background:none;border:1px dashed rgba(255,255,255,.1);border-radius:12px;padding:10px;text-align:center;color:rgba(255,255,255,.25);font-size:13px;cursor:pointer">+ Добавить проживание</div>'+
+      '</div>'+
+    '</div>';
+  }).join("");
+  return html;
+}
+
+function mkStatTile(val,lbl,color){
+  return'<div style="background:#1c1c1e;border-radius:14px;padding:12px 10px;text-align:center">'+
+    '<div style="font-size:20px;font-weight:700;color:'+color+';letter-spacing:-.3px">'+val+'</div>'+
+    '<div class="mu" style="font-size:10px;margin-top:3px">'+lbl+'</div>'+
+  '</div>';
+}
+
+function aptRowHdr(apt,today){
+  var stColors={free:"#34c759",busy:"#ff453a",clean:"#ffd60a",tech:"#8e8e93"};
+  var status=apt.status||"free";
+  return'<div onclick="goApt(\''+apt.id+'\')" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;cursor:pointer;padding:2px 0">'+
+    '<div style="display:flex;align-items:center;gap:8px">'+
+      '<div style="width:8px;height:8px;border-radius:50%;background:'+(stColors[status]||"#34c759")+';flex-shrink:0"></div>'+
+      '<span style="font-size:15px;font-weight:600;letter-spacing:-.2px">'+apt.apartment_name+'</span>'+
+    '</div>'+
+    '<div style="display:flex;align-items:center;gap:8px">'+
+      (apt.owner_name?'<span class="mu" style="font-size:12px">'+apt.owner_name+'</span>':"")+
+      '<span style="color:rgba(255,255,255,.25);font-size:20px;line-height:1">›</span>'+
+    '</div>'+
+  '</div>';
+}
+
+function bkTile(bk,today,soonStr){
+  var c=calcBk(bk);
+  var ci=bk.check_in&&bk.check_in.slice(0,10);
+  var co=bk.check_out&&bk.check_out.slice(0,10);
+  var isActive=ci&&co&&ci<=today&&co>today;
+  var isUpcoming=ci&&ci>today&&ci<=soonStr;
+  var accent=isActive?"#34c759":isUpcoming?"#ffd60a":"rgba(255,255,255,.1)";
+  return'<div onclick="goAptBk(\''+bk.apartment_id+'\',\''+bk.id+'\')" style="background:#1c1c1e;border-radius:12px;padding:12px 14px;cursor:pointer;border-left:3px solid '+accent+';display:flex;align-items:center;gap:12px">'+
+    '<div style="flex:1;min-width:0">'+
+      '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap">'+
+        '<span style="font-size:13px;font-weight:600">'+(bk.guest_name||"—")+'</span>'+
+        (isActive?'<span style="font-size:10px;background:rgba(52,199,89,.15);color:#34c759;padding:2px 7px;border-radius:99px;font-weight:700">● Сейчас</span>':"")+
+        (isUpcoming?'<span style="font-size:10px;background:rgba(255,214,10,.12);color:#ffd60a;padding:2px 7px;border-radius:99px;font-weight:600">Скоро</span>':"")+
+        (bk.paid_out?'<span style="font-size:10px;color:#34c759">💸</span>':"")+
+      '</div>'+
+      '<div class="mu" style="font-size:11px">'+fD(bk.check_in)+' — '+fD(bk.check_out)+'</div>'+
+    '</div>'+
+    '<div style="text-align:right;flex-shrink:0">'+
+      '<div style="font-size:14px;font-weight:700">'+cs(c.cur)+fN(c.gross)+'</div>'+
+      '<div style="font-size:12px;color:#34c759;font-weight:600">'+cs(c.cur)+fN(c.net)+'</div>'+
+    '</div>'+
+  '</div>';
+}
+
+window.goAptBk=function(aptId,bkId){
+  V.aptId=aptId;V.screen="apt";V.expOpen={};V.expOpen[bkId]=true;V.editingExps=null;render();
+};
+window.goAptNewBk=function(aptId){
+  V.aptId=aptId;V.editBkId=null;BKF=null;_bkTab="main";V.screen="bkform";render();
+};
 
 /* ─── APT LIST ─── */
 function renderAptList(){
@@ -859,7 +959,7 @@ function renderAptScreen(){
               '<div style="font-size:13px;font-weight:600;margin-bottom:8px">'+name+'</div>'+
               '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-end">'+
                 '<div style="flex:1"><div class="mu" style="font-size:10px;margin-bottom:4px">Сумма</div>'+
-                  '<input type="number" class="inp" value="'+(e.amount||0)+'" style="padding:9px 12px;font-size:15px" onchange="updExpField(\''+e.id+'\',\'amount\',this.value)"/></div>'+
+                  '<input type="number" class="inp" value="'+(e.amount||0)+'" style="padding:9px 12px;font-size:15px" oninput="updExpField(\''+e.id+'\',\'amount\',this.value)" onchange="updExpField(\''+e.id+'\',\'amount\',this.value)"/></div>'+
                 '<div><div class="mu" style="font-size:10px;margin-bottom:4px">Валюта</div>'+
                   '<div style="display:flex;gap:4px">'+
                     '<button class="cur-btn'+(e.currency==="USD"?" cusd":"")+'\" style="padding:8px 10px;font-size:13px" onclick="updExpField(\''+e.id+'\',\'currency\',\'USD\')">$</button>'+
@@ -872,11 +972,11 @@ function renderAptScreen(){
                   '<button class="pay-btn'+(e.payer==="owner"?" p-on":"")+'\" onclick="updExpField(\''+e.id+'\',\'payer\',\'owner\')">Собственник</button>'+
                 '</div></div>'+
               '<div><div class="mu" style="font-size:10px;margin-bottom:4px">Комментарий</div>'+
-                '<input type="text" class="inp" value="'+(e.comment||"")+'" placeholder="..." style="padding:9px 12px;font-size:14px" onchange="updExpField(\''+e.id+'\',\'comment\',this.value)"/></div>'+
+                '<input type="text" class="inp" value="'+(e.comment||"")+'" placeholder="..." style="padding:9px 12px;font-size:14px" oninput="updExpField(\''+e.id+'\',\'comment\',this.value)" onchange="updExpField(\''+e.id+'\',\'comment\',this.value)"/></div>'+
               '<div style="margin-top:8px;text-align:right"><button class="btn btn-r btn-sm" onclick="delExpFromDetail(\''+e.id+'\',\''+bk.id+'\')">'+I.trash+' Удалить</button></div>'+
             '</div>';
           }).join("")+
-          '<button style="width:100%;background:none;border:1px dashed rgba(255,255,255,.15);border-radius:12px;padding:11px;color:rgba(255,255,255,.4);font-size:13px;cursor:pointer;margin-top:2px" onclick="saveExpEdits(\''+bk.id+'\')">✓ Сохранить расходы</button>'+
+          '<button style="width:100%;background:#34c759;border:none;border-radius:12px;padding:13px;color:#000;font-size:14px;font-weight:700;cursor:pointer;margin-top:2px" onclick="saveExpEdits(\''+bk.id+'\')">✓ Сохранить расходы</button>'+
         '</div>';
       }
       detail='<div class="bk-body">'+
@@ -996,10 +1096,13 @@ window.setPaidOut=function(id,val){
 window.updExpField=function(id,field,val){
   var e=DB.expenses.find(function(e){return e.id===id;});
   if(!e)return;
-  e[field]=val;
+  e[field]=field==="amount"?val:val; // keep as string for amount, will parse in calcBk
   dbSave();
-  // Re-render to update currency buttons etc
-  if(field==="currency"||field==="payer")renderAptScreen();
+  // Only full rerender for button fields (currency/payer) - they need visual update
+  if(field==="currency"||field==="payer"){
+    renderAptScreen();
+  }
+  // For amount/comment - just save silently, no rerender (avoids scroll jump)
 };
 window.delExpFromDetail=function(expId,bkId){
   if(!confirm("Удалить расход?"))return;
@@ -1011,6 +1114,7 @@ window.delExpFromDetail=function(expId,bkId){
 window.saveExpEdits=function(bkId){
   var exps=DB.expenses.filter(function(e){return String(e.booking_id)===String(bkId);});
   dbSave();
+  // Push all to Sheets in parallel
   exps.forEach(function(e){pushBg("upsert_expense",e);});
   V.editingExps=null;
   renderAptScreen();
