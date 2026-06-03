@@ -467,6 +467,7 @@ var V = {
   aptId:null,
   editBkId:null,
   editClId:null,
+  editingExps:null,    // booking id whose expenses are being edited
   expOpen:{},
   rptLang:"ru",
   dashApt:"all", dashMonth:"",
@@ -676,7 +677,7 @@ function renderAptList(){
   }).join("");
 }
 
-window.goApt=function(id){V.aptId=id;V.screen="apt";V.expOpen={};render();};
+window.goApt=function(id){V.aptId=id;V.screen="apt";V.expOpen={};V.editingExps=null;render();};
 window.goNewApt=function(){APTF=null;V.screen="aptform";render();};
 
 /* ─── DASH ─── */
@@ -840,8 +841,44 @@ function renderAptScreen(){
       var rpt=makeReport(apt,bk,c,V.rptLang);
       var expRows=c.exps.filter(function(e){return e.inB>0;}).map(function(e){
         var name=(EXP_LABELS[e.category||e.cat]||e.category||e.cat)+(e.provider?" "+e.provider:"");
-        return'<div class="crow ind"><span class="cl">• '+name+'</span><span class="cv neg">-'+cs(e.currency)+fN(e.amt)+'</span></div>';
+        var payerLbl=e.payer==="owner"?"[Собственник]":"[Платформа]";
+        return'<div class="crow ind"><span class="cl">• '+name+' <span style="color:rgba(255,255,255,.2);font-size:10px">'+payerLbl+'</span></span><span class="cv neg">-'+cs(e.currency)+fN(e.amt)+'</span></div>';
       }).join("");
+
+      // Inline expense editor rows
+      var editingExps=V.editingExps===bk.id;
+      var expEditRows="";
+      if(editingExps){
+        var linked=DB.expenses.filter(function(e){return e.booking_id&&String(e.booking_id)===String(bk.id);});
+        expEditRows='<div style="margin-bottom:10px">'+
+          '<div class="sec" style="margin-bottom:8px">✏️ Редактирование расходов</div>'+
+          (linked.length===0?'<div class="mu" style="padding:10px 0;font-size:13px">Расходов нет</div>':"")+
+          linked.map(function(e){
+            var name=(EXP_LABELS[e.category||e.cat]||e.category||e.cat)+(e.provider?" "+e.provider:"");
+            return'<div style="background:#2c2c2e;border-radius:12px;padding:12px;margin-bottom:8px">'+
+              '<div style="font-size:13px;font-weight:600;margin-bottom:8px">'+name+'</div>'+
+              '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-end">'+
+                '<div style="flex:1"><div class="mu" style="font-size:10px;margin-bottom:4px">Сумма</div>'+
+                  '<input type="number" class="inp" value="'+(e.amount||0)+'" style="padding:9px 12px;font-size:15px" onchange="updExpField(\''+e.id+'\',\'amount\',this.value)"/></div>'+
+                '<div><div class="mu" style="font-size:10px;margin-bottom:4px">Валюта</div>'+
+                  '<div style="display:flex;gap:4px">'+
+                    '<button class="cur-btn'+(e.currency==="USD"?" cusd":"")+'\" style="padding:8px 10px;font-size:13px" onclick="updExpField(\''+e.id+'\',\'currency\',\'USD\')">$</button>'+
+                    '<button class="cur-btn'+(e.currency==="GEL"?" cgel":"")+'\" style="padding:8px 10px;font-size:13px" onclick="updExpField(\''+e.id+'\',\'currency\',\'GEL\')">₾</button>'+
+                  '</div></div>'+
+              '</div>'+
+              '<div style="margin-bottom:8px"><div class="mu" style="font-size:10px;margin-bottom:4px">Кто оплатил</div>'+
+                '<div style="display:flex;gap:6px">'+
+                  '<button class="pay-btn'+(e.payer==="platform"?" p-on":"")+'\" onclick="updExpField(\''+e.id+'\',\'payer\',\'platform\')">Платформа</button>'+
+                  '<button class="pay-btn'+(e.payer==="owner"?" p-on":"")+'\" onclick="updExpField(\''+e.id+'\',\'payer\',\'owner\')">Собственник</button>'+
+                '</div></div>'+
+              '<div><div class="mu" style="font-size:10px;margin-bottom:4px">Комментарий</div>'+
+                '<input type="text" class="inp" value="'+(e.comment||"")+'" placeholder="..." style="padding:9px 12px;font-size:14px" onchange="updExpField(\''+e.id+'\',\'comment\',this.value)"/></div>'+
+              '<div style="margin-top:8px;text-align:right"><button class="btn btn-r btn-sm" onclick="delExpFromDetail(\''+e.id+'\',\''+bk.id+'\')">'+I.trash+' Удалить</button></div>'+
+            '</div>';
+          }).join("")+
+          '<button style="width:100%;background:none;border:1px dashed rgba(255,255,255,.15);border-radius:12px;padding:11px;color:rgba(255,255,255,.4);font-size:13px;cursor:pointer;margin-top:2px" onclick="saveExpEdits(\''+bk.id+'\')">✓ Сохранить расходы</button>'+
+        '</div>';
+      }
       detail='<div class="bk-body">'+
         '<div class="cbox">'+
           '<div class="crow"><span class="cl">'+t("arrived")+'</span><span class="cv">'+C+fN(c.gross)+'</span></div>'+
@@ -855,6 +892,12 @@ function renderAptScreen(){
           '<div class="crow ind"><span class="cl">'+(apt.owner_name||t("owner"))+' ('+c.oPct+'%)</span><span class="cv pos">'+C+fN(c.oFin)+'</span></div>'+
         '</div>'+
         (bk.comment?'<div style="padding:10px 14px;background:#1c1c1e;border-radius:12px;margin-bottom:10px"><div class="mu" style="margin-bottom:3px">'+t("comment")+'</div><div style="font-size:14px">'+bk.comment+'</div></div>':"")+
+        // Expense editor toggle
+        '<button style="width:100%;background:#2c2c2e;border:none;border-radius:12px;padding:11px 14px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between" onclick="V.editingExps=V.editingExps===\''+bk.id+'\'?null:\''+bk.id+'\';renderAptScreen()">'+
+          '<span>✏️ Расходы ('+c.exps.length+')</span>'+
+          '<span style="color:rgba(255,255,255,.4);font-size:12px">'+(editingExps?"Закрыть ▲":"Редактировать ▼")+'</span>'+
+        '</button>'+
+        expEditRows+
         // Report
         '<div style="margin-bottom:10px">'+
           '<div class="row" style="justify-content:space-between;margin-bottom:8px">'+
@@ -950,7 +993,28 @@ window.setPaidOut=function(id,val){
   var i=DB.bookings.findIndex(function(b){return b.id===id;});if(i>-1)DB.bookings[i]=bk;
   dbSave();renderAptScreen();pushBg("upsert_booking",bk);
 };
-window.goEditBk=function(id){V.editBkId=id;BKF=null;_bkTab="main";V.screen="bkform";render();};
+window.updExpField=function(id,field,val){
+  var e=DB.expenses.find(function(e){return e.id===id;});
+  if(!e)return;
+  e[field]=val;
+  dbSave();
+  // Re-render to update currency buttons etc
+  if(field==="currency"||field==="payer")renderAptScreen();
+};
+window.delExpFromDetail=function(expId,bkId){
+  if(!confirm("Удалить расход?"))return;
+  DB.expenses=DB.expenses.filter(function(e){return e.id!==expId;});
+  dbSave();
+  apiDel("delete_expense",expId);
+  renderAptScreen();
+};
+window.saveExpEdits=function(bkId){
+  var exps=DB.expenses.filter(function(e){return String(e.booking_id)===String(bkId);});
+  dbSave();
+  exps.forEach(function(e){pushBg("upsert_expense",e);});
+  V.editingExps=null;
+  renderAptScreen();
+};
 window.doDelBk=function(id){
   if(!confirm("Удалить проживание?"))return;
   DB.bookings=DB.bookings.filter(function(b){return b.id!==id;});
