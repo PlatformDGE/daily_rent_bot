@@ -905,6 +905,8 @@ window.goNewClean=function(){CLF=null;V.screen="cleanform";render();};
 function getApt(id){return DB.apts.find(function(a){return String(a.id)===String(id);});}
 
 function renderAptScreen(){
+  var pg=document.querySelector(".modal .page");
+  var savedScroll=pg?pg.scrollTop:0;
   var apt=getApt(V.aptId);
   if(!apt){V.screen=null;render();return;}
   var abs=DB.bookings.filter(function(b){return String(b.apartment_id)===String(apt.id);}).sort(function(a,b){return new Date(b.check_in)-new Date(a.check_in);});
@@ -1088,6 +1090,11 @@ function renderAptScreen(){
     '</div>'+
     '<div class="fab-bar"><button class="fab" onclick="goNewBk()">'+I.plus+' '+t("addBooking")+'</button></div>'+
     '</div>';
+  // Restore scroll position
+  if(savedScroll>0){
+    var newPg=document.querySelector(".modal .page");
+    if(newPg)newPg.scrollTop=savedScroll;
+  }
 }
 
 window.setAptStatus=function(st){
@@ -1116,7 +1123,12 @@ window.addExpInline=function(bkId,cat){
   DB.expenses.push(e);
   dbSave();
   V.editingExps=bkId;
+  // Save scroll position, rerender, restore
+  var pg=document.querySelector(".page");
+  var st=pg?pg.scrollTop:0;
   renderAptScreen();
+  var pg2=document.querySelector(".page");
+  if(pg2)pg2.scrollTop=st;
 };
 window.updExpField=function(id,field,val){
   var e=DB.expenses.find(function(e){return e.id===id;});
@@ -1142,10 +1154,15 @@ window.delExpFromDetail=function(expId,bkId){
 window.saveExpEdits=function(bkId){
   var exps=DB.expenses.filter(function(e){return String(e.booking_id)===String(bkId);});
   dbSave();
-  // Push all to Sheets in parallel
   exps.forEach(function(e){pushBg("upsert_expense",e);});
-  V.editingExps=null;
-  renderAptScreen();
+  // Show brief confirmation without closing or scrolling
+  var btn=document.querySelector("[onclick=\"saveExpEdits('"+bkId+"')\"]");
+  if(btn){
+    var orig=btn.innerHTML;
+    btn.innerHTML="✓ Сохранено!";
+    btn.style.background="#1a7a35";
+    setTimeout(function(){if(btn){btn.innerHTML=orig;btn.style.background="#34c759";}},1500);
+  }
 };
 window.doDelBk=function(id){
   if(!confirm("Удалить проживание?"))return;
