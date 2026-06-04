@@ -1176,7 +1176,38 @@ function renderAptScreen(){
           '<div class="crow ind"><span class="cl">'+(apt.owner_name||t("owner"))+' ('+c.oPct+'%)</span><span class="cv pos">'+C+fN(c.oFin)+'</span></div>'+
         '</div>'+
         (bk.comment?'<div style="padding:10px 14px;background:#1c1c1e;border-radius:12px;margin-bottom:10px"><div class="mu" style="margin-bottom:3px">'+t("comment")+'</div><div style="font-size:14px">'+bk.comment+'</div></div>':"")+
-        // Expense editor toggle
+        // Inline commission editor
+        '<div style="background:#1c1c1e;border-radius:12px;padding:12px 14px;margin-bottom:10px">'+
+          '<div class="sec" style="margin-bottom:10px">Комиссии и налоги</div>'+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">'+
+            // Platform %
+            '<div>'+
+              '<div class="mu" style="font-size:10px;margin-bottom:4px">Доля платформы %</div>'+
+              '<div style="display:flex;align-items:center;gap:6px">'+
+                '<input type="number" class="inp" value="'+(bk.platform_pct||20)+'" min="0" max="100" style="padding:8px 10px;font-size:15px" '+
+                  'oninput="updBkField(\''+bk.id+'\',\'platform_pct\',this.value)" onchange="updBkField(\''+bk.id+'\',\'platform_pct\',this.value)"/>'+
+                '<span class="mu">%</span>'+
+              '</div>'+
+            '</div>'+
+            // Tax %
+            '<div>'+
+              '<div class="mu" style="font-size:10px;margin-bottom:4px">Налог %</div>'+
+              '<div style="display:flex;align-items:center;gap:6px">'+
+                '<input type="number" class="inp" value="'+(bk.tax_pct||0)+'" min="0" max="100" step="0.1" style="padding:8px 10px;font-size:15px" '+
+                  'oninput="updBkField(\''+bk.id+'\',\'tax_pct\',this.value)" onchange="updBkField(\''+bk.id+'\',\'tax_pct\',this.value)"/>'+
+                '<span class="mu">%</span>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+          // Booking fee
+          (bk.platform==="Booking"?
+            '<div>'+
+              '<div class="mu" style="font-size:10px;margin-bottom:4px">Комиссия Booking ('+cs(c.cur)+')</div>'+
+              '<input type="number" class="inp" value="'+(bk.booking_fee||"")+'" placeholder="0" style="padding:8px 10px;font-size:15px" '+
+                'oninput="updBkField(\''+bk.id+'\',\'booking_fee\',this.value)" onchange="updBkField(\''+bk.id+'\',\'booking_fee\',this.value)"/>'+
+            '</div>'
+          :"")+
+        '</div>'+
         '<button style="width:100%;background:#2c2c2e;border:none;border-radius:12px;padding:11px 14px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between" onclick="V.editingExps=V.editingExps===\''+bk.id+'\'?null:\''+bk.id+'\';renderAptScreen()">'+
           '<span>💳 Расходы ('+c.exps.length+')</span>'+
           '<span style="color:rgba(255,255,255,.4);font-size:12px">'+(editingExps?"Закрыть ▲":"+ Добавить / Изменить ▼")+'</span>'+
@@ -1361,7 +1392,24 @@ window.saveExpEdits=function(bkId){
     },1500);
   }
 };
-window.doDelBk=function(id){
+window.updBkField=function(bkId,field,val){
+  var bk=DB.bookings.find(function(b){return b.id===bkId;});
+  if(!bk)return;
+  bk[field]=val;
+  dbSave();
+  // Update calc box and report live in DOM
+  var apt=getApt(V.aptId);
+  if(apt){
+    var c=calcBk(bk);
+    if(window._RPT)window._RPT[bkId]={apt:apt,bk:bk,c:c};
+    var cboxEl=document.getElementById("cbox-"+bkId);
+    if(cboxEl)cboxEl.innerHTML=calcBox(c,apt.owner_name).replace(/^<div class="cbox">/,"").replace(/<\/div>$/,"");
+    var rptEl=document.getElementById("rpt-"+bkId);
+    if(rptEl)rptEl.textContent=makeReport(apt,bk,c,V.rptLang);
+  }
+  // Push to Sheets in background
+  pushBg("upsert_booking",bk);
+};
   if(!confirm("Удалить проживание?"))return;
   DB.bookings=DB.bookings.filter(function(b){return b.id!==id;});
   DB.expenses=DB.expenses.filter(function(e){return e.booking_id!==id;});
