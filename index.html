@@ -312,7 +312,13 @@ function syncFull(){
     DB.bookings=(data.bookings||[]).map(function(b){
       var id=String(b.id||uid());
       var loc=DB.bookings.find(function(x){return x.id===id;});
-      var m=Object.assign({},b,{id:id});
+      // Normalize dates - strip time part
+      var ci=String(b.check_in||"").slice(0,10);
+      var co=String(b.check_out||"").slice(0,10);
+      // Infer currency if missing
+      var cur=b.income_currency;
+      if(!cur||cur===""){cur=(b.platform==="Booking"?"GEL":"USD");}
+      var m=Object.assign({},b,{id:id,check_in:ci,check_out:co,income_currency:cur});
       if(loc){
         LOCAL_BK_KEYS.forEach(function(f){if(loc[f]!==undefined&&loc[f]!==""&&(m[f]===undefined||m[f]===""))m[f]=loc[f];});
         if(loc.paid_out===true){m.paid_out=true;m.paid_out_at=loc.paid_out_at;}
@@ -367,7 +373,8 @@ function pushBg(action,data){
 function calcBk(bk){
   var rate=DB.rate;
   var plat=bk.platform||"Airbnb";
-  var cur=bk.income_currency||(plat==="Airbnb"?"USD":"GEL");  var gross=parseFloat(bk.gross_income)||0;
+  var cur=bk.income_currency||(plat==="Booking"?"GEL":"USD");
+  var gross=parseFloat(bk.gross_income)||0;
   var taxPct=parseFloat(bk.tax_pct)||0;
   var tax=parseFloat((gross*taxPct/100).toFixed(2));
   var afterTax=parseFloat((gross-tax).toFixed(2));
@@ -375,16 +382,16 @@ function calcBk(bk){
   var exps=DB.expenses.filter(function(e){
     if(!e.booking_id||e.booking_id===""||e.booking_id==="undefined")return false;
     if(String(e.booking_id)!==String(bk.id))return false;
-    // Skip expenses with invalid amounts (date strings, etc)
-    var v=parseFloat(e.amount);
-    if(isNaN(v)||v<0||v>50000)return false;
+    var amt=parseFloat(e.amount);
+    if(isNaN(amt)||amt<=0||amt>50000)return false; // skip zero amounts
     var raw=String(e.amount||"");
-    if(raw.includes("T")||raw.includes("-20"))return false;
+    if(raw.includes("T")||raw.match(/^\d{4}-\d{2}/))return false;
     return true;
   }).map(function(e){
     var amt=parseFloat(e.amount)||0;
-    var inB=cur==="USD"?(e.currency==="USD"?amt:parseFloat((amt/rate).toFixed(2))):(e.currency==="GEL"?amt:parseFloat((amt*rate).toFixed(2)));
-    return Object.assign({},e,{amt:amt,inB:inB});
+    var eCur=(e.currency==="USD"||e.currency==="GEL")?e.currency:"GEL";
+    var inB=cur==="USD"?(eCur==="USD"?amt:parseFloat((amt/rate).toFixed(2))):(eCur==="GEL"?amt:parseFloat((amt*rate).toFixed(2)));
+    return Object.assign({},e,{amt:amt,inB:inB,currency:eCur});
   });
   var totalExp=parseFloat(exps.reduce(function(s,e){return s+e.inB;},0).toFixed(2));
   var net=parseFloat((afterTax-totalExp-bookFee).toFixed(2));
@@ -396,8 +403,13 @@ function calcBk(bk){
   var expOwn=parseFloat(exps.filter(function(e){return e.payer==="owner";}).reduce(function(s,e){return s+e.inB;},0).toFixed(2));
   var dFin=parseFloat((dBase+expPlat+bookFee).toFixed(2));
   var oFin=parseFloat((oBase+expOwn).toFixed(2));
-  return{gross:gross,tax:tax,taxPct:taxPct,bookFee:bookFee,exps:exps,totalExp:totalExp,
-    net:net,dPct:dPct,oPct:oPct,dBase:dBase,oBase:oBase,dFin:dFin,oFin:oFin,
+  return{gross:gross,tax:tax,taxPct:taxPct,afterTax:afterTax,bookFee:bookFee,
+    exps:exps,totalExp:totalExp,net:net,dPct:dPct,oPct:oPct,
+    dBase:dBase,oBase:oBase,expPlat:expPlat,expOwn:expOwn,
+    dFin:dFin,oFin:oFin,cur:cur,plat:plat,
+    grossUSD:toUSD(gross,cur,rate),netUSD:toUSD(net,cur,rate),
+    dFinUSD:toUSD(dFin,cur,rate),oFinUSD:toUSD(oFin,cur,rate)};
+}
     cur:cur,plat:plat,
     netUSD:toUSD(net,cur,rate),dFinUSD:toUSD(dFin,cur,rate),oFinUSD:toUSD(oFin,cur,rate)};
 }
@@ -636,9 +648,9 @@ window.obBack=function(step){
 ═══════════════════════════════════════════════ */
 function renderMain(){
   if(lsGet("onboarded",false)===false){renderOnboarding();return;}
-  var tabs={home:renderHome,apts:renderAptList,dash:renderDash};
+  var tabs={home:renderHome,apts:renderAptList,dash:renderDash,cal:renderCalendar};
   var content=(tabs[V.tab]||renderHome)();
-  var titles={home:"ApartFlow",apts:t("apts"),dash:t("analytics")};
+  var titles={home:"ApartFlow",apts:t("apts"),dash:t("analytics"),cal:"Календарь"};
   root.innerHTML=
     '<div style="display:flex;flex-direction:column;height:100dvh;overflow:hidden">'+
     '<div class="hdr"><div class="hdr-row">'+
@@ -661,11 +673,119 @@ function renderMain(){
         '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>'+
         '<span>'+t("apts")+'</span>'+
       '</button>'+
+      '<button class="nav-btn'+(V.tab==="cal"?" on":"")+'\" onclick="V.tab=\'cal\';render()">'+
+        '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>'+
+        '<span>Календарь</span>'+
+      '</button>'+
       '<button class="nav-btn'+(V.tab==="dash"?" on":"")+'\" onclick="V.tab=\'dash\';render()">'+I.bar+'<span>'+t("analytics")+'</span></button>'+
     '</div>'+
     '</div>';
   renderSyncBar();
 }
+
+/* ─── CALENDAR ─── */
+var calMonth=null; // null = current month
+
+function renderCalendar(){
+  var now=new Date();
+  var base=calMonth?new Date(calMonth+"-01"):new Date(now.getFullYear(),now.getMonth(),1);
+  var year=base.getFullYear();
+  var month=base.getMonth();
+  var monthStr=(year+"-"+String(month+1).padStart(2,"0"));
+  var daysInMonth=new Date(year,month+1,0).getDate();
+  var firstDay=(new Date(year,month,1).getDay()+6)%7; // Mon=0
+  var today=now.toISOString().slice(0,10);
+
+  // Month header
+  var monthName=base.toLocaleDateString(DB.lang==="ka"?"ka-GE":"ru-RU",{month:"long",year:"numeric"});
+
+  // Day headers
+  var dayHeaders=["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map(function(d){
+    return'<div style="text-align:center;font-size:10px;font-weight:600;color:rgba(255,255,255,.3);padding:4px 0">'+d+'</div>';
+  }).join("");
+
+  // Build days grid
+  var apts=DB.apts.filter(function(a){return a.id&&a.apartment_name;});
+  var aptColors=["#0a84ff","#34c759","#ff9500","#ff453a","#bf5af2","#ffd60a","#32ade6"];
+
+  // Build cells
+  var cells=[];
+  var totalCells=firstDay+daysInMonth;
+  var rows=Math.ceil(totalCells/7);
+  for(var i=0;i<rows*7;i++){
+    var dayNum=i-firstDay+1;
+    var isValid=dayNum>=1&&dayNum<=daysInMonth;
+    var dateStr=isValid?(year+"-"+String(month+1).padStart(2,"0")+"-"+String(dayNum).padStart(2,"0")):"";
+    var isToday=dateStr===today;
+
+    // Find bookings active on this day
+    var activeBks=isValid?DB.bookings.filter(function(b){
+      var ci=(b.check_in||"").slice(0,10);
+      var co=(b.check_out||"").slice(0,10);
+      return ci&&co&&ci<=dateStr&&co>dateStr;
+    }):[];
+
+    var dots=activeBks.slice(0,4).map(function(bk){
+      var aptIdx=apts.findIndex(function(a){return String(a.id)===String(bk.apartment_id);});
+      var col=aptColors[aptIdx%aptColors.length];
+      var apt=apts[aptIdx];
+      return'<div style="width:6px;height:6px;border-radius:50%;background:'+col+';flex-shrink:0" title="'+(apt?apt.apartment_name:"")+'"></div>';
+    }).join("");
+
+    cells.push(
+      '<div onclick="'+(isValid&&activeBks.length?"showCalDay('"+dateStr+"')":"")+'" '+
+      'style="min-height:44px;padding:4px;border-radius:8px;background:'+(isToday?"rgba(10,132,255,.15)":"transparent")+';cursor:'+(isValid&&activeBks.length?"pointer":"default")+'">'+
+        (isValid?'<div style="font-size:12px;font-weight:'+(isToday?"700":"400")+';color:'+(isToday?"#0a84ff":activeBks.length?"#fff":"rgba(255,255,255,.3)")+';margin-bottom:3px">'+dayNum+'</div>':'<div></div>')+
+        (dots?'<div style="display:flex;flex-wrap:wrap;gap:2px">'+dots+'</div>':"")+
+      '</div>'
+    );
+  }
+
+  // Legend
+  var legend=apts.map(function(apt,i){
+    var bksThisMonth=DB.bookings.filter(function(b){
+      return String(b.apartment_id)===String(apt.id)&&(b.check_in||"").slice(0,7)===monthStr;
+    });
+    if(!bksThisMonth.length)return"";
+    return'<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">'+
+      '<div style="width:10px;height:10px;border-radius:50%;background:'+aptColors[i%aptColors.length]+';flex-shrink:0"></div>'+
+      '<span style="font-size:12px;color:rgba(255,255,255,.7)">'+apt.apartment_name+'</span>'+
+      '<span class="mu" style="margin-left:auto">'+bksThisMonth.length+' прожив.</span>'+
+    '</div>';
+  }).join("");
+
+  // Summary: how many nights occupied per apt this month
+  var occupied=apts.filter(function(a){
+    return DB.bookings.some(function(b){
+      return String(b.apartment_id)===String(a.id)&&(b.check_in||"").slice(0,7)===monthStr;
+    });
+  }).length;
+
+  return'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'+
+    '<button onclick="var d=new Date(\''+year+'-'+String(month+1).padStart(2,'0')+'-01\');d.setMonth(d.getMonth()-1);calMonth=d.getFullYear()+\'-\'+String(d.getMonth()+1).padStart(2,\'0\');render()" style="background:#2c2c2e;border:none;border-radius:10px;padding:8px 14px;color:#fff;font-size:16px;cursor:pointer">‹</button>'+
+    '<div style="text-align:center">'+
+      '<div style="font-size:16px;font-weight:600;text-transform:capitalize">'+monthName+'</div>'+
+      '<div class="mu" style="font-size:11px">'+occupied+' квартир занято</div>'+
+    '</div>'+
+    '<button onclick="var d=new Date(\''+year+'-'+String(month+1).padStart(2,'0')+'-01\');d.setMonth(d.getMonth()+1);calMonth=d.getFullYear()+\'-\'+String(d.getMonth()+1).padStart(2,\'0\');render()" style="background:#2c2c2e;border:none;border-radius:10px;padding:8px 14px;color:#fff;font-size:16px;cursor:pointer">›</button>'+
+  '</div>'+
+  '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:12px">'+dayHeaders+'</div>'+
+  '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:16px">'+cells.join("")+'</div>'+
+  (legend?'<div style="background:#1c1c1e;border-radius:12px;padding:12px 14px"><div class="sec" style="margin-bottom:8px">Легенда</div>'+legend+'</div>':"");
+}
+
+window.showCalDay=function(dateStr){
+  var bks=DB.bookings.filter(function(b){
+    var ci=(b.check_in||"").slice(0,10);
+    var co=(b.check_out||"").slice(0,10);
+    return ci&&co&&ci<=dateStr&&co>dateStr;
+  });
+  var msg=bks.map(function(bk){
+    var apt=DB.apts.find(function(a){return String(a.id)===String(bk.apartment_id);});
+    return(apt?apt.apartment_name:"?")+" — "+(bk.guest_name||"Гость");
+  }).join("\n");
+  alert(dateStr+"\n\n"+msg);
+};
 
 /* ─── HOME SCREEN ─── */
 function renderHome(){
@@ -770,7 +890,7 @@ function bkTile(bk,today,soonStr){
     '<div style="text-align:right;flex-shrink:0">'+
       '<div style="font-size:14px;font-weight:700;color:'+(bk.paid_out?"rgba(255,255,255,.4)":"#fff")+'">'+cs(c.cur)+fN(c.gross)+'</div>'+
       '<div style="font-size:12px;font-weight:600;color:'+(bk.paid_out?"#34c759":col.accent)+'">'+
-        (bk.paid_out?"✓ выплачено":cs(c.cur)+fN(c.oFin)+" ?")+
+        ( bk.paid_out?"✓ выплачено":(c.oFin>0?cs(c.cur)+fN(c.oFin)+" → "+((bk.payment_status==="pending"||!bk.payment_status)?"не получено":"владельцу"):""))+
       '</div>'+
     '</div>'+
   '</div>';
@@ -1015,6 +1135,8 @@ function renderAptScreen(){
           (linked.length?'<div class="sec" style="margin-bottom:8px">Текущие расходы</div>':"")+
           linked.map(function(e){
             var name=(EXP_LABELS[e.category||e.cat]||e.category||e.cat)+(e.provider?" "+e.provider:"");
+            var cur=(e.currency==="USD"||e.currency==="GEL")?e.currency:"GEL";
+            if(!e.currency||e.currency==="")e.currency="GEL";
             return'<div style="background:#2c2c2e;border-radius:12px;padding:12px;margin-bottom:8px">'+
               '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'+
                 '<span style="font-size:13px;font-weight:600">'+name+'</span>'+
@@ -1022,11 +1144,11 @@ function renderAptScreen(){
               '</div>'+
               '<div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">'+
                 '<div style="flex:1"><div class="mu" style="font-size:10px;margin-bottom:4px">Сумма</div>'+
-                  '<input type="number" class="inp" value="'+(e.amount||0)+'" style="padding:9px 12px;font-size:15px" oninput="updExpField(\''+e.id+'\',\'amount\',this.value)" onchange="updExpField(\''+e.id+'\',\'amount\',this.value)"/></div>'+
+                  '<input type="number" class="inp" value="'+(e.amount||"")+'" placeholder="0.00" style="padding:9px 12px;font-size:15px" oninput="updExpField(\''+e.id+'\',\'amount\',this.value)" onchange="updExpField(\''+e.id+'\',\'amount\',this.value)"/></div>'+
                 '<div><div class="mu" style="font-size:10px;margin-bottom:4px">Валюта</div>'+
                   '<div style="display:flex;gap:4px">'+
-                    '<button class="cur-btn'+(e.currency==="USD"?" cusd":"")+'\" style="padding:9px 12px;font-size:13px" onclick="updExpField(\''+e.id+'\',\'currency\',\'USD\')">$</button>'+
-                    '<button class="cur-btn'+(e.currency==="GEL"?" cgel":"")+'\" style="padding:9px 12px;font-size:13px" onclick="updExpField(\''+e.id+'\',\'currency\',\'GEL\')">₾</button>'+
+                    '<button class="cur-btn'+(cur==="USD"?" cusd":"")+'\" style="padding:9px 12px;font-size:13px" onclick="updExpField(\''+e.id+'\',\'currency\',\'USD\')">$</button>'+
+                    '<button class="cur-btn'+(cur==="GEL"?" cgel":"")+'\" style="padding:9px 12px;font-size:13px" onclick="updExpField(\''+e.id+'\',\'currency\',\'GEL\')">₾</button>'+
                   '</div></div>'+
               '</div>'+
               '<div style="margin-bottom:8px"><div class="mu" style="font-size:10px;margin-bottom:4px">Кто оплатил</div>'+
@@ -1103,7 +1225,7 @@ function renderAptScreen(){
           '<div class="tr fs0">'+
             '<div style="font-size:15px;font-weight:700">'+C+fN(c.gross)+'</div>'+
             '<div style="font-size:13px;font-weight:600;color:'+col.accent+'">'+
-              (bk.paid_out?"✓ выплачено":C+fN(c.oFin)+" ?")+
+              (bk.paid_out?"✓ выплачено":(c.oFin>0?C+fN(c.oFin)+" владельцу":""))+
             '</div>'+
           '</div>'+
         '</div>'+
@@ -1164,17 +1286,21 @@ window.setPaidOut=function(id,val){
 };
 window.addExpInline=function(bkId,cat){
   var bk=DB.bookings.find(function(b){return b.id===bkId;});
-  var defCur=(bk&&bk.income_currency)||"GEL";
+  // GEL for utilities/cleaning/repair, income currency for others
+  var gelCats=["telmico","gwp","energy","internet","tbilisi_clean","cleaning","repair"];
+  var defCur=gelCats.indexOf(cat)>-1?"GEL":((bk&&bk.income_currency)||"GEL");
   var e={id:uid(),booking_id:bkId,apartment_id:bk?bk.apartment_id:"",category:cat,amount:"",currency:defCur,payer:"platform",comment:"",date:new Date().toISOString().slice(0,10)};
   DB.expenses.push(e);
   dbSave();
   V.editingExps=bkId;
-  // Save scroll position, rerender, restore
-  var pg=document.querySelector(".page");
-  var st=pg?pg.scrollTop:0;
+  var pg=document.querySelector(".modal .page")||document.querySelector(".page");
+  var prevSt=pg?pg.scrollTop:0;
   renderAptScreen();
-  var pg2=document.querySelector(".page");
-  if(pg2)pg2.scrollTop=st;
+  // Scroll to bottom to show new expense
+  setTimeout(function(){
+    var pg2=document.querySelector(".modal .page")||document.querySelector(".page");
+    if(pg2)pg2.scrollTop=pg2.scrollHeight;
+  },50);
 };
 window.updExpField=function(id,field,val){
   var e=DB.expenses.find(function(x){return x.id===id;});
@@ -1212,19 +1338,18 @@ window.saveExpEdits=function(bkId){
   // Send sequentially
   exps.forEach(function(e,i){setTimeout(function(){pushBg("upsert_expense",e);},i*300);});
 
-  // Update report text in DOM directly — no scroll jump
+  // Update DOM live — no scroll jump
   var bk=DB.bookings.find(function(b){return b.id===bkId;});
   var apt=getApt(V.aptId);
   if(bk&&apt){
     var c=calcBk(bk);
-    // Update _RPT cache
     if(window._RPT)window._RPT[bkId]={apt:apt,bk:bk,c:c};
-    // Update report text element
-    var rptEl=document.getElementById("rpt-"+bkId);
-    if(rptEl)rptEl.textContent=makeReport(apt,bk,c,V.rptLang);
     // Update calc box
     var cboxEl=document.getElementById("cbox-"+bkId);
-    if(cboxEl)cboxEl.innerHTML=calcBoxRows(c);
+    if(cboxEl)cboxEl.innerHTML=calcBox(c,apt.owner_name).replace(/^<div class="cbox">/,"").replace(/<\/div>$/,"");
+    // Update report
+    var rptEl=document.getElementById("rpt-"+bkId);
+    if(rptEl)rptEl.textContent=makeReport(apt,bk,c,V.rptLang);
   }
 
   // Show confirmation
