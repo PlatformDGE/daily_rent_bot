@@ -167,7 +167,7 @@ input[type=month]::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.4
 /* ═══════════════════════════════════════════════
    CONFIG
 ═══════════════════════════════════════════════ */
-var GAS = "https://script.google.com/macros/s/AKfycbwzjZcpwKtQNMZY6ZMRQ-lyNbJ_7g1ihXhdXGRHtUEKOalZZss0l-dNH4C_PlvezJfL/exec";
+var GAS = "https://script.google.com/macros/s/AKfycbyBgKY3gI8E2dBbV5FBYbS6bbI3l6PposU4S8mmbV9SEIb7DnLNrmi_JqbaIC8D0yiA/exec";
 var SYNC_MS = 45000;
 var HOUR_RATE = 16.70;
 var EXP_LABELS = {
@@ -409,9 +409,6 @@ function calcBk(bk){
     dFin:dFin,oFin:oFin,cur:cur,plat:plat,
     grossUSD:toUSD(gross,cur,rate),netUSD:toUSD(net,cur,rate),
     dFinUSD:toUSD(dFin,cur,rate),oFinUSD:toUSD(oFin,cur,rate)};
-}
-    cur:cur,plat:plat,
-    netUSD:toUSD(net,cur,rate),dFinUSD:toUSD(dFin,cur,rate),oFinUSD:toUSD(oFin,cur,rate)};
 }
 
 /* ═══════════════════════════════════════════════
@@ -1410,6 +1407,7 @@ window.updBkField=function(bkId,field,val){
   // Push to Sheets in background
   pushBg("upsert_booking",bk);
 };
+window.doDelBk=function(id){
   if(!confirm("Удалить проживание?"))return;
   DB.bookings=DB.bookings.filter(function(b){return b.id!==id;});
   DB.expenses=DB.expenses.filter(function(e){return e.booking_id!==id;});
