@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
-<title>ApartFlow · Tbilisi</title>
+<title>Daily Rent · Tbilisi</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
@@ -723,7 +723,7 @@ function renderMain(){
   if(lsGet("onboarded",false)===false){renderOnboarding();return;}
   var tabs={home:renderHome,apts:renderAptList,dash:renderDash,cal:renderCalendar};
   var content=(tabs[V.tab]||renderHome)();
-  var titles={home:"ApartFlow",apts:t("apts"),dash:t("analytics"),cal:"Календарь"};
+  var titles={home:'<img src="logo-white.svg" alt="Homes in Georgia — Daily Rent" style="height:26px;width:auto;display:block;margin:2px 0 4px">',apts:t("apts"),dash:t("analytics"),cal:"Календарь"};
   root.innerHTML=
     '<div style="display:flex;flex-direction:column;height:100dvh;overflow:hidden">'+
     '<div class="hdr"><div class="hdr-row">'+
