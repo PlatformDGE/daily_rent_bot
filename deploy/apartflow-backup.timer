@@ -1,0 +1,9 @@
+[Unit]
+Description=Daily ApartFlow backup (04:00 Tbilisi)
+
+[Timer]
+OnCalendar=*-*-* 00:00:00 UTC
+Persistent=true
+
+[Install]
+WantedBy=timers.target

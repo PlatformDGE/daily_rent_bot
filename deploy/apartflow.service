@@ -1,0 +1,22 @@
+[Unit]
+Description=ApartFlow API + Telegram bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=apartflow
+Group=apartflow
+WorkingDirectory=/opt/apartflow/app/server
+EnvironmentFile=/etc/apartflow.env
+ExecStart=/usr/bin/node src/index.js
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/apartflow/data /opt/apartflow/backups
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

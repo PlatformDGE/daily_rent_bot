@@ -1,0 +1,10 @@
+[Unit]
+Description=ApartFlow database backup
+
+[Service]
+Type=oneshot
+User=apartflow
+Group=apartflow
+WorkingDirectory=/opt/apartflow/app/server
+EnvironmentFile=/etc/apartflow.env
+ExecStart=/usr/bin/node scripts/backup.js
